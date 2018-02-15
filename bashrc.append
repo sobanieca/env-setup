@@ -1,0 +1,4 @@
+[[ ":$PATH:" != *":~/tools:"* ]] && PATH="~/tools:$PATH" && export PATH
+
+export PS1="\W>"
+
