@@ -17,6 +17,10 @@ if [ ! -d "$HOME/tools" ]; then
 fi
 echo "Tools directory created."
 
+echo "Replacing/creating vimrc file..."
+cp vimrc $HOME/.vimrc
+echo "Vimrc file replaced."
+
 # Install Tmux
 echo "Installing tmux..."
 apt-get install tmux -y
