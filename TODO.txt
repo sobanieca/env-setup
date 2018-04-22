@@ -1,3 +1,4 @@
+https://github.com/Heorhiy/VisualStudioDark.vim
 timezone setting - sudo dpkg-reconfigure tzdata
 tmux git plugin (https://github.com/drmad/tmux-git)
 set encoding=utf-8  to vimrc
@@ -11,5 +12,4 @@ sudo update-alternatives --config editor (setting default text editor)
 tmux resurrect
 git log alias
     alias glog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-vim colors
 install script - sudo apt-get install curl, download from github raw files
