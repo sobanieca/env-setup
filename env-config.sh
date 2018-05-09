@@ -62,7 +62,7 @@ echo "Setting Git credential store..."
 git config --global credential.helper store
 echo "Configured credential store."
 
-# Install VIM - vim-nox package supports python, which is needed for some plugins
+# Install VIM
 echo "Installing Vim..."
 apt-get install vim -y
 echo "Copy .vimrc to ~/.vimrc file"
@@ -144,6 +144,13 @@ else
     git pull
 fi
 echo "Editorconfig-vim installed."
+
+echo "Installing VisualStudioDark theme..."
+if [ ! -d "$HOME/.vim/colors" ]; then
+    mkdir ~/.vim/colors
+fi
+curl -o $HOME/.vim/colors/VisualStudioDark.vim https://raw.githubusercontent.com/Heorhiy/VisualStudioDark.vim/master/colors/VisualStudioDark.vim
+echo "VisualStudioDark theme for Vim installed."
 
 # Install Typescript
 echo "Installing Typescript..."

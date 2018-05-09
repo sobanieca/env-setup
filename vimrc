@@ -10,7 +10,7 @@ set nocompatible
 set background=dark
 
 " Set color scheme
-colors koehler
+colorscheme VisualStudioDark
 
 " Enable syntax highlighting
 syntax on
