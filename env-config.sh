@@ -1,6 +1,6 @@
 #!/bin/bash
 # Run this script as a normal user with sudo command in preserve environment mode:
-# sudo -E ./env-config.sh
+# sudo -u user -E ./env-config.sh
 set -e
 
 # Update system
@@ -145,12 +145,12 @@ else
 fi
 echo "Editorconfig-vim installed."
 
-echo "Installing VisualStudioDark theme..."
+echo "Installing color theme..."
 if [ ! -d "$HOME/.vim/colors" ]; then
     mkdir ~/.vim/colors
 fi
-curl -o $HOME/.vim/colors/VisualStudioDark.vim https://raw.githubusercontent.com/Heorhiy/VisualStudioDark.vim/master/colors/VisualStudioDark.vim
-echo "VisualStudioDark theme for Vim installed."
+cp aschema.vim ~/.vim/colors/aschema.vim
+echo "Color theme for Vim installed."
 
 # Install Typescript
 echo "Installing Typescript..."
