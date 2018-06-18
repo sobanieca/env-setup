@@ -1,4 +1,3 @@
-fix creating folders/files - when running as sudo -E owner is root, it should be current user that runs the script
 timezone setting - sudo dpkg-reconfigure tzdata
 tmux git plugin (https://github.com/drmad/tmux-git)
 git config: 
