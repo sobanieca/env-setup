@@ -77,71 +77,85 @@ echo "Vim pathogen installed."
 
 echo "Installing/updating vim-airline..."
 if [ ! -d "$HOME/.vim/bundle/vim-airline" ]; then
-    cd $HOME/.vim/bundle
-    git clone https://github.com/bling/vim-airline
+    cd $HOME/.vim/bundle &&
+    git clone https://github.com/bling/vim-airline &&
+    cd -
 else
-    cd $HOME/.vim/bundle/vim-airline
-    git pull
+    cd $HOME/.vim/bundle/vim-airline &&
+    git pull &&
+    cd -
 fi
 echo "Vim-airline installed."
 
 echo "Installing fugitive.vim..."
 if [ ! -d "$HOME/.vim/bundle/vim-fugitive" ]; then
-    cd $HOME/.vim/bundle
-    git clone https://github.com/tpope/vim-fugitive
+    cd $HOME/.vim/bundle &&
+    git clone https://github.com/tpope/vim-fugitive &&
+    cd -
 else
-    cd $HOME/.vim/bundle/vim-fugitive
-    git pull
+    cd $HOME/.vim/bundle/vim-fugitive &&
+    git pull &&
+    cd -
 fi
 echo "Fugitive.vim installed."
 
 echo "Installing The NERD tree..."
 if [ ! -d "$HOME/.vim/bundle/nerdtree" ]; then
-    cd $HOME/.vim/bundle
-    git clone https://github.com/scrooloose/nerdtree
+    cd $HOME/.vim/bundle &&
+    git clone https://github.com/scrooloose/nerdtree &&
+    cd -
 else
-    cd $HOME/.vim/bundle/nerdtree
-    git pull
+    cd $HOME/.vim/bundle/nerdtree &&
+    git pull &&
+    cd -
 fi
 echo "The NERD tree installed."
 
 echo "Installing Syntastic..."
 if [ ! -d "$HOME/.vim/bundle/syntastic" ]; then
-    cd $HOME/.vim/bundle
-    git clone https://github.com/scrooloose/syntastic
+    cd $HOME/.vim/bundle &&
+    git clone https://github.com/scrooloose/syntastic &&
+    cd -
 else
-    cd $HOME/.vim/bundle/syntastic
-    git pull
+    cd $HOME/.vim/bundle/syntastic &&
+    git pull &&
+    cd -
 fi
 echo "Syntastic installed."
 
 echo "Installing ctrlp.vim..."
 if [ ! -d "$HOME/.vim/bundle/ctrlp.vim" ]; then      
-    cd $HOME/.vim/bundle
-    git clone https://github.com/ctrlpvim/ctrlp.vim
+    cd $HOME/.vim/bundle &&
+    git clone https://github.com/ctrlpvim/ctrlp.vim &&
+    cd -
 else
-    cd $HOME/.vim/bundle/ctrlp.vim
-    git pull
+    cd $HOME/.vim/bundle/ctrlp.vim &&
+    git pull &&
+    cd -
 fi
 echo "Ctrlp.vim installed"
 
 echo "Installing dockerfiles syntax..."
 if [ ! -d "$HOME/.vim/bundle/dockerfile" ]; then
-    cd $HOME/.vim/bundle
-    git clone https://github.com/ekalinin/Dockerfile.vim.git dockerfile
+    cd $HOME/.vim/bundle &&
+    git clone https://github.com/ekalinin/Dockerfile.vim.git dockerfile &&
+    cd -
 else
-    cd $HOME/.vim/bundle/dockerfile
-    git pull
+    cd $HOME/.vim/bundle/dockerfile &&
+    git pull &&
+    cd -
 fi
 echo "Dockerfiles syntax installed."
 
 echo "Installing Editorconfig-vim..."
 if [ ! -d "$HOME/.vim/bundle/editorconfig-vim" ]; then
-    cd $HOME/.vim/bundle
-    git clone https://github.com/editorconfig/editorconfig-vim
+    cd $HOME/.vim/bundle &&
+    git clone https://github.com/editorconfig/editorconfig-vim &&
+    cd -
 else
-    cd $HOME/.vim/bundle/editorconfig-vim
-    git pull
+    cd $HOME/.vim/bundle/editorconfig-vim &&
+    git pull &&
+    cd -
 fi
 echo "Editorconfig-vim installed."
 
@@ -167,8 +181,9 @@ echo "Installing Typescript syntax for vim..."
 if [ ! -d "$HOME/.vim/bundle/typescript-vim" ]; then
     git clone https://github.com/leafgarland/typescript-vim.git $HOME/.vim/bundle/typescript-vim
 else
-    cd $HOME/.vim/bundle/typescript-vim
-    git pull
+    cd $HOME/.vim/bundle/typescript-vim &&
+    git pull &&
+    cd -
 fi
 echo "Typescript syntax for vim installed."
 
@@ -177,8 +192,9 @@ echo "Installing Typescript code completion for vim..."
 if [ ! -d "$HOME/.vim/bundle/tsuquyomi" ]; then
     git clone https://github.com/Quramy/tsuquyomi.git $HOME/.vim/bundle/tsuquyomi
 else
-    cd $HOME/.vim/bundle/tsuquyomi
-    git pull
+    cd $HOME/.vim/bundle/tsuquyomi &&
+    git pull &&
+    cd -
 fi
 echo "Typescript code completion installed."
 
