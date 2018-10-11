@@ -5,6 +5,9 @@ export PS1="\W>"
 LS_COLORS=$LS_COLORS:'di=1;37:'; 
 export LS_COLORS;
 
+LC_ALL="C.UTF-8";
+export LC_ALL;
+
 alias grep="grep --color=auto"
 
 alias glog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
