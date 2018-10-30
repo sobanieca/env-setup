@@ -1,3 +1,4 @@
+install script - sudo apt-get install curl, download from github raw files
 timezone setting - sudo dpkg-reconfigure tzdata
 tmux git plugin (https://github.com/drmad/tmux-git)
 git config: 
@@ -7,7 +8,6 @@ git config:
 set hostname
 sudo update-alternatives --config editor (setting default text editor)
 tmux resurrect
-install script - sudo apt-get install curl, download from github raw files
 let g:NERDTreeWinSize=60 in .vimrc
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git' in .vimrc
 tmux.conf (bind-key -r < swap-window -t -1; bind-key -r > swap-window -t +1)
