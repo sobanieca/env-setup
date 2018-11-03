@@ -1,3 +1,5 @@
+#!/bin/bash
+
 BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master/"
 
 wget $BASE_URL"aschema.vim"
