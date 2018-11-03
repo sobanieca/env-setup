@@ -38,5 +38,5 @@ chmod 600 ~/.ssh/authorized_keys`
 
 # Run
 
-sudo -E wget https://raw.githubusercontent.com/sobanieca/env-setup/master/install.sh && chmod +x install.sh && ./install.sh
+sudo -E wget -O - https://raw.githubusercontent.com/sobanieca/env-setup/master/install.sh | bash
 
