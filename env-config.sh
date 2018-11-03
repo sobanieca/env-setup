@@ -10,12 +10,18 @@ apt-get dist-upgrade
 echo "Finished update."
 
 # Create tools directory and add it to path
-echo "Creating tools directory and adding it to PATH variable..."
 if [ ! -d "$HOME/tools" ]; then
+    echo "Creating tools directory and adding it to PATH variable..."
     mkdir $HOME/tools
-    cat "bashrc.append" >> $HOME/.bashrc
+    echo "Tools directory created."
 fi
-echo "Tools directory created."
+
+if ! grep --quiet  bashrcx $HOME/.bashrc; then
+    echo "Creating bashrc extensions file..."
+    cp bashrcx $HOME/.bashrcx
+    echo ". .bashrcx" >> $HOME/.bashrc
+    echo "Bashrc extensions file copied."
+fi
 
 echo "Replacing/creating vimrc file..."
 cp vimrc $HOME/.vimrc
@@ -26,11 +32,9 @@ echo "Installing tmux..."
 apt-get install tmux -y
 echo "Tmux installed."
 
-echo "Creating tmux config file if not exists..."
-if [ ! -f "$HOME/.tmux.conf" ]; then
-    echo "set-option -g default-terminal \"screen-256color\"" >> $HOME/.tmux.conf
-fi
-echo "Tmux config file created"
+echo "Replacing/creating tmux.conf file..."
+cp tmux.conf $HOME/.tmux.conf
+echo "Tmux.conf file replaced."
 
 # Install Node.js and npm
 echo "Installing Node.js..."
