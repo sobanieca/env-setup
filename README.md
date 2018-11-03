@@ -35,3 +35,8 @@ chmod 600 ~/.ssh/authorized_keys`
 `ssh-keygen -t rsa`
 `ssh-copy-id user@host`
 `alias vps='ssh user@host -p {ssh_port}' in .bashrc`
+
+# Run
+
+sudo -E wget https://raw.githubusercontent.com/sobanieca/env-setup/master/install.sh && chmod +x install.sh && ./install.sh
+
