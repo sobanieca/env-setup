@@ -12,6 +12,6 @@ wget $BASE_URL"vimrc"
 
 wget -O - $BASE_URL/env-config.sh | bash
 
-cd ..
-rm -rf temp-env-setup
+#cd ..
+#rm -rf temp-env-setup
 

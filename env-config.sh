@@ -1,6 +1,4 @@
 #!/bin/bash
-# Run this script as a normal user with sudo command in preserve environment mode:
-# sudo -u user -E ./env-config.sh
 set -e
 
 # Update system
