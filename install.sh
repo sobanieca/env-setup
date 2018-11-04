@@ -10,5 +10,5 @@ wget $BASE_URL"vimrc"
 
 chmod +x env-config.sh
 
-. env-config.sh
+exec env-config.sh
 
