@@ -7,11 +7,10 @@ cd temp-env-setup
 
 wget $BASE_URL"aschema.vim"
 wget $BASE_URL"bashrcx"
-wget $BASE_URL"env-config.sh"
 wget $BASE_URL"tmux.conf"
 wget $BASE_URL"vimrc"
 
-sudo -E wget -O - $BASE_URL/env-config.sh | bash
+wget -O - $BASE_URL/env-config.sh | bash
 
 cd ..
 rm -rf temp-env-setup
