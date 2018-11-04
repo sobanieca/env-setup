@@ -13,7 +13,6 @@ nmap ,n :NERDTreeFind<CR>
 https://unix.stackexchange.com/questions/141097/how-to-enable-and-use-code-folding-in-vim
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git' in .vimrc
 tmux.conf (bind-key -r < swap-window -t -1; bind-key -r > swap-window -t +1)
-set-window-option -g mode-keys vi in tmux.conf
 npm-globals folder to install global packages to  ~/npm-globals directory
 "apt-get install build-essential"
 chown issues, step, so all files in ~ remain owner user not root
