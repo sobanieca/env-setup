@@ -1,10 +1,10 @@
-#!bin/bash
+#!/bin/bash
 set -e
 
 # Update system
 echo "Updating system..."
-apt-get update
-apt-get dist-upgrade
+sudo apt-get update
+sudo apt-get dist-upgrade
 echo "Finished update."
 
 # Create tools directory and add it to path
@@ -17,7 +17,7 @@ fi
 if ! grep --quiet  bashrcx $HOME/.bashrc; then
     echo "Creating bashrc extensions file..."
     cp bashrcx $HOME/.bashrcx
-    echo ". .bashrcx" >> $HOME/.bashrc
+    echo ". ~/.bashrcx" >> $HOME/.bashrc
     echo "Bashrc extensions file copied."
 fi
 
@@ -27,18 +27,19 @@ echo "Vimrc file replaced."
 
 # Install Tmux
 echo "Installing tmux..."
-apt-get install tmux -y
+sudo apt-get install tmux -y
 echo "Tmux installed."
 
 echo "Replacing/creating tmux.conf file..."
 cp tmux.conf $HOME/.tmux.conf
 echo "Tmux.conf file replaced."
 
-# Install Node.js and npm
-echo "Installing Node.js..."
-curl -sL https://deb.nodesource.com/setup_8.x | bash -
-apt-get install -y nodejs
-echo "Node.js installed."
+# Install Node Version Manager
+echo "Installing Node Version Manager with latest Node.js..."
+wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
+nvm install node
+nvm use node
+echo "Nvm with latest Node.js installed."
 
 # Update npm to latest version
 echo "Updating npm..."
@@ -47,17 +48,17 @@ echo "npm updated."
 
 # Install curl
 echo "Installing curl..."
-apt-get install curl -y
+sudo apt-get install curl -y
 echo "Curl installed."
 
 # Install dos2unix
 echo "Installing dos2unix..."
-apt-get install dos2unix -y
+sudo apt-get install dos2unix -y
 echo "Dos2unix installed."
 
 # Install GIT
 echo "Installing Git..."
-apt-get install git -y
+sudo apt-get install git -y
 echo "Git installed."
 
 echo "Setting Git credential store..."
@@ -66,7 +67,7 @@ echo "Configured credential store."
 
 # Install VIM
 echo "Installing Vim..."
-apt-get install vim -y
+sudo apt-get install vim -y
 echo "Copy .vimrc to $HOME/.vimrc file"
 echo "Vim installed."
 
@@ -202,12 +203,12 @@ echo "Typescript code completion installed."
 
 # Install Lynx
 echo "Installing Lynx..."
-apt-get install lynx -y
+sudo apt-get install lynx -y
 echo "Lynx installed."
 
 # Install atop
 echo "Installing atop..."
-apt-get install atop -y
+sudo apt-get install atop -y
 echo "atop installed"
 
 # Update global npm packages
