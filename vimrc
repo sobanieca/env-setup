@@ -82,4 +82,7 @@ map <C-p> :CtrlP<CR>
 " Set encoding
 set encoding=utf-8
 
+" matchit vim for matching html tags
+runtime macros/matchit.vim
+
 " End .vimrc
