@@ -85,4 +85,10 @@ set encoding=utf-8
 " matchit vim for matching html tags
 runtime macros/matchit.vim
 
+" ctrlp custom ignore
+let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
+
+" tsuquyomi global typescript usage (issues with local one)
+let g:tsuquyomi_use_local_typescript = 0
+
 " End .vimrc
