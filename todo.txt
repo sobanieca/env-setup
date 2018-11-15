@@ -10,7 +10,5 @@ tmux resurrect
 let g:NERDTreeWinSize=60 in .vimrc
 nmap ,n :NERDTreeFind<CR>
 https://unix.stackexchange.com/questions/141097/how-to-enable-and-use-code-folding-in-vim
-let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git' in .vimrc
-let g:tsuquyomi_use_local_typescript = 0
 tmux.conf (bind-key -r < swap-window -t -1; bind-key -r > swap-window -t +1)
 "apt-get install build-essential"
