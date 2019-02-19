@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-is_termux = false
+is_termux=false
 if [[ $PREFIX == *"termux"* ]]; then
     is_termux = true
 fi
