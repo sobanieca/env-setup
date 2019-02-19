@@ -8,7 +8,7 @@ fi
 
 # Update system
 echo "Updating system..."
-if [ "$is_termux" = true ] then
+if [ "$is_termux" = true ]; then
     apt-get update
     apt-get dist-upgrade
 else
@@ -37,7 +37,7 @@ echo "Vimrc file replaced."
 
 # Install Tmux
 echo "Installing tmux..."
-if [ "$is_termux" = true ] then
+if [ "$is_termux" = true ]; then
     apt-get install tmux -y
 else
     sudo apt-get install tmux -y
@@ -65,7 +65,7 @@ echo "npm updated."
 
 # Install curl
 echo "Installing curl..."
-if [ "$is_termux" = true ] then
+if [ "$is_termux" = true ]; then
     apt-get install curl -y
 else
     sudo apt-get install curl -y
@@ -74,7 +74,7 @@ echo "Curl installed."
 
 # Install dos2unix
 echo "Installing dos2unix..."
-if [ "$is_termux" = true ] then
+if [ "$is_termux" = true ]; then
     apt-get install dos2unix -y
 else
     sudo apt-get install dos2unix -y
@@ -83,7 +83,7 @@ echo "Dos2unix installed."
 
 # Install GIT
 echo "Installing Git..."
-if [ "$is_termux" = true ] then
+if [ "$is_termux" = true ]; then
     apt-get install git -y
 else
     sudo apt-get install git -y
@@ -96,7 +96,7 @@ echo "Configured credential store."
 
 # Install VIM
 echo "Installing Vim..."
-if [ "$is_termux" = true ] then
+if [ "$is_termux" = true ]; then
     apt-get install vim -y
 else
     sudo apt-get install vim -y
@@ -236,7 +236,7 @@ echo "Typescript code completion installed."
 
 # Install atop
 echo "Installing atop..."
-if [ "$is_termux" = true ] then
+if [ "$is_termux" = true ]; then
     apt-get install atop -y
 else
     sudo apt-get install atop -y
