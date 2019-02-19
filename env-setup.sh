@@ -239,13 +239,12 @@ fi
 echo "Typescript code completion installed."
 
 # Install atop
-echo "Installing atop..."
-if [ "$is_termux" = true ]; then
-    apt-get install atop -y
-else
+if [ "$is_termux" = false ]; then
+    echo "Installing atop..."
     sudo apt-get install atop -y
+    echo "atop installed"
 fi
-echo "atop installed"
+
 
 # Update global npm packages
 echo "Updating global npm packages..."
