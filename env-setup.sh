@@ -51,7 +51,7 @@ echo "Tmux.conf file replaced."
 # Install Node Version Manager
 echo "Installing Node.js..."
 if [ "$is_termux" = true ]; then
-    pkg install nodejs
+    pkg install nodejs -y
 else
     wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
     export NVM_DIR="$HOME/.nvm"
@@ -60,7 +60,7 @@ else
     nvm install node
     nvm use node
 fi
-echo "Nvm with latest Node.js installed."
+echo "Node.js installed."
 
 # Update npm to latest version
 echo "Updating npm..."
