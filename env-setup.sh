@@ -1,10 +1,20 @@
 #!/bin/bash
 set -e
 
+is_termux = false
+if [[ $PREFIX == *"termux"* ]]; then
+    is_termux = true
+fi
+
 # Update system
 echo "Updating system..."
-sudo apt-get update
-sudo apt-get dist-upgrade
+if [ "$is_termux" = true ] then
+    apt-get update
+    apt-get dist-upgrade
+else
+    sudo apt-get update
+    sudo apt-get dist-upgrade
+fi
 echo "Finished update."
 
 # Create tools directory and add it to path
@@ -27,7 +37,11 @@ echo "Vimrc file replaced."
 
 # Install Tmux
 echo "Installing tmux..."
-sudo apt-get install tmux -y
+if [ "$is_termux" = true ] then
+    apt-get install tmux -y
+else
+    sudo apt-get install tmux -y
+fi
 echo "Tmux installed."
 
 echo "Replacing/creating tmux.conf file..."
@@ -51,17 +65,29 @@ echo "npm updated."
 
 # Install curl
 echo "Installing curl..."
-sudo apt-get install curl -y
+if [ "$is_termux" = true ] then
+    apt-get install curl -y
+else
+    sudo apt-get install curl -y
+fi
 echo "Curl installed."
 
 # Install dos2unix
 echo "Installing dos2unix..."
-sudo apt-get install dos2unix -y
+if [ "$is_termux" = true ] then
+    apt-get install dos2unix -y
+else
+    sudo apt-get install dos2unix -y
+fi
 echo "Dos2unix installed."
 
 # Install GIT
 echo "Installing Git..."
-sudo apt-get install git -y
+if [ "$is_termux" = true ] then
+    apt-get install git -y
+else
+    sudo apt-get install git -y
+fi
 echo "Git installed."
 
 echo "Setting Git credential store..."
@@ -70,7 +96,11 @@ echo "Configured credential store."
 
 # Install VIM
 echo "Installing Vim..."
-sudo apt-get install vim -y
+if [ "$is_termux" = true ] then
+    apt-get install vim -y
+else
+    sudo apt-get install vim -y
+fi
 echo "Copy .vimrc to $HOME/.vimrc file"
 echo "Vim installed."
 
@@ -204,14 +234,13 @@ else
 fi
 echo "Typescript code completion installed."
 
-# Install Lynx
-echo "Installing Lynx..."
-sudo apt-get install lynx -y
-echo "Lynx installed."
-
 # Install atop
 echo "Installing atop..."
-sudo apt-get install atop -y
+if [ "$is_termux" = true ] then
+    apt-get install atop -y
+else
+    sudo apt-get install atop -y
+fi
 echo "atop installed"
 
 # Update global npm packages
