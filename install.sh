@@ -10,7 +10,7 @@ wget $BASE_URL"bashrcx"
 wget $BASE_URL"tmux.conf"
 wget $BASE_URL"vimrc"
 
-wget -O - $BASE_URL/env-setup.sh | bash
+bash <(wget -O- $BASE_URL/env-setup.sh)
 
 cd ..
 rm -rf temp-env-setup
