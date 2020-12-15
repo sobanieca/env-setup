@@ -109,8 +109,9 @@ echo "Finished updating global npm packages"
 # Install Micro editor
 echo "Installing Micro editor with plugins..."
 curl https://getmic.ro | bash
-micro -plugin install editorconfig
-micro -plugin install filemanager
-micro -plugin install quoter
-micro -plugin install manipulator
+./micro -plugin install editorconfig
+./micro -plugin install filemanager
+./micro -plugin install quoter
+./micro -plugin install manipulator
+mv micro ~/tools/micro
 echo "Micro editor installed."
