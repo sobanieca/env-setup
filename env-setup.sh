@@ -31,10 +31,6 @@ if ! grep --quiet  bashrcx $HOME/.bashrc; then
     echo "Bashrc extensions file copied."
 fi
 
-echo "Replacing/creating vimrc file..."
-cp vimrc $HOME/.vimrc
-echo "Vimrc file replaced."
-
 # Install Tmux
 echo "Installing tmux..."
 if [ "$is_termux" = true ]; then
@@ -53,7 +49,7 @@ echo "Installing Node.js..."
 if [ "$is_termux" = true ]; then
     pkg install nodejs -y
 else
-    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
+    wget -qO- wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
@@ -98,146 +94,6 @@ echo "Setting Git credential store..."
 git config --global credential.helper store
 echo "Configured credential store."
 
-# Install VIM
-echo "Installing Vim..."
-if [ "$is_termux" = true ]; then
-    apt-get install vim -y
-else
-    sudo apt-get install vim -y
-fi
-echo "Copy .vimrc to $HOME/.vimrc file"
-echo "Vim installed."
-
-echo "Installing Vim pathogen..."
-if [ ! -d "$HOME/.vim/autoload" ] && [ ! -d "$HOME/.vim/bundle" ]; then
-    mkdir -p $HOME/.vim/autoload $HOME/.vim/bundle && \
-        curl -LSso $HOME/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
-fi
-echo "Vim pathogen installed."
-
-echo "Installing/updating vim-airline..."
-if [ ! -d "$HOME/.vim/bundle/vim-airline" ]; then
-    cd $HOME/.vim/bundle &&
-    git clone https://github.com/bling/vim-airline &&
-    cd -
-else
-    cd $HOME/.vim/bundle/vim-airline &&
-    git pull &&
-    cd -
-fi
-echo "Vim-airline installed."
-
-echo "Installing fugitive.vim..."
-if [ ! -d "$HOME/.vim/bundle/vim-fugitive" ]; then
-    cd $HOME/.vim/bundle &&
-    git clone https://github.com/tpope/vim-fugitive &&
-    cd -
-else
-    cd $HOME/.vim/bundle/vim-fugitive &&
-    git pull &&
-    cd -
-fi
-echo "Fugitive.vim installed."
-
-echo "Installing The NERD tree..."
-if [ ! -d "$HOME/.vim/bundle/nerdtree" ]; then
-    cd $HOME/.vim/bundle &&
-    git clone https://github.com/scrooloose/nerdtree &&
-    cd -
-else
-    cd $HOME/.vim/bundle/nerdtree &&
-    git pull &&
-    cd -
-fi
-echo "The NERD tree installed."
-
-echo "Installing Syntastic..."
-if [ ! -d "$HOME/.vim/bundle/syntastic" ]; then
-    cd $HOME/.vim/bundle &&
-    git clone https://github.com/scrooloose/syntastic &&
-    cd -
-else
-    cd $HOME/.vim/bundle/syntastic &&
-    git pull &&
-    cd -
-fi
-echo "Syntastic installed."
-
-echo "Installing ctrlp.vim..."
-if [ ! -d "$HOME/.vim/bundle/ctrlp.vim" ]; then      
-    cd $HOME/.vim/bundle &&
-    git clone https://github.com/ctrlpvim/ctrlp.vim &&
-    cd -
-else
-    cd $HOME/.vim/bundle/ctrlp.vim &&
-    git pull &&
-    cd -
-fi
-echo "Ctrlp.vim installed"
-
-echo "Installing dockerfiles syntax..."
-if [ ! -d "$HOME/.vim/bundle/dockerfile" ]; then
-    cd $HOME/.vim/bundle &&
-    git clone https://github.com/ekalinin/Dockerfile.vim.git dockerfile &&
-    cd -
-else
-    cd $HOME/.vim/bundle/dockerfile &&
-    git pull &&
-    cd -
-fi
-echo "Dockerfiles syntax installed."
-
-echo "Installing Editorconfig-vim..."
-if [ ! -d "$HOME/.vim/bundle/editorconfig-vim" ]; then
-    cd $HOME/.vim/bundle &&
-    git clone https://github.com/editorconfig/editorconfig-vim &&
-    cd -
-else
-    cd $HOME/.vim/bundle/editorconfig-vim &&
-    git pull &&
-    cd -
-fi
-echo "Editorconfig-vim installed."
-
-echo "Installing color theme..."
-if [ ! -d "$HOME/.vim/colors" ]; then
-    mkdir $HOME/.vim/colors
-fi
-cp aschema.vim $HOME/.vim/colors/aschema.vim
-echo "Color theme for Vim installed."
-
-# Install Typescript
-echo "Installing Typescript..."
-npm install typescript -g
-echo "Typescript installed."
-
-# Install TSLint
-echo "Installing TSLint..."
-npm install -g tslint
-echo "TSLint installed"
-
-# Install Typescript syntax for vim
-echo "Installing Typescript syntax for vim..."
-if [ ! -d "$HOME/.vim/bundle/typescript-vim" ]; then
-    git clone https://github.com/leafgarland/typescript-vim.git $HOME/.vim/bundle/typescript-vim
-else
-    cd $HOME/.vim/bundle/typescript-vim &&
-    git pull &&
-    cd -
-fi
-echo "Typescript syntax for vim installed."
-
-# Install Typescript code completion for vim
-echo "Installing Typescript code completion for vim..."
-if [ ! -d "$HOME/.vim/bundle/tsuquyomi" ]; then
-    git clone https://github.com/Quramy/tsuquyomi.git $HOME/.vim/bundle/tsuquyomi
-else
-    cd $HOME/.vim/bundle/tsuquyomi &&
-    git pull &&
-    cd -
-fi
-echo "Typescript code completion installed."
-
 # Install atop
 if [ "$is_termux" = false ]; then
     echo "Installing atop..."
@@ -245,8 +101,16 @@ if [ "$is_termux" = false ]; then
     echo "atop installed"
 fi
 
-
 # Update global npm packages
 echo "Updating global npm packages..."
 npm update -g
 echo "Finished updating global npm packages"
+
+# Install Micro editor
+echo "Installing Micro editor with plugins..."
+curl https://getmic.ro | bash
+micro -plugin install editorconfig
+micro -plugin install filemanager
+micro -plugin install quoter
+micro -plugin install manipulator
+echo "Micro editor installed."
