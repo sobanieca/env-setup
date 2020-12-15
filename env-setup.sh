@@ -113,5 +113,5 @@ curl https://getmic.ro | bash
 ./micro -plugin install filemanager
 ./micro -plugin install quoter
 ./micro -plugin install manipulator
-mv micro ~/tools/micro
+mv micro $HOME/tools/micro
 echo "Micro editor installed."
