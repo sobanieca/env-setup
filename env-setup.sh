@@ -83,11 +83,7 @@ echo "Dos2unix installed."
 
 # Install GIT
 echo "Installing Git..."
-if [ "$is_termux" = true ]; then
-    apt-get install git -y
-else
-    sudo apt-get install git -y
-fi
+sudo apt-get install git -y
 echo "Git installed."
 
 echo "Setting Git credential store..."
@@ -95,16 +91,10 @@ git config --global credential.helper store
 echo "Configured credential store."
 
 # Install atop
-if [ "$is_termux" = false ]; then
-    echo "Installing atop..."
-    sudo apt-get install atop -y
-    echo "atop installed"
-fi
+echo "Installing atop..."
+sudo apt-get install atop -y
+echo "atop installed"
 
-# Update global npm packages
-echo "Updating global npm packages..."
-npm update -g
-echo "Finished updating global npm packages"
 
 # Install Micro editor
 echo "Installing Micro editor with plugins..."
