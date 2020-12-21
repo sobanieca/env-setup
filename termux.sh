@@ -1,6 +1,4 @@
-# Commands to run in termux
-
-```
+#Scripts for termux configuration
 pkg upgrade -y
 pkg install wget -y
 pkg install git -y
@@ -13,10 +11,4 @@ git config --global credential.helper store
 mkdir ~/.termux
 wget https://raw.githubusercontent.com/sobanieca/env-setup/master/termux.properties -O ~/.termux/termux.properties
 termux-reload-settings
-```
-
-# Install debian
-
-```
 proot-distro install debian
-```
