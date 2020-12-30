@@ -38,7 +38,7 @@ chmod 600 ~/.ssh/authorized_keys`
 
 # Run
 
-`wget -O - https://raw.githubusercontent.com/sobanieca/env-setup/master/install.sh | bash`
+`wget -O - https://raw.githubusercontent.com/sobanieca/env-setup/master/env-setup.sh | bash`
 
 # Termux setup
 

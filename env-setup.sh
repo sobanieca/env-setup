@@ -1,20 +1,12 @@
 #!/bin/bash
 set -e
 
-is_termux=false
-if [[ $PREFIX == *"termux"* ]]; then
-    is_termux=true
-fi
+BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master/"
 
 # Update system
 echo "Updating system..."
-if [ "$is_termux" = true ]; then
-    apt-get update
-    apt-get dist-upgrade
-else
-    sudo apt-get update
-    sudo apt-get dist-upgrade
-fi
+sudo apt-get update
+sudo apt-get dist-upgrade
 echo "Finished update."
 
 # Create tools directory and add it to path
@@ -26,7 +18,7 @@ fi
 
 if ! grep --quiet  bashrcx $HOME/.bashrc; then
     echo "Creating bashrc extensions file..."
-    cp bashrcx $HOME/.bashrcx
+    wget $BASE_URL"bashrcx" -O $HOME/.bashrcx
     echo ". ~/.bashrcx" >> $HOME/.bashrc
     echo "Bashrc extensions file copied."
 fi
@@ -41,7 +33,7 @@ fi
 echo "Tmux installed."
 
 echo "Replacing/creating tmux.conf file..."
-cp tmux.conf $HOME/.tmux.conf
+wget $BASE_URL"tmux.conf" -O $HOME/.tmux.conf
 echo "Tmux.conf file replaced."
 
 # Install Node Version Manager
@@ -84,17 +76,15 @@ echo "Dos2unix installed."
 # Install GIT
 echo "Installing Git..."
 sudo apt-get install git -y
-echo "Git installed."
-
-echo "Setting Git credential store..."
+git config --global user.email "sobanieca@gmail.com"
+git config --global user.name "Adam Sobaniec"
 git config --global credential.helper store
-echo "Configured credential store."
+echo "Git installed."
 
 # Install atop
 echo "Installing atop..."
 sudo apt-get install atop -y
 echo "atop installed"
-
 
 # Install Micro editor
 echo "Installing Micro editor with plugins..."
@@ -104,4 +94,6 @@ curl https://getmic.ro | bash
 ./micro -plugin install quoter
 ./micro -plugin install manipulator
 mv micro $HOME/tools/micro
+wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/bindings.json -O $HOME/.config/micro/bindings.json
+wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/settings.json -O $HOME/.config/micro/settings.json
 echo "Micro editor installed."

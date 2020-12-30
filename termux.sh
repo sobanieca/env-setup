@@ -1,4 +1,5 @@
-#Scripts for termux configuration
+#!/bin/bash
+# Scripts for termux configuration
 pkg upgrade -y
 pkg install wget -y
 pkg install git -y
@@ -7,8 +8,8 @@ wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/bindings
 wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/settings.json -O ~/.config/micro/settings.json
 pkg install proot-distro -y
 pkg install termux-api -y
-git config --global user.email "you@example.com"
-git config --global user.name "Your Name"
+git config --global user.email "sobanieca@gmail.com"
+git config --global user.name "Adam Sobaniec"
 git config --global credential.helper store
 mkdir ~/.termux
 wget https://raw.githubusercontent.com/sobanieca/env-setup/master/termux.properties -O ~/.termux/termux.properties
