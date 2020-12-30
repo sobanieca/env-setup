@@ -14,4 +14,4 @@ git config --global credential.helper store
 mkdir ~/.termux
 wget https://raw.githubusercontent.com/sobanieca/env-setup/master/termux.properties -O ~/.termux/termux.properties
 termux-reload-settings
-proot-distro install debian
+proot-distro install debian-buster
