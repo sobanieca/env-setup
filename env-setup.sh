@@ -3,6 +3,8 @@ set -e
 
 BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master/"
 
+apt-get install sudo -y
+
 # Update system
 echo "Updating system..."
 sudo apt-get update
@@ -41,7 +43,7 @@ echo "Installing Node.js..."
 if [ "$is_termux" = true ]; then
     pkg install nodejs -y
 else
-    wget -qO- wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+    wget -qO - https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
