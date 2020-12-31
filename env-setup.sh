@@ -18,11 +18,14 @@ if [ ! -d "$HOME/tools" ]; then
     echo "Tools directory created."
 fi
 
+echo "Copying .bashrcx file..."
+wget $BASE_URL"bashrcx" -O $HOME/.bashrcx
+echo ".bashrcx file copied."
+
 if ! grep --quiet  bashrcx $HOME/.bashrc; then
-    echo "Creating bashrc extensions file..."
-    wget $BASE_URL"bashrcx" -O $HOME/.bashrcx
+    echo "Registering .bashrcx file..."
     echo ". ~/.bashrcx" >> $HOME/.bashrc
-    echo "Bashrc extensions file copied."
+    echo "Bashrcx file registered."
 fi
 
 # Install Tmux
@@ -69,7 +72,7 @@ sudo apt-get install atop -y
 echo "atop installed"
 
 # Install Micro editor
-echo "Installing Micro editor with plugins..."
+echo "Installing/updating micro editor with plugins..."
 curl https://getmic.ro | bash
 ./micro -plugin install editorconfig
 ./micro -plugin install filemanager
@@ -78,4 +81,4 @@ curl https://getmic.ro | bash
 mv micro $HOME/tools/micro
 wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/bindings.json -O $HOME/.config/micro/bindings.json
 wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/settings.json -O $HOME/.config/micro/settings.json
-echo "Micro editor installed."
+echo "Micro editor installed/updated"
