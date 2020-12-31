@@ -38,8 +38,8 @@ chmod 600 ~/.ssh/authorized_keys`
 
 # Run
 
-`wget -O - https://raw.githubusercontent.com/sobanieca/env-setup/master/env-setup.sh | bash`
+`bash -c "$(wget -O - https://raw.githubusercontent.com/sobanieca/env-setup/master/env-setup.sh)"`
 
 # Termux setup
 
-`wget -O - https://raw.githubusercontent.com/sobanieca/env-setup/master/termux.sh | bash`
+`bash -c "$(wget -O - https://raw.githubusercontent.com/sobanieca/env-setup/master/termux.sh)"`
