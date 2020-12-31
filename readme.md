@@ -38,6 +38,7 @@ chmod 600 ~/.ssh/authorized_keys`
 
 # Run
 
+First run `apt-get update` then
 `bash -c "$(wget -O - https://raw.githubusercontent.com/sobanieca/env-setup/master/env-setup.sh)"`
 
 # Termux setup
