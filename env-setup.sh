@@ -27,11 +27,7 @@ fi
 
 # Install Tmux
 echo "Installing tmux..."
-if [ "$is_termux" = true ]; then
-    apt-get install tmux -y
-else
-    sudo apt-get install tmux -y
-fi
+sudo apt-get install tmux -y
 echo "Tmux installed."
 
 echo "Replacing/creating tmux.conf file..."
@@ -40,16 +36,8 @@ echo "Tmux.conf file replaced."
 
 # Install Node Version Manager
 echo "Installing Node.js..."
-if [ "$is_termux" = true ]; then
-    pkg install nodejs -y
-else
-    wget -qO - https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-    nvm install node
-    nvm use node
-fi
+curl -sL https://deb.nodesource.com/setup_15.x | bash -
+apt-get install -y nodejs
 echo "Node.js installed."
 
 # Update npm to latest version
@@ -59,20 +47,12 @@ echo "npm updated."
 
 # Install curl
 echo "Installing curl..."
-if [ "$is_termux" = true ]; then
-    apt-get install curl -y
-else
-    sudo apt-get install curl -y
-fi
+sudo apt-get install curl -y
 echo "Curl installed."
 
 # Install dos2unix
 echo "Installing dos2unix..."
-if [ "$is_termux" = true ]; then
-    apt-get install dos2unix -y
-else
-    sudo apt-get install dos2unix -y
-fi
+sudo apt-get install dos2unix -y
 echo "Dos2unix installed."
 
 # Install GIT
