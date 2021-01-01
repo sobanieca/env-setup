@@ -74,6 +74,6 @@ mv micro $HOME/tools/micro
 echo "Micro editor installed/updated"
 
 
-wget $BASE_URL"update-configs.sh" -O $HOME/tools
+wget $BASE_URL"update-configs.sh" -O $HOME/tools/update-configs.sh
 chmod +x $HOME/tools/update-configs.sh
 bash $HOME/tools/update-configs.sh
