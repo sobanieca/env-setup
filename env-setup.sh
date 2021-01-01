@@ -65,7 +65,7 @@ echo "atop installed"
 
 # Install Micro editor
 echo "Installing/updating micro editor with plugins..."
-if [ ! -d "$HOME/tools/micro" ]; then
+if [ ! -f "$HOME/tools/micro" ]; then
 	curl https://getmic.ro | bash
 	./micro -plugin install editorconfig
 	./micro -plugin install filemanager
