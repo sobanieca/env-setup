@@ -65,14 +65,20 @@ echo "atop installed"
 
 # Install Micro editor
 echo "Installing/updating micro editor with plugins..."
-curl https://getmic.ro | bash
-./micro -plugin install editorconfig
-./micro -plugin install filemanager
-./micro -plugin install quoter
-./micro -plugin install manipulator
-mv micro $HOME/tools/micro
+if [ ! -d "$HOME/tools/micro" ]; then
+	curl https://getmic.ro | bash
+	./micro -plugin install editorconfig
+	./micro -plugin install filemanager
+	./micro -plugin install quoter
+	./micro -plugin install manipulator
+	mv micro $HOME/tools/micro
+else
+	micro -plugin update editorconfig
+	micro -plugin update filemanager
+	micro -plugin update quoter
+	micro -plugin update manipulator
+fi
 echo "Micro editor installed/updated"
-
 
 wget $BASE_URL"update-configs.sh" -O $HOME/tools/update-configs.sh
 chmod +x $HOME/tools/update-configs.sh
