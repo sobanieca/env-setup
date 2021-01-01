@@ -18,10 +18,6 @@ if [ ! -d "$HOME/tools" ]; then
     echo "Tools directory created."
 fi
 
-echo "Copying .bashrcx file..."
-wget $BASE_URL"bashrcx" -O $HOME/.bashrcx
-echo ".bashrcx file copied."
-
 if ! grep --quiet  bashrcx $HOME/.bashrc; then
     echo "Registering .bashrcx file..."
     echo ". ~/.bashrcx" >> $HOME/.bashrc
@@ -32,10 +28,6 @@ fi
 echo "Installing tmux..."
 sudo apt-get install tmux -y
 echo "Tmux installed."
-
-echo "Replacing/creating tmux.conf file..."
-wget $BASE_URL"tmux.conf" -O $HOME/.tmux.conf
-echo "Tmux.conf file replaced."
 
 # Install Node Version Manager
 echo "Installing Node.js..."
@@ -79,6 +71,9 @@ curl https://getmic.ro | bash
 ./micro -plugin install quoter
 ./micro -plugin install manipulator
 mv micro $HOME/tools/micro
-wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/bindings.json -O $HOME/.config/micro/bindings.json
-wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/settings.json -O $HOME/.config/micro/settings.json
 echo "Micro editor installed/updated"
+
+
+wget $BASE_URL"update-configs.sh" -O $HOME/tools
+chmod +x $HOME/tools/update-configs.sh
+bash $HOME/tools/update-configs.sh
