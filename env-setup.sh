@@ -82,5 +82,5 @@ chmod +x $HOME/tools/update-configs.sh
 # Install Tmux
 echo "Installing tmux..."
 sudo apt-get install tmux -y
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
 echo "Tmux installed."
