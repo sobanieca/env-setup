@@ -24,11 +24,6 @@ if ! grep --quiet  bashrcx $HOME/.bashrc; then
     echo "Bashrcx file registered."
 fi
 
-# Install Tmux
-echo "Installing tmux..."
-sudo apt-get install tmux -y
-echo "Tmux installed."
-
 # Install Node Version Manager
 echo "Installing Node.js..."
 curl -sL https://deb.nodesource.com/setup_15.x | bash -
@@ -83,3 +78,9 @@ echo "Micro editor installed/updated"
 wget $BASE_URL"update-configs.sh" -O $HOME/tools/update-configs.sh
 chmod +x $HOME/tools/update-configs.sh
 . $HOME/tools/update-configs.sh
+
+# Install Tmux
+echo "Installing tmux..."
+sudo apt-get install tmux -y
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+echo "Tmux installed."
