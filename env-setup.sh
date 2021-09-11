@@ -24,17 +24,6 @@ if ! grep --quiet  bashrcx $HOME/.bashrc; then
     echo "Bashrcx file registered."
 fi
 
-# Install Node Version Manager
-echo "Installing Node.js..."
-curl -sL https://deb.nodesource.com/setup_15.x | bash -
-apt-get install -y nodejs
-echo "Node.js installed."
-
-# Update npm to latest version
-echo "Updating npm..."
-npm install npm@latest -g
-echo "npm updated."
-
 # Install curl
 echo "Installing curl..."
 sudo apt-get install curl -y
