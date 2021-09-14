@@ -3,8 +3,6 @@ set -e
 
 BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master/"
 
-apt-get install sudo -y
-
 # Update system
 echo "Updating system..."
 sudo apt-get update
