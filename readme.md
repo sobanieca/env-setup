@@ -36,6 +36,10 @@ chmod 600 ~/.ssh/authorized_keys`
 `ssh-copy-id user@host`
 `alias vps='ssh user@host -p {ssh_port}' in .bashrc`
 
+### Limit parallel ssh sessions to 1
+`sudo nano /etc/security/limits.conf`
+`* hard maxsyslogins 1`
+
 # Run
 
 First run `apt-get update` then
