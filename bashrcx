@@ -8,6 +8,8 @@ export LS_COLORS;
 LC_ALL="C.UTF-8";
 export LC_ALL;
 
+export EDITOR=micro
+
 alias grep="grep --color=auto"
 
 alias glog="git log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
