@@ -1,4 +1,5 @@
 # env-setup
+
 Scripts for setting up development environment on Debian machine, so it's possible to code from any machine with SSH client
 
 # prerequisites
@@ -12,6 +13,18 @@ One needs to configure user account and ssh to proceed:
 
 ### Configure user permissions
 `run visudo and add following entry below root permissions: $USER ALL=(ALL) NOPASSWD:ALL`
+
+### Limit parallel ssh sessions to 1
+`sudo nano /etc/security/limits.conf`
+`* hard maxsyslogins 1`
+
+### Setup ssh client timeout
+
+`sudo nano /etc/ssh/sshd_config`
+
+search for `ClientAliveInterval ...`, if found set to 0
+
+restart server or `sudo systemctl reload sshd.service`
 
 >to change visudo editor type 'sudo update-alternatives --config editor'
 
@@ -36,9 +49,9 @@ chmod 600 ~/.ssh/authorized_keys`
 `ssh-copy-id user@host`
 `alias vps='ssh user@host -p {ssh_port}' in .bashrc`
 
-### Limit parallel ssh sessions to 1
-`sudo nano /etc/security/limits.conf`
-`* hard maxsyslogins 1`
+# Connect
+
+`ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -l {login-name} -p {port} -i {path-to-ssh-key} {vps-url}`
 
 # Run
 
