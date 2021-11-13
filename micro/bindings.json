@@ -15,7 +15,7 @@
 	"Ctrl-s": "Save",
 	"Ctrl-f": "Find",
 	"Ctrl-n": "FindNext",
-	"Ctrl-p": "FindPrevious",
+	"Ctrl-p": "command:fzf",
 	"Ctrl-z": "Undo",
 	"Ctrl-y": "Redo",
 	"Ctrl-c": "CopyLine|Copy",

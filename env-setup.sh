@@ -45,6 +45,11 @@ echo "Installing atop..."
 sudo apt-get install atop -y
 echo "atop installed"
 
+# Install fzf
+echo "Installing fzf..."
+sudo apt-get install fzf -y
+echo "fzf installed"
+
 # Install Micro editor
 echo "Installing/updating micro editor with plugins..."
 if [ ! -f "$HOME/tools/micro" ]; then
@@ -53,12 +58,14 @@ if [ ! -f "$HOME/tools/micro" ]; then
 	./micro -plugin install filemanager
 	./micro -plugin install quoter
 	./micro -plugin install manipulator
+	./micro -plugin install fzf
 	mv micro $HOME/tools/micro
 else
 	micro -plugin update editorconfig
 	micro -plugin update filemanager
 	micro -plugin update quoter
 	micro -plugin update manipulator
+	micro -plugin update fzf
 fi
 echo "Micro editor installed/updated"
 
