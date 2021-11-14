@@ -26,6 +26,12 @@ search for `ClientAliveInterval ...`, if found set to 0
 
 restart server or `sudo systemctl reload sshd.service`
 
+### Setup hostname
+
+`sudo hostname {target hostname}`
+
+`sudo nano /etc/hosts` - replace old hostname references with the new one
+
 >to change visudo editor type 'sudo update-alternatives --config editor'
 
 ## As a given user
@@ -48,6 +54,9 @@ chmod 600 ~/.ssh/authorized_keys`
 `ssh-keygen -t rsa`
 `ssh-copy-id user@host`
 `alias vps='ssh user@host -p {ssh_port}' in .bashrc`
+
+### Setup timezone information
+`sudo dpkg-reconfigure tzdata`
 
 # Connect
 

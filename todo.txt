@@ -1,7 +1,0 @@
-timezone setting - sudo dpkg-reconfigure tzdata
-https://wiki.debian.org/TextEditor - set default text editor
-tmux git plugin (https://github.com/drmad/tmux-git)
-set hostname
-sudo update-alternatives --config editor (setting default text editor)
-tmux resurrect
-tmux.conf (bind-key -r < swap-window -t -1; bind-key -r > swap-window -t +1)
