@@ -10,7 +10,11 @@ export LC_ALL;
 
 export EDITOR=micro
 
+export FZF_DEFAULT_COMMAND="rg --files"
+
 alias grep="grep --color=auto"
 
 alias glog="git log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+alias tree="rg --files | tree --fromfile"
 

@@ -27,6 +27,11 @@ echo "Installing curl..."
 sudo apt-get install curl -y
 echo "Curl installed."
 
+# Install ripgrep
+echo "Installing ripgrep..."
+sudo apt-get install ripgrep -y
+echo "Ripgrep installed"
+
 # Install dos2unix
 echo "Installing dos2unix..."
 sudo apt-get install dos2unix -y
