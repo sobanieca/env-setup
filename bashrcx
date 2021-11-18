@@ -1,20 +1,18 @@
 [[ ":$PATH:" != *":~/tools:"* ]] && PATH="~/tools:$PATH" && export PATH
 
-export PS1="\W>"
-
 LS_COLORS=$LS_COLORS:'di=1;37:'; 
 export LS_COLORS;
 
 LC_ALL="C.UTF-8";
 export LC_ALL;
 
+export PS1="\W>"
 export EDITOR=micro
-
 export FZF_DEFAULT_COMMAND="rg --files"
+export HISTCONTROL=ignoredups
+
 
 alias grep="grep --color=auto"
-
 alias glog="git log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-
 alias tree="rg --files | tree --fromfile"
-
+alias curl="curl -H 'Content-Type: application/json'"

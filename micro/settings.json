@@ -1,4 +1,5 @@
 {
 	"tabstospaces": true,
-	"mouse": false
+	"mouse": false,
+	"autoclose": false
 }
