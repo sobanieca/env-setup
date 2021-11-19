@@ -60,9 +60,9 @@ chmod 600 ~/.ssh/authorized_keys`
 
 # Connect
 
-`ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -L 3000:{host}:3000 -l {login-name} -p {port} -i {path-to-ssh-key} {vps-url}`
+`ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -L 3000:localhost:3000 -l {login-name} -p {port} -i {path-to-ssh-key} {vps-url}`
 
-`-L 3000:{host}:3000` parameter is for port-forwarding to enable development
+`-L 3000:localhost:3000` parameter is for port-forwarding to enable development. Ensure that sshd_config contains `AllowTcpForwarding yes`
 
 # Run
 
