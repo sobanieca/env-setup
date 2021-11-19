@@ -14,7 +14,7 @@ export HISTCONTROL=ignoredups
 alias grep="grep --color=auto"
 alias glog="git log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias tree="rg --files | tree --fromfile"
-alias curl="curl -H 'Content-Type: application/json'"
+alias curl="curl -w 'Response code: %{response_code}\nTotal time: %{time_total}\n' -H 'Content-Type: application/json'"
 
 function portfwd {
     echo "Running port forward from 3000 to $1"
