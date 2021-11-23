@@ -1,5 +1,6 @@
 {
 	"tabstospaces": true,
 	"mouse": false,
-	"autoclose": false
+	"autoclose": false,
+	"colorscheme": "darcula"
 }
