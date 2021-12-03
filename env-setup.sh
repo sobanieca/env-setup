@@ -32,6 +32,11 @@ echo "Installing ripgrep..."
 sudo apt-get install ripgrep -y
 echo "Ripgrep installed"
 
+# Install rpl
+echo "Installing rpl..."
+sudo apt-get install rpl -y
+echo "rpl installed"
+
 # Install dos2unix
 echo "Installing dos2unix..."
 sudo apt-get install dos2unix -y
