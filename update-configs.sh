@@ -15,3 +15,7 @@ echo "Updating micro editor configs..."
 wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/bindings.json -O $HOME/.config/micro/bindings.json
 wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/settings.json -O $HOME/.config/micro/settings.json
 echo "Micro editor configs updated"
+
+echo "Updatint .vimrc..."
+wget https://raw.githubusercontent.com/sobanieca/env-setup/master/vimrc -O $HOME/.vimrc
+echo ".vimrc updated."
