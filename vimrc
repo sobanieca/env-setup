@@ -70,7 +70,6 @@ set ignorecase
 set hlsearch
 set incsearch
 set laststatus=2
-set nonumber
 set noruler
 set noshowmode
 set signcolumn=yes
