@@ -205,4 +205,4 @@ set ttymouse=
 
 let g:NERDTreeWinSize=35
 
-map <C-n> :NERDTreeToggle<CR
+map <C-n> :NERDTreeToggle<CR>
