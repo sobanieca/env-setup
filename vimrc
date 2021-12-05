@@ -62,6 +62,7 @@ set title
 set hidden
 set nofixendofline
 set nostartofline
+set number
 set splitbelow
 set splitright
 set ignorecase
