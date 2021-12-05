@@ -22,7 +22,7 @@ One needs to configure user account and ssh to proceed:
 
 `sudo nano /etc/ssh/sshd_config`
 
-search for `ClientAliveInterval ...`, if found set to 0
+search for `ClientAliveInterval`, if found set to 0
 
 restart server or `sudo systemctl reload sshd.service`
 
