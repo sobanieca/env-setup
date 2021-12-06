@@ -202,6 +202,7 @@ let g:OmniSharp_highlight_groups = {
 
 set mouse=
 set ttymouse=
+set term=xterm-256color
 
 let g:NERDTreeWinSize=35
 
