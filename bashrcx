@@ -10,6 +10,7 @@ export PS1="\W>"
 export EDITOR=micro
 export FZF_DEFAULT_COMMAND="rg --files"
 export HISTCONTROL=ignoredups
+export PROMPT_COMMAND="history -a; history -n"
 
 alias grep="grep --color=auto"
 alias glog="git log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
