@@ -19,6 +19,9 @@ Plug 'junegunn/fzf.vim'
 " NERDTree
 Plug 'preservim/nerdtree'
 
+" Multi cursor
+Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+
 " coc
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
@@ -203,5 +206,6 @@ set ttymouse=
 let g:NERDTreeWinSize=35
 
 map <C-t> :NERDTreeToggle<CR>
+
 map <C-p> :Files<CR>
 
