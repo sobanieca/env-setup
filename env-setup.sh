@@ -48,6 +48,7 @@ sudo apt-get install git -y
 git config --global user.email "sobanieca@gmail.com"
 git config --global user.name "Adam Sobaniec"
 git config --global credential.helper store
+git config --global pull.ff only
 echo "Git installed."
 
 # Install atop

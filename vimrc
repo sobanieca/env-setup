@@ -197,12 +197,11 @@ let g:OmniSharp_highlight_groups = {
 \}
 " }}}
 
-autocmd VimEnter * NERDTree
-autocmd VimEnter * wincmd p
-
 set mouse=
 set ttymouse=
 
 let g:NERDTreeWinSize=35
 
 map <C-t> :NERDTreeToggle<CR>
+map <C-p> :Files<CR>
+
