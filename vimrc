@@ -206,7 +206,7 @@ set term=xterm-256color
 
 let g:NERDTreeWinSize=35
 
-map <C-t> :NERDTreeToggle<CR>
+map <C-t> :NERDTreeFind<CR>
 
 map <C-p> :Files<CR>
 
