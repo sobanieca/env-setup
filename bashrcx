@@ -21,3 +21,9 @@ function portfwd {
     echo "Running port forward from 3000 to $1"
     socat TCP-LISTEN:3000,fork TCP:127.0.0.1:$1
 }
+
+function replace {
+    rg "$1" --files-with-matches | xargs sed -i "s/$1/$2/g
+    echo "Replace completed"
+}
+
