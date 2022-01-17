@@ -56,10 +56,10 @@ set completepopup=highlight:Pmenu,border:off
 set backspace=indent,eol,start
 set expandtab
 set shiftround
-set shiftwidth=4
+set shiftwidth=2
 set softtabstop=-1
-set tabstop=8
-set textwidth=80
+set tabstop=2
+set textwidth=160
 set title
 set nowrap
 
