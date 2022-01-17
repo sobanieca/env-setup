@@ -61,6 +61,7 @@ set softtabstop=-1
 set tabstop=8
 set textwidth=80
 set title
+set nowrap
 
 set hidden
 set nofixendofline
