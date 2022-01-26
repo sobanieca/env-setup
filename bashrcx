@@ -7,7 +7,7 @@ LC_ALL="C.UTF-8";
 export LC_ALL;
 
 export PS1="\W>"
-export EDITOR="vim"
+export EDITOR="micro"
 export FZF_DEFAULT_COMMAND="rg --files"
 export HISTCONTROL=ignoredups
 export PROMPT_COMMAND="history -a; history -n"
