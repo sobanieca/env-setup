@@ -29,3 +29,5 @@ function replace {
     echo "Replace completed"
 }
 
+shopt -s globstar
+
