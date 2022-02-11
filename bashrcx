@@ -15,7 +15,6 @@ export PROMPT_COMMAND="history -a; history -n"
 alias grep="rg -A 3 -B 3 -n -F"
 alias glog="git log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias tree="rg --files | tree --fromfile"
-alias curl="curl -w 'Response code: %{response_code}\nTotal time: %{time_total}\n' -H 'Content-Type: application/json'"
 #deno install --allow-net --allow-read https://deno.land/std@0.121.0/http/file_server.ts
 alias serve="file_server -p 3000"
 
