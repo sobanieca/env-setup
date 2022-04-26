@@ -57,7 +57,7 @@ set backspace=indent,eol,start
 set expandtab
 set shiftround
 set shiftwidth=2
-set softtabstop=-1
+set softtabstop=2
 set tabstop=2
 set textwidth=160
 set title
@@ -210,4 +210,6 @@ let g:NERDTreeWinSize=35
 map <C-t> :NERDTreeFind<CR>
 
 map <C-p> :Files<CR>
+
+command AutoSave autocmd TextChanged,TextChangedI <buffer> silent write
 
