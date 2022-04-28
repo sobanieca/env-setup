@@ -30,3 +30,5 @@ function replace {
 
 shopt -s globstar
 
+source /usr/share/doc/fzf/examples/completion.bash
+
