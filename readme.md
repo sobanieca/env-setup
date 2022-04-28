@@ -72,3 +72,14 @@ First run `apt-get update` then
 # Termux setup
 
 `bash -c "$(wget -O - https://raw.githubusercontent.com/sobanieca/env-setup/master/termux.sh)"`
+
+# Final steps
+
+### Setup fzf bash autocompletion
+
+Add following to .bashrc file:
+
+`source /usr/share/doc/fzf/examples/completion.bash`
+
+If any issues occur run `apt-cache show fzf` for details on how to enable fuzzy autocompletion.
+
