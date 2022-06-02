@@ -17,7 +17,7 @@ alias glog="git log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%
 alias tree="rg --files | tree --fromfile"
 #deno install --allow-net --allow-read https://deno.land/std@0.121.0/http/file_server.ts
 alias serve="file_server -p 3000"
-alias rm="rm -i"
+alias rm="rm -I"
 
 function portfwd {
     echo "Running port forward from 3000 to $1"
