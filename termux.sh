@@ -3,9 +3,6 @@
 pkg upgrade -y
 pkg install wget -y
 pkg install git -y
-pkg install micro -y
-wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/bindings.json -O ~/.config/micro/bindings.json
-wget https://raw.githubusercontent.com/sobanieca/env-setup/master/micro/settings.json -O ~/.config/micro/settings.json
 pkg install proot-distro -y
 pkg install termux-api -y
 git config --global user.email "sobanieca@gmail.com"

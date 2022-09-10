@@ -61,25 +61,13 @@ echo "Installing fzf..."
 sudo apt-get install fzf -y
 echo "fzf installed"
 
-# Install Micro editor
-echo "Installing/updating micro editor with plugins..."
-if [ ! -f "$HOME/tools/micro" ]; then
-	curl https://getmic.ro | bash
-	./micro -plugin install editorconfig
-	./micro -plugin install filemanager
-	./micro -plugin install quoter
-	./micro -plugin install manipulator
-	./micro -plugin install fzf
-	mv micro $HOME/tools/micro
-else
-	micro -plugin update editorconfig
-	micro -plugin update filemanager
-	micro -plugin update quoter
-	micro -plugin update manipulator
-	micro -plugin update fzf
-fi
-echo "Micro editor installed/updated"
+# Install vim
+echo "Installing vim..."
+sudo apt-get install vim -y
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+echo "Vim installed"
 
+# Update-configs script
 wget $BASE_URL"update-configs.sh" -O $HOME/tools/update-configs.sh
 chmod +x $HOME/tools/update-configs.sh
 . $HOME/tools/update-configs.sh
