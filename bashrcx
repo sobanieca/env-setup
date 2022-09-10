@@ -15,7 +15,7 @@ export PROMPT_COMMAND="history -a; history -n"
 alias grep="rg -A 3 -B 3 -n -F -S"
 alias glog="git log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias tree="rg --files | tree --fromfile"
-#deno install --allow-net --allow-read https://deno.land/std@0.121.0/http/file_server.ts
+#deno install --allow-net --allow-read https://deno.land/std/http/file_server.ts
 alias serve="file_server -p 3000"
 alias rm="rm -I"
 
