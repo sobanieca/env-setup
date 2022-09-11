@@ -67,6 +67,17 @@ sudo apt-get install vim -y
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 echo "Vim installed"
 
+# Install Node.js
+echo "Installing nvm and node.js..."
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+nvm install --lts
+echo "nvm and node.js installed"
+
+# Install Deno
+echo "Installing Deno..."
+curl -fsSL https://deno.land/install.sh | sh
+echo "Deno installed"
+
 # Update-configs script
 wget $BASE_URL"update-configs.sh" -O $HOME/tools/update-configs.sh
 chmod +x $HOME/tools/update-configs.sh
