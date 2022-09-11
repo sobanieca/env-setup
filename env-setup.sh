@@ -79,6 +79,7 @@ echo "nvm and node.js installed"
 
 # Install Deno
 echo "Installing Deno..."
+sudo apt-get install unzip -y
 curl -fsSL https://deno.land/install.sh | sh
 echo "Deno installed"
 
