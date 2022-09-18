@@ -151,6 +151,6 @@ nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 nmap <silent> qf <Plug>(coc-fix-current)
 nmap <silent> ca <Plug>(coc-codeaction)
-
+nmap <silent> ci <Plug>(coc-diagnostic-info)
 
 
