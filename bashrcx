@@ -29,7 +29,7 @@ function replace {
     echo "Replace completed"
 }
 
-fuction tools {
+function tools {
   echo "Available tools:"
   ls $HOME/tools
 }
