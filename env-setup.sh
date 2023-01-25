@@ -4,6 +4,11 @@ set -e
 BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master/"
 
 # Update system
+echo "Registering additional package repositories"
+echo "deb [signed-by=/usr/share/keyrings/azlux-archive-keyring.gpg] http://packages.azlux.fr/debian/ stable main" | sudo tee /etc/apt/sources.list.d/azlux.list
+sudo wget -O /usr/share/keyrings/azlux-archive-keyring.gpg  https://azlux.fr/repo.gpg
+echo "Finished registration"
+
 echo "Updating system..."
 sudo apt-get update
 sudo apt-get dist-upgrade
@@ -82,6 +87,11 @@ echo "Installing Deno..."
 sudo apt-get install unzip -y
 curl -fsSL https://deno.land/install.sh | sh
 echo "Deno installed"
+
+# Install broot
+echo "Installing Broot..."
+sudo apt-get install broot -y
+echo "Broot installed"
 
 # Update-configs script
 wget $BASE_URL"update-configs.sh" -O $HOME/tools/update-configs.sh
