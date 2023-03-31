@@ -18,6 +18,7 @@ alias tree="rg --files | tree --fromfile"
 #deno install --allow-net --allow-read https://deno.land/std/http/file_server.ts
 alias serve="file_server -p 3000"
 alias rm="rm -I"
+alias guid="deno eval 'console.log(crypto.randomUUID())'"
 
 function portfwd {
     echo "Running port forward from 3000 to $1"
