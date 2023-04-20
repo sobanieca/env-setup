@@ -153,6 +153,8 @@ nmap <silent> gr <Plug>(coc-references)
 nmap <silent> qf <Plug>(coc-fix-current)
 nmap <silent> ca <Plug>(coc-codeaction)
 nmap <silent> ci <Plug>(coc-diagnostic-info)
+nmap <C-Left> b
+nmap <C-Right> w
 
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
