@@ -125,7 +125,7 @@ let g:lightline = {
 set mouse=
 set ttymouse=
 set term=xterm-256color
-set scrolloff=25
+set scrolloff=999
 
 let g:NERDTreeWinSize=35
 
