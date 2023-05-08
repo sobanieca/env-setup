@@ -13,7 +13,7 @@ export HISTCONTROL=ignoredups
 export PROMPT_COMMAND="history -a; history -n"
 
 alias rg="rg -A 3 -B 3 -n -F -S"
-alias rgf="rg --files --hidden --glob '!.git/**' --glob '!node_modules/**' | grep"
+alias rgf="rg --files --hidden --glob '!.git/**' | grep"
 alias glog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%ae>%Creset' --abbrev-commit"
 alias glog-all="git log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%ae>%Creset' --abbrev-commit"
 alias tree="rg --files | tree --fromfile"
