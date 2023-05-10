@@ -127,7 +127,7 @@ set ttymouse=
 set term=xterm-256color
 set scrolloff=999
 
-let g:NERDTreeWinSize=35
+let g:NERDTreeWinSize=120
 
 map <C-t> :NERDTreeFind<CR>
 
