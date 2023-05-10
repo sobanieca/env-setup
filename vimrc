@@ -20,6 +20,7 @@ Plug 'maxmellon/vim-jsx-pretty'   " JS and JSX syntax
 Plug 'jparise/vim-graphql'        " GraphQL syntax
 Plug 'styled-components/vim-styled-components'
 Plug 'prisma/vim-prisma'
+Plug 'hashivim/vim-terraform'
 
 " coc
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
