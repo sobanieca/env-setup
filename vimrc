@@ -128,6 +128,7 @@ set term=xterm-256color
 set scrolloff=999
 
 let g:NERDTreeWinSize=120
+let g:NERDTreeQuitOnOpen = 1
 
 map <C-t> :NERDTreeFind<CR>
 
