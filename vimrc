@@ -131,7 +131,15 @@ set scrolloff=999
 let g:NERDTreeWinSize=120
 let g:NERDTreeQuitOnOpen = 1
 
-map <C-t> :NERDTreeFind<CR>
+function! SmartNERDTree()
+    if @% == ""
+        NERDTreeToggle
+    else
+        NERDTreeFind
+    endif
+endfun
+
+map <C-t> :call SmartNERDTree()<CR>
 
 map <C-p> :Files<CR>
 
