@@ -1,0 +1,19 @@
+#!/bin/bash
+
+netstat -tulnep 2>/dev/null | awk '
+    NR > 2 {
+        # Parse the PID/program name string.
+        split($9, a, "/");
+
+        # Get the full path of the executable.
+        path = "/proc/"a[1]"/exe";
+
+        # Use readlink to find the full path of the executable.
+        cmd = "readlink -f "path" 2>/dev/null";
+        cmd | getline result;
+        close(cmd);
+
+        # Print the protocol, local address/port, and executable path.
+        printf("%-5s %-25s %-20s %s\n", $1, $4, a[2], result);
+    }'
+

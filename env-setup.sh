@@ -37,11 +37,6 @@ echo "Installing ripgrep..."
 sudo apt-get install ripgrep -y
 echo "Ripgrep installed"
 
-# Install rpl
-echo "Installing rpl..."
-sudo apt-get install rpl -y
-echo "rpl installed"
-
 # Install dos2unix
 echo "Installing dos2unix..."
 sudo apt-get install dos2unix -y
@@ -88,15 +83,10 @@ sudo apt-get install unzip -y
 curl -fsSL https://deno.land/install.sh | sh
 echo "Deno installed"
 
-# Install broot
-echo "Installing Broot..."
-sudo apt-get install broot -y
-echo "Broot installed"
-
 # Update-configs script
-wget $BASE_URL"update-configs.sh" -O $HOME/tools/update-configs.sh
-chmod +x $HOME/tools/update-configs.sh
-. $HOME/tools/update-configs.sh
+wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
+chmod +x $HOME/tools/update-configs
+. $HOME/tools/update-configs
 
 # Install Tmux
 echo "Installing tmux..."

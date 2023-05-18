@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+
+BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master/"
+
+echo "Updating .bashrcx file..."
+wget $BASE_URL"bashrcx" -O $HOME/.bashrcx
+echo ".bashrcx file updated."
+
+echo "Updating tmux.conf file..."
+wget $BASE_URL"tmux.conf" -O $HOME/.tmux.conf
+echo "tmux.conf file replaced."
+
+echo "Updating .vimrc..."
+wget $BASE_URL"vimrc" -O $HOME/.vimrc
+echo ".vimrc updated."
+
+echo "Updating coc-settings.json..."
+wget $BASE_URL"coc-settings.json" -O $HOME/.vim/coc-settings.json
+echo "coc-settings json updated"
+
+echo "Updating ports tool"
+wget $BASE_URL"ports" -O $HOME/tools/ports
+chmod +x $HOME/tools/ports
+echo "ports tool updated"
+
+echo "Updating update-configs tool"
+wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
+chmod +x $HOME/tools/update-configs
+echo "update-configs tool updated"
+
