@@ -93,3 +93,9 @@ echo "Installing tmux..."
 sudo apt-get install tmux -y
 git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
 echo "Tmux installed."
+
+# Install tshark
+echo "Installing tshark..."
+sudo apt-get install tshark -y
+echo "Tshark installed."
+
