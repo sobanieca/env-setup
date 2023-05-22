@@ -67,6 +67,7 @@ set number
 set splitbelow
 set splitright
 set ignorecase
+set cursorline
 
 set nobackup
 set nowritebackup
