@@ -67,7 +67,11 @@ set number
 set splitbelow
 set splitright
 set ignorecase
-set cursorline
+augroup CursorLine
+  au!
+  au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+  au WinLeave * setlocal nocursorline
+augroup END
 
 set nobackup
 set nowritebackup
