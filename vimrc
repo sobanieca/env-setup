@@ -161,6 +161,7 @@ endif
 set noerrorbells visualbell t_vb=
 
 command AutoSave autocmd TextChanged,TextChangedI <buffer> silent write
+command! -nargs=0 Prettier :CocCommand prettier.forceFormatDocument
 
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
