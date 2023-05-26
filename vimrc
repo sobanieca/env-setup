@@ -21,6 +21,7 @@ Plug 'jparise/vim-graphql'        " GraphQL syntax
 Plug 'styled-components/vim-styled-components'
 Plug 'prisma/vim-prisma'
 Plug 'hashivim/vim-terraform'
+Plug 'adelarsq/vim-matchit'
 
 " coc
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -148,7 +149,7 @@ map <C-t> :call SmartNERDTree()<CR>
 
 map <C-p> :Files<CR>
 
-let g:coc_global_extensions = ['coc-json', 'coc-tsserver']
+let g:coc_global_extensions = ['coc-json', 'coc-tsserver', 'coc-deno']
 
 if isdirectory('./node_modules') && isdirectory('./node_modules/prettier')
   let g:coc_global_extensions += ['coc-prettier']
