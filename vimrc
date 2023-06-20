@@ -178,3 +178,5 @@ nmap p P
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
+autocmd BufEnter * syntax sync fromstart
+
