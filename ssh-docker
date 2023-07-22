@@ -1,0 +1,29 @@
+#!/bin/bash
+
+echo "Script not ready yet"
+exit 1
+
+IMAGE_NAME=$1
+PORT_NUMBER=$2
+
+if [[ -z "${IMAGE_NAME}" ]]; then
+    echo "Error: Docker image name must be provided as the first argument."
+    exit 1
+fi
+
+if [[ -z "${PORT_NUMBER}" ]]; then
+    echo "Error: Port number must be provided as the second argument."
+    exit 2
+fi
+
+CONTAINER_ID=$(remote \
+    "docker ps --filter ancestor=${IMAGE_NAME} --format '{{.ID}}'")
+
+if [[ -z "${CONTAINER_ID}" ]]; then
+    remote -L "${PORT_NUMBER}":localhost:"${PORT_NUMBER}" \
+        "docker run -d -p ${PORT_NUMBER}:${PORT_NUMBER} ${IMAGE_NAME}"
+    echo "Docker container for ${IMAGE_NAME} is now running on ${SERVER_IP} and forwarded to local port ${PORT_NUMBER}"
+else
+    echo "Docker container for ${IMAGE_NAME} is already running with container id: ${CONTAINER_ID}"
+fi
+
