@@ -61,6 +61,11 @@ echo "Installing fzf..."
 sudo apt-get install fzf -y
 echo "fzf installed"
 
+# Install jq
+echo "Installing jq..."
+sudo apt-get install jq -y
+echo "jq installed"
+
 # Install vim
 echo "Installing vim..."
 sudo apt-get install vim -y

@@ -29,6 +29,11 @@ wget $BASE_URL"sniff" -O $HOME/tools/sniff
 chmod +x $HOME/tools/sniff
 echo "sniff tool updated"
 
+echo "Updating remote tool"
+wget $BASE_URL"remote" -O $HOME/tools/remote
+chmod +x $HOME/tools/remote
+echo "remote tool updated"
+
 echo "Updating update-configs tool"
 wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
 chmod +x $HOME/tools/update-configs
