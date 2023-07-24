@@ -133,6 +133,7 @@ set mouse=
 set ttymouse=
 set term=xterm-256color
 set scrolloff=999
+set sidescroll=1
 
 let g:NERDTreeWinSize=120
 let g:NERDTreeQuitOnOpen = 1
@@ -163,6 +164,7 @@ set noerrorbells visualbell t_vb=
 
 command AutoSave autocmd TextChanged,TextChangedI <buffer> silent write
 command! -nargs=0 Prettier :CocCommand prettier.forceFormatDocument
+command! -nargs=0 Deno :CocCommand deno.initializeWorkspace
 command! -nargs=0 Fmt :%! deno fmt
 
 nmap <silent> gd <Plug>(coc-definition)
@@ -172,6 +174,7 @@ nmap <silent> gr <Plug>(coc-references)
 nmap <silent> qf <Plug>(coc-fix-current)
 nmap <silent> ca <Plug>(coc-codeaction)
 nmap <silent> ci <Plug>(coc-diagnostic-info)
+nmap <silent> rr <Plug>(coc-rename)
 nmap <C-Left> b
 nmap <C-Right> w
 nmap p P
