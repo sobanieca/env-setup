@@ -23,6 +23,7 @@ Plug 'prisma/vim-prisma'
 Plug 'hashivim/vim-terraform'
 Plug 'adelarsq/vim-matchit'
 Plug 'MattesGroeger/vim-bookmarks'
+Plug 'isobit/vim-caddyfile'
 
 " coc
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
