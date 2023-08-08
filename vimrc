@@ -167,7 +167,7 @@ set noerrorbells visualbell t_vb=
 command AutoSave autocmd TextChanged,TextChangedI <buffer> silent write
 command! -nargs=0 Prettier :CocCommand prettier.forceFormatDocument
 command! -nargs=0 Deno :CocCommand deno.initializeWorkspace
-command! -nargs=0 Fmt :%! deno fmt
+command! -nargs=0 Format :call CocActionAsync('format')
 
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
@@ -209,8 +209,6 @@ endfunction
 
 " Highlight the symbol and its references when holding the cursor
 autocmd CursorHold * silent call CocActionAsync('highlight')
-
-command! -nargs=0 Format :call CocActionAsync('format')
 
 autocmd BufEnter * syntax sync fromstart
 
