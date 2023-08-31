@@ -35,6 +35,12 @@ Plug 'gruvbox-community/gruvbox'
 Plug 'itchyny/lightline.vim'
 Plug 'shinchu/lightline-gruvbox.vim'
 
+" Vim JsDoc
+Plug 'heavenshell/vim-jsdoc', {
+  \ 'for': ['javascript', 'javascript.jsx','typescript'],
+  \ 'do': 'make install'
+\}
+
 " Snippet support
 if s:using_snippets
   Plug 'sirver/ultisnips'
