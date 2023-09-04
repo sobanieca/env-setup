@@ -147,6 +147,8 @@ set sidescroll=1
 let g:NERDTreeWinSize=120
 let g:NERDTreeQuitOnOpen = 1
 
+let g:htl_all_templates = 1
+
 function! SmartNERDTree()
     if @% == ""
         NERDTreeToggle
