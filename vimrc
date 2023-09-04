@@ -24,6 +24,7 @@ Plug 'hashivim/vim-terraform'
 Plug 'adelarsq/vim-matchit'
 Plug 'MattesGroeger/vim-bookmarks'
 Plug 'isobit/vim-caddyfile'
+Plug 'jonsmithers/vim-html-template-literals'
 
 " coc
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
