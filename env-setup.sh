@@ -4,10 +4,10 @@ set -e
 BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master/"
 
 # Update system
-echo "Registering additional package repositories"
+echo "Registering additional package repositories..."
 echo "deb [signed-by=/usr/share/keyrings/azlux-archive-keyring.gpg] http://packages.azlux.fr/debian/ stable main" | sudo tee /etc/apt/sources.list.d/azlux.list
 sudo wget -O /usr/share/keyrings/azlux-archive-keyring.gpg  https://azlux.fr/repo.gpg
-echo "Finished registration"
+echo "Finished registration."
 
 echo "Updating system..."
 sudo apt-get update
@@ -35,7 +35,7 @@ echo "Curl installed."
 # Install ripgrep
 echo "Installing ripgrep..."
 sudo apt-get install ripgrep -y
-echo "Ripgrep installed"
+echo "Ripgrep installed."
 
 # Install dos2unix
 echo "Installing dos2unix..."
@@ -54,23 +54,23 @@ echo "Git installed."
 # Install atop
 echo "Installing atop..."
 sudo apt-get install atop -y
-echo "atop installed"
+echo "Atop installed."
 
 # Install fzf
 echo "Installing fzf..."
 sudo apt-get install fzf -y
-echo "fzf installed"
+echo "Fzf installed."
 
 # Install jq
 echo "Installing jq..."
 sudo apt-get install jq -y
-echo "jq installed"
+echo "Jq installed."
 
 # Install vim
 echo "Installing vim..."
 sudo apt-get install vim -y
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-echo "Vim installed"
+echo "Vim installed."
 
 # Install Node.js
 echo "Installing nvm and node.js..."
@@ -80,13 +80,13 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 nvm install --lts
 nvm use --lts
-echo "nvm and node.js installed"
+echo "Nvm and node.js installed."
 
 # Install Deno
 echo "Installing Deno..."
 sudo apt-get install unzip -y
 curl -fsSL https://deno.land/install.sh | sh || true
-echo "Deno installed"
+echo "Deno installed."
 
 # Update-configs script
 wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
@@ -104,3 +104,7 @@ echo "Installing tshark..."
 sudo apt-get install tshark -y
 echo "Tshark installed."
 
+# Install lsd
+ech "Installing lsd..."
+sudo apt-get install lsd -y
+echo "Lsd installed."
