@@ -15,6 +15,10 @@ echo "Updating .vimrc..."
 wget $BASE_URL"vimrc" -O $HOME/.vimrc
 echo ".vimrc updated."
 
+echo "Updating neovim init.lua..."
+wget $BASE_URL"neovim-init.lua" -O $HOME/.config/nvim/init.lua
+echo "neovim-init.lua updated."
+
 echo "Updating coc-settings.json..."
 wget $BASE_URL"coc-settings.json" -O $HOME/.vim/coc-settings.json
 echo "coc-settings json updated"
