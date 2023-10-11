@@ -85,6 +85,13 @@ default={yourusername}
 command="service docker start"
 ```
 
+# Font setup (Nerd font)
+
+For termux font should be installed as part of `termux.sh` script. For other terminals (like Windows Terminal) install 
+Inconsolata Go font from `https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/InconsolataGo.zip`
+
+Source: [Nerd fonts](https://www.nerdfonts.com/font-downloads)
+
 # Final steps
 
 ### Setup fzf bash autocompletion
