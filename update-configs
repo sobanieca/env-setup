@@ -11,6 +11,10 @@ echo "Updating tmux.conf file..."
 wget $BASE_URL"tmux.conf" -O $HOME/.tmux.conf
 echo "tmux.conf file replaced."
 
+echo "Updating gitmux.conf file..."
+wget $BASE_URL"gitmux.conf" -O $HOME/.config/.gitmux.conf
+echo "gitmux.conf file replaced."
+
 echo "Updating .vimrc..."
 wget $BASE_URL"vimrc" -O $HOME/.vimrc
 echo ".vimrc updated."
