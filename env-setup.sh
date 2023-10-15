@@ -2,6 +2,7 @@
 set -e
 
 BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master/"
+ARCH=$(dpkg --print-architecture)
 
 # Update system
 echo "Registering additional package repositories..."
@@ -98,6 +99,23 @@ echo "Installing tmux..."
 sudo apt-get install tmux -y
 git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
 echo "Tmux installed."
+
+# Install Gitmux
+echo "Installing gitmux..."
+mkdir temp
+cd temp
+if [ "$ARCH" == "arm64" ];
+then
+  wget https://github.com/arl/gitmux/releases/download/v0.10.3/gitmux_v0.10.3_linux_arm64.tar.gz
+  tar -xf gitmux_v0.10.3_linux_arm64.tar.gz
+else
+  wget https://github.com/arl/gitmux/releases/download/v0.10.3/gitmux_v0.10.3_linux_amd64.tar.gz
+  tar -xf gitmux_v0.10.3_linux_amd64.tar.gz
+fi
+mv gitmux /usr/local/bin
+cd ..
+rm -rf temp
+echo "Gitmux installed."
 
 # Install tshark
 echo "Installing tshark..."
