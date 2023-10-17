@@ -59,7 +59,7 @@ require('lualine').setup {
   }
 }
 
-vim.keymap.set({ 'n', 'v', 'i' }, '<C-r>', '<Cmd>Telescope live_grep<CR>');
+vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
 --[[
 " NERDTree
