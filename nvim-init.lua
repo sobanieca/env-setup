@@ -41,8 +41,8 @@ require("lazy").setup({
     },
     config = function()
       require('lualine').setup {
-	options = {
-    	   theme = 'tokyonight'
+	      options = {
+    	    theme = 'tokyonight'
         }
       }
     end
@@ -70,14 +70,18 @@ require("lazy").setup({
         filters = {
           dotfiles = true,
         },
-	actions = {
-	  open_file = {
-	    quit_on_open = true,
-	  }
-	}
+	      actions = {
+	        open_file = {
+	          quit_on_open = true,
+	        }
+	      }
       }
     end,
-  }
+  },
+  {
+    "neoclide/coc.nvim", branch = 'release',
+    dependencies = { 'nvim-lua/plenary.nvim' }
+  },
 })
 
 vim.cmd[[colorscheme tokyonight]]
@@ -119,7 +123,7 @@ vim.o.noshowmode = true
 vim.o.signcolumn = "auto"
 
 vim.o.mouse = "a"
-vim.o.updatetime = 1000
+vim.o.updatetime = 300
 
 vim.o.scrolloff = 999
 vim.o.sidescroll = 1
@@ -139,9 +143,6 @@ Plug 'adelarsq/vim-matchit'
 Plug 'MattesGroeger/vim-bookmarks'
 Plug 'isobit/vim-caddyfile'
 Plug 'jonsmithers/vim-html-template-literals'
-
-" coc
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " Colorscheme
 Plug 'gruvbox-community/gruvbox'
@@ -173,17 +174,6 @@ scriptencoding utf-8
 
 
 let g:htl_all_templates = 1
-
-function! SmartNERDTree()
-    if @% == ""
-        NERDTreeToggle
-    else
-        NERDTreeFind
-    endif
-endfun
-
-map <C-t> :call SmartNERDTree()<CR>
-
 
 let g:coc_global_extensions = ['coc-json', 'coc-tsserver', 'coc-deno', 'coc-css']
 
