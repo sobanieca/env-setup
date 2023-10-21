@@ -85,6 +85,45 @@ vim.cmd[[colorscheme tokyonight]]
 vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
+
+vim.o.smartindent = true
+
+vim.o.expandtab = true
+vim.o.tabstop = 2
+vim.o.shiftround = true
+vim.o.shiftwidth=2
+vim.o.softtabstop=2
+vim.o.textwidth=160
+
+vim.o.title = true
+vim.o.nowrap = true
+
+vim.o.hidden = true
+vim.o.nofixendofline = true
+vim.o.nostartofline = true
+vim.o.number = true
+vim.o.splitbelow = true
+vim.o.splitright = true
+vim.o.ignorecase = true
+vim.o.cursorline = true
+
+vim.o.nobackup = true
+vim.o.nowritebackup = true
+vim.o.noswapfile = true
+
+vim.o.hlsearch = true
+vim.o.incsearch = true
+vim.o.laststatus=2
+vim.o.noruler = true
+vim.o.noshowmode = true
+vim.o.signcolumn = true
+
+vim.o.mouse = 'a'
+vim.o.updatetime = 1000
+" }}}
+
+set scrolloff=999
+set sidescroll=1
 --[[
 " Multi cursor
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
@@ -131,72 +170,7 @@ if !exists('g:syntax_on') | syntax enable | endif
 set encoding=utf-8
 scriptencoding utf-8
 
-set autoindent
-set cindent
-set smartindent
 
-set backspace=indent,eol,start
-set expandtab
-set shiftround
-set shiftwidth=2
-set softtabstop=2
-set tabstop=2
-set textwidth=160
-set title
-set nowrap
-
-set hidden
-set nofixendofline
-set nostartofline
-set number
-set splitbelow
-set splitright
-set ignorecase
-augroup CursorLine
-  au!
-  au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
-  au WinLeave * setlocal nocursorline
-augroup END
-
-set nobackup
-set nowritebackup
-set noswapfile
-
-set hlsearch
-set incsearch
-set laststatus=2
-set noruler
-set noshowmode
-set signcolumn=yes
-
-set mouse=a
-set updatetime=1000
-" }}}
-
-" Colors: {{{
-augroup ColorschemePreferences
-  autocmd!
-  " These preferences clear some gruvbox background colours, allowing transparency
-  autocmd ColorScheme * highlight Normal     ctermbg=NONE guibg=NONE
-  autocmd ColorScheme * highlight SignColumn ctermbg=NONE guibg=NONE
-  autocmd ColorScheme * highlight Todo       ctermbg=NONE guibg=NONE
-augroup END
-
-" Use truecolor in the terminal, when it is supported
-if has('termguicolors')
-  set termguicolors
-endif
-
-set background=dark
-colorscheme gruvbox
-" }}}
-
-set term=xterm-256color
-set scrolloff=999
-set sidescroll=1
-
-let g:NERDTreeWinSize=120
-let g:NERDTreeQuitOnOpen = 1
 
 let g:htl_all_templates = 1
 
