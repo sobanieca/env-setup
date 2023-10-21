@@ -128,6 +128,11 @@ vim.o.updatetime = 300
 vim.o.scrolloff = 999
 vim.o.sidescroll = 1
 
+vim.o.noerrorbells = true
+vim.o.visualbell = false
+
+vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css', 'coc-prettier', 'coc-eslint' }
+
 --[[
 " Multi cursor
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
