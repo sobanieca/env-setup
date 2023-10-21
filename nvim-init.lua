@@ -28,12 +28,24 @@ require("lazy").setup({
     },
     opts = {
     },
+    config = function()
+      require('barbecue').setup {
+        theme = 'tokyonight'
+      }
+    end
   },
   {
     "nvim-lualine/lualine.nvim",
     dependencies = {
       "nvim-tree/nvim-web-devicons"
-    }
+    },
+    config = function()
+      require('lualine').setup {
+	options = {
+    	   theme = 'tokyonight'
+        }
+      }
+    end
   },
   {
     "nvim-telescope/telescope.nvim", tag = '0.1.4',
@@ -58,28 +70,17 @@ require("lazy").setup({
         filters = {
           dotfiles = true,
         },
+	actions = {
+	  open_file = {
+	    quit_on_open = true,
+	  }
+	}
       }
     end,
   }
 })
 
 vim.cmd[[colorscheme tokyonight]]
-
--- Lua
-require('barbecue').setup {
-  -- ... your barbecue config
-  theme = 'tokyonight',
-  -- ... your barbecue config
-}
-
--- Lua
-require('lualine').setup {
-  options = {
-    -- ... your lualine config
-    theme = 'tokyonight'
-    -- ... your lualine config
-  }
-}
 
 vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
