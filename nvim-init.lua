@@ -116,14 +116,14 @@ vim.o.incsearch = true
 vim.o.laststatus=2
 vim.o.noruler = true
 vim.o.noshowmode = true
-vim.o.signcolumn = true
+vim.o.signcolumn = "auto"
 
-vim.o.mouse = 'a'
+vim.o.mouse = "a"
 vim.o.updatetime = 1000
-" }}}
 
-set scrolloff=999
-set sidescroll=1
+vim.o.scrolloff = 999
+vim.o.sidescroll = 1
+
 --[[
 " Multi cursor
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
