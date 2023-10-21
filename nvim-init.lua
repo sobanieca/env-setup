@@ -38,6 +38,28 @@ require("lazy").setup({
   {
     "nvim-telescope/telescope.nvim", tag = '0.1.4',
     dependencies = { 'nvim-lua/plenary.nvim' }
+  },
+  {
+    "nvim-tree/nvim-tree.lua",
+    version = "*",
+    lazy = false,
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+    },
+    config = function()
+      require("nvim-tree").setup {
+        sort_by = "case_sensitive",
+        view = {
+          width = 30,
+        },
+        renderer = {
+          group_empty = true,
+        },
+        filters = {
+          dotfiles = true,
+        },
+      }
+    end,
   }
 })
 
@@ -61,10 +83,8 @@ require('lualine').setup {
 
 vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
 --[[
-" NERDTree
-Plug 'preservim/nerdtree'
-
 " Multi cursor
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 
