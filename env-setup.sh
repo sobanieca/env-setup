@@ -92,7 +92,9 @@ echo "Deno installed."
 # Install Tmux
 echo "Installing tmux..."
 sudo apt-get install tmux -y
-git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
+if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+  git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
+fi
 echo "Tmux installed."
 
 # Install Gitmux
