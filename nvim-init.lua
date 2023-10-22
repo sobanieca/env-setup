@@ -84,11 +84,6 @@ require("lazy").setup({
   }
 })
 
-vim.cmd[[colorscheme tokyonight]]
-
-vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
-vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
-vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
 
 vim.o.smartindent = true
 
@@ -134,65 +129,6 @@ vim.o.visualbell = false
 vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css', 'coc-prettier', 'coc-eslint' }
 
 --[[
-" Multi cursor
-Plug 'mg979/vim-visual-multi', {'branch': 'master'}
-
-Plug 'pangloss/vim-javascript'    " JavaScript support
-Plug 'leafgarland/typescript-vim' " TypeScript syntax
-Plug 'maxmellon/vim-jsx-pretty'   " JS and JSX syntax
-Plug 'jparise/vim-graphql'        " GraphQL syntax
-Plug 'styled-components/vim-styled-components'
-Plug 'prisma/vim-prisma'
-Plug 'hashivim/vim-terraform'
-Plug 'adelarsq/vim-matchit'
-Plug 'MattesGroeger/vim-bookmarks'
-Plug 'isobit/vim-caddyfile'
-Plug 'jonsmithers/vim-html-template-literals'
-
-" Colorscheme
-Plug 'gruvbox-community/gruvbox'
-
-" Statusline
-Plug 'itchyny/lightline.vim'
-Plug 'shinchu/lightline-gruvbox.vim'
-
-" Vim JsDoc
-Plug 'heavenshell/vim-jsdoc', {
-  \ 'for': ['javascript', 'javascript.jsx','typescript'],
-  \ 'do': 'make install'
-\}
-
-" Snippet support
-if s:using_snippets
-  Plug 'sirver/ultisnips'
-endif
-
-call plug#end()
-" }}}
-
-" Settings: {{{
-filetype indent plugin on
-if !exists('g:syntax_on') | syntax enable | endif
-set encoding=utf-8
-scriptencoding utf-8
-
-
-
-let g:htl_all_templates = 1
-
-let g:coc_global_extensions = ['coc-json', 'coc-tsserver', 'coc-deno', 'coc-css']
-
-if isdirectory('./node_modules') && isdirectory('./node_modules/prettier')
-  let g:coc_global_extensions += ['coc-prettier']
-endif
-
-if isdirectory('./node_modules') && isdirectory('./node_modules/eslint')
-  let g:coc_global_extensions += ['coc-eslint']
-endif
-
-set noerrorbells visualbell t_vb=
-
-command AutoSave autocmd TextChanged,TextChangedI <buffer> silent write
 command! -nargs=0 Prettier :CocCommand prettier.forceFormatDocument
 command! -nargs=0 Deno :CocCommand deno.initializeWorkspace
 command! -nargs=0 Format :call CocActionAsync('format')
@@ -240,3 +176,17 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 
 autocmd BufEnter * syntax sync fromstart
 --]]
+vim.cmd[[colorscheme tokyonight]]
+
+vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
+vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
+vim.api.nvim_create_user_command('Deno', 'CocCommand deno.initializeWorkspace', {});
+vim.api.nvim_create_user_command('Format', 'call CocActionAsync(\'format\')', {});
+
+--command! -nargs=0 Prettier :CocCommand prettier.forceFormatDocument
+--command! -nargs=0 Deno :CocCommand deno.initializeWorkspace
+--command! -nargs=0 Format :call CocActionAsync('format')
+
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
+
