@@ -120,7 +120,7 @@ sudo apt-get install tshark -y
 echo "Tshark installed."
 
 # Install lsd
-ech "Installing lsd..."
+echo "Installing lsd..."
 sudo apt-get install lsd -y
 echo "Lsd installed."
 
