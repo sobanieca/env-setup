@@ -6,7 +6,7 @@ export LS_COLORS
 LC_ALL="C.UTF-8";
 export LC_ALL;
 
-export PS1="\W>"
+export PS1="\w>"
 export EDITOR="vim"
 export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git/**'"
 export HISTCONTROL=ignoredups

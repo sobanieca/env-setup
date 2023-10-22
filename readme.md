@@ -73,6 +73,11 @@ First run `apt-get update` then
 
 `bash -c "$(wget -O - https://raw.githubusercontent.com/sobanieca/env-setup/master/termux.sh)"`
 
+Proot-distro has some bash init script which explicitly sets TERM variable under:
+`./profile.d/termux-proot.sh:export TERM=xterm-256color`
+
+This line needs to be removed as it's not compatible with `tmux`.
+
 # WSL setup
 
 On WSL one may want to autorun some tasks on Windows startup. To do this, create `/etc/wsl.conf` file with content like:
@@ -84,6 +89,13 @@ default={yourusername}
 [boot]
 command="service docker start"
 ```
+
+# Font setup (Nerd font)
+
+For termux font should be installed as part of `termux.sh` script. For other terminals (like Windows Terminal) install 
+Inconsolata Go font from `https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/InconsolataGo.zip`
+
+Source: [Nerd fonts](https://www.nerdfonts.com/font-downloads)
 
 # Final steps
 
