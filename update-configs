@@ -3,6 +3,11 @@ set -e
 
 BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master/"
 
+echo "Updating update-configs tool"
+wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
+chmod +x $HOME/tools/update-configs
+echo "update-configs tool updated"
+
 if [ ! -d "$HOME/.config" ]; then
     echo "Creating .config directory..."
     mkdir $HOME/.config
@@ -57,9 +62,4 @@ echo "Updating remote tool"
 wget $BASE_URL"remote" -O $HOME/tools/remote
 chmod +x $HOME/tools/remote
 echo "remote tool updated"
-
-echo "Updating update-configs tool"
-wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
-chmod +x $HOME/tools/update-configs
-echo "update-configs tool updated"
 
