@@ -3,6 +3,18 @@ set -e
 
 BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master/"
 
+if [ ! -d "$HOME/.config" ]; then
+    echo "Creating .config directory..."
+    mkdir $HOME/.config
+    echo ".config directory created."
+fi
+
+if [ ! -d "$HOME/.config/nvim" ]; then
+    echo "Creating .config/nvim directory..."
+    mkdir $HOME/.config/nvim
+    echo ".config/nvim directory created."
+fi
+
 echo "Updating .bashrcx file..."
 wget $BASE_URL"bashrcx" -O $HOME/.bashrcx
 echo ".bashrcx file updated."
@@ -28,7 +40,7 @@ wget $BASE_URL"nvim-legacy.vim" -O $HOME/.config/nvim/legacy.vim
 echo "nvim/legacy.vim updated."
 
 echo "Updating coc-settings.json..."
-wget $BASE_URL"coc-settings.json" -O $HOME/.vim/coc-settings.json
+wget $BASE_URL"coc-settings.json" -O $HOME/.config/nvim/coc-settings.json
 echo "coc-settings json updated"
 
 echo "Updating ports tool"
