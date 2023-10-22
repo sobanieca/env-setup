@@ -129,21 +129,6 @@ vim.o.visualbell = false
 vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css', 'coc-prettier', 'coc-eslint' }
 
 --[[
-command! -nargs=0 Prettier :CocCommand prettier.forceFormatDocument
-command! -nargs=0 Deno :CocCommand deno.initializeWorkspace
-command! -nargs=0 Format :call CocActionAsync('format')
-
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-nmap <silent> qf <Plug>(coc-fix-current)
-nmap <silent> ca <Plug>(coc-codeaction)
-nmap <silent> ci <Plug>(coc-diagnostic-info)
-nmap <silent> rr <Plug>(coc-rename)
-nmap <C-Left> b
-nmap <C-Right> w
-nmap p P
 
 inoremap <silent><expr> <TAB>
       \ coc#pum#visible() ? coc#pum#next(1) :
@@ -183,10 +168,17 @@ vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDoc
 vim.api.nvim_create_user_command('Deno', 'CocCommand deno.initializeWorkspace', {});
 vim.api.nvim_create_user_command('Format', 'call CocActionAsync(\'format\')', {});
 
---command! -nargs=0 Prettier :CocCommand prettier.forceFormatDocument
---command! -nargs=0 Deno :CocCommand deno.initializeWorkspace
---command! -nargs=0 Format :call CocActionAsync('format')
-
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
+
+vim.keymap.set({ 'n' }, 'gd', '<Plug>(coc-definition)');
+vim.keymap.set({ 'n' }, 'gt', '<Plug>(coc-type-definition)');
+vim.keymap.set({ 'n' }, 'gi', '<Plug>(coc-implementation)');
+vim.keymap.set({ 'n' }, 'gr', '<Plug>(coc-references)');
+vim.keymap.set({ 'n' }, 'qf', '<Plug>(coc-fix-current)');
+vim.keymap.set({ 'n' }, 'ca', '<Plug>(coc-codeaction)');
+vim.keymap.set({ 'n' }, 'ci', '<Plug>(coc-diagnostic-info)');
+vim.keymap.set({ 'n' } , 'rr', '<Plug>(coc-rename)');
+
+vim.keymap.set({ 'n' }, 'p', 'P');
 
