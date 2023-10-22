@@ -89,11 +89,6 @@ sudo apt-get install unzip -y
 curl -fsSL https://deno.land/install.sh | sh || true
 echo "Deno installed."
 
-# Update-configs script
-wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
-chmod +x $HOME/tools/update-configs
-. $HOME/tools/update-configs
-
 # Install Tmux
 echo "Installing tmux..."
 sudo apt-get install tmux -y
@@ -112,7 +107,7 @@ else
   wget https://github.com/arl/gitmux/releases/download/v0.10.3/gitmux_v0.10.3_linux_amd64.tar.gz
   tar -xf gitmux_v0.10.3_linux_amd64.tar.gz
 fi
-mv gitmux /usr/local/bin
+sudo mv gitmux /usr/local/bin
 cd ..
 rm -rf temp
 echo "Gitmux installed."
@@ -126,3 +121,9 @@ echo "Tshark installed."
 ech "Installing lsd..."
 sudo apt-get install lsd -y
 echo "Lsd installed."
+
+# Update-configs script
+wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
+chmod +x $HOME/tools/update-configs
+. $HOME/tools/update-configs
+
