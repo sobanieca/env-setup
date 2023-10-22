@@ -81,7 +81,7 @@ require("lazy").setup({
   {
     "neoclide/coc.nvim", branch = 'release',
     dependencies = { 'nvim-lua/plenary.nvim' }
-  },
+  }
 })
 
 vim.cmd[[colorscheme tokyonight]]

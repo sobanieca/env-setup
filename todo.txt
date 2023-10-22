@@ -1,5 +1,0 @@
-* tabs vs spaces, search highlight and other basic settings
-* ctrl+p - fzf files search
-* file tree - coc explorer
-* coc nvim - autocomplete etc.
-
