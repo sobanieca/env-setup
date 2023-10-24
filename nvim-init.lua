@@ -81,7 +81,27 @@ require("lazy").setup({
   {
     "neoclide/coc.nvim", branch = 'release',
     dependencies = { 'nvim-lua/plenary.nvim' }
-  }
+  },
+  {
+    "prisma/vim-prisma"
+  },
+  {
+    "smoka7/multicursors.nvim",
+    event = "VeryLazy",
+    dependencies = {
+        'smoka7/hydra.nvim',
+    },
+    opts = {},
+    cmd = { 'MCstart', 'MCvisual', 'MCclear', 'MCpattern', 'MCvisualPattern', 'MCunderCursor' },
+    keys = {
+            {
+                mode = { 'v', 'n' },
+                '<Leader>m',
+                '<cmd>MCstart<cr>',
+                desc = 'Create a selection for selected text or word under the cursor',
+            },
+        },
+    }
 })
 
 
@@ -126,7 +146,7 @@ vim.o.sidescroll = 1
 vim.o.noerrorbells = true
 vim.o.visualbell = false
 
-vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css', 'coc-prettier', 'coc-eslint' }
+vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css', 'coc-prettier', 'coc-eslint', 'coc-prisma' }
 
 vim.cmd[[colorscheme tokyonight]]
 
@@ -137,6 +157,7 @@ vim.api.nvim_create_user_command('Format', 'call CocActionAsync(\'format\')', {}
 
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
+vim.keymap.set({ 'n' }, '<C-m>', '<Cmd>MCunderCursor<CR>');
 
 vim.keymap.set({ 'n' }, 'gd', '<Plug>(coc-definition)');
 vim.keymap.set({ 'n' }, 'gt', '<Plug>(coc-type-definition)');
