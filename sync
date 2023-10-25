@@ -9,4 +9,4 @@ cp ./coc-settings.json ~/.config/nvim/coc-settings.json
 cp ./ports ~/tools/ports
 cp ./sniff ~/tools/sniff
 cp ./remote ~/tools/remote
-
+cp ./debinfo ~/tools/debinfo

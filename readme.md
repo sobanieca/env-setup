@@ -129,3 +129,7 @@ Inside json file provide following structure:
 ```
 
 Run `remote` tool to connect to remote ssh server.
+
+# Tips & Tricks
+
+To view various notes about tools defined in this repository [go here](./notes.md)
