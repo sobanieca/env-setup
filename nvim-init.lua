@@ -48,10 +48,6 @@ require("lazy").setup({
     end
   },
   {
-    "nvim-telescope/telescope.nvim", tag = '0.1.4',
-    dependencies = { 'nvim-lua/plenary.nvim' }
-  },
-  {
     "nvim-tree/nvim-tree.lua",
     version = "*",
     lazy = false,
@@ -68,7 +64,7 @@ require("lazy").setup({
           group_empty = true,
         },
         filters = {
-          dotfiles = true,
+          dotfiles = false,
         },
 	      actions = {
 	        open_file = {
@@ -79,11 +75,21 @@ require("lazy").setup({
     end,
   },
   {
-    "neoclide/coc.nvim", branch = 'release',
+    "neoclide/coc.nvim", 
+    branch = 'release',
     dependencies = { 'nvim-lua/plenary.nvim' }
   },
   {
     "prisma/vim-prisma"
+  },
+  {
+    "isobit/vim-caddyfile"
+  },
+  {
+    "hashivim/vim-terraform"
+  },
+  {
+    "jparise/vim-graphql"
   },
   {
     "smoka7/multicursors.nvim",
@@ -92,16 +98,46 @@ require("lazy").setup({
         'smoka7/hydra.nvim',
     },
     opts = {},
-    cmd = { 'MCstart', 'MCvisual', 'MCclear', 'MCpattern', 'MCvisualPattern', 'MCunderCursor' },
-    keys = {
-            {
-                mode = { 'v', 'n' },
-                '<Leader>m',
-                '<cmd>MCstart<cr>',
-                desc = 'Create a selection for selected text or word under the cursor',
-            },
-        },
-    }
+    cmd = { 'MCunderCursor' },
+    keys = {}
+  },
+  {
+    "tomasky/bookmarks.nvim",
+    config = function()
+      require('bookmarks').setup {
+        save_file = vim.fn.expand "$HOME/.bookmarks",         
+        on_attach = function(bufnr)
+          local bm = require "bookmarks"
+          local map = vim.keymap.set
+          map("n","mm",bm.bookmark_toggle) 
+          map("n","mc",bm.bookmark_clean)
+          map("n","mn",bm.bookmark_next)
+          map("n","mp",bm.bookmark_prev)
+        end
+      }
+    end,
+  },
+  {
+    "nvim-telescope/telescope.nvim", tag = '0.1.4',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('telescope').load_extension('bookmarks')
+    end
+  },
+  {
+    'TrevorS/uuid-nvim',
+    lazy = true,
+    config = function()
+      require('uuid-nvim').setup{
+        case = 'lower',
+        quotes = 'none'
+      }
+    end,
+  },
+  {
+    "nvim-pack/nvim-spectre",
+    dependencies = { 'nvim-lua/plenary.nvim' },
+  },
 })
 
 
@@ -154,10 +190,16 @@ vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
 vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
 vim.api.nvim_create_user_command('Deno', 'CocCommand deno.initializeWorkspace', {});
 vim.api.nvim_create_user_command('Format', 'call CocActionAsync(\'format\')', {});
+vim.api.nvim_create_user_command('Mc', 'MCunderCursor', {});
+vim.api.nvim_create_user_command('Find', function()
+  require("spectre").toggle()
+end, {});
 
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
+vim.keymap.set({ 'n' }, '<C-b>', '<Cmd>Telescope bookmarks list<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
-vim.keymap.set({ 'n' }, '<C-m>', '<Cmd>MCunderCursor<CR>');
+
+vim.keymap.set({ 'i' }, '<C-u>', require('uuid-nvim').insert_v4);
 
 vim.keymap.set({ 'n' }, 'gd', '<Plug>(coc-definition)');
 vim.keymap.set({ 'n' }, 'gt', '<Plug>(coc-type-definition)');
