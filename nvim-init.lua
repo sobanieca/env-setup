@@ -138,8 +138,21 @@ require("lazy").setup({
     "nvim-pack/nvim-spectre",
     dependencies = { 'nvim-lua/plenary.nvim' },
   },
+  {
+    "jackMort/ChatGPT.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("chatgpt").setup({
+        api_key_cmd = "cat " .. vim.fn.expand("$HOME") .. "/.secret/oai.txt"
+      })
+    end,
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim"
+    }
+  }
 })
-
 
 vim.o.smartindent = true
 
