@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cp ./bashrcx ~/.bashrcx
+cp ./tmux.conf ~/.tmux.conf
+cp ./gitmux.conf ~/.gitmux.conf
+cp ./nvim-init.lua ~/.config/nvim/init.lua
+cp ./nvim-legacy.vim ~/.config/nvim/legacy.vim
+cp ./coc-settings.json ~/.config/nvim/coc-settings.json
+cp ./ports ~/tools/ports
+cp ./sniff ~/tools/sniff
+cp ./remote ~/tools/remote
+

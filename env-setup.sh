@@ -67,12 +67,6 @@ echo "Installing jq..."
 sudo apt-get install jq -y
 echo "Jq installed."
 
-# Install vim
-echo "Installing vim..."
-sudo apt-get install vim -y
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-echo "Vim installed."
-
 # Install Node.js
 echo "Installing nvm and node.js..."
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash

@@ -32,10 +32,6 @@ echo "Updating gitmux.conf file..."
 wget $BASE_URL"gitmux.conf" -O $HOME/.config/.gitmux.conf
 echo "gitmux.conf file replaced."
 
-echo "Updating .vimrc..."
-wget $BASE_URL"vimrc" -O $HOME/.vimrc
-echo ".vimrc updated."
-
 echo "Updating nvim/init.lua..."
 wget $BASE_URL"nvim-init.lua" -O $HOME/.config/nvim/init.lua
 echo "nvim/init.lua updated."
