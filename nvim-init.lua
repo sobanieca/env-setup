@@ -195,7 +195,7 @@ vim.o.sidescroll = 1
 vim.o.noerrorbells = true
 vim.o.visualbell = false
 
-vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css', 'coc-prettier', 'coc-eslint', 'coc-prisma' }
+vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css', 'coc-prettier', 'coc-eslint', 'coc-prisma', 'coc-yaml' }
 
 vim.cmd[[colorscheme tokyonight]]
 
