@@ -19,6 +19,9 @@ While on nvim-tree - show keyboard shortcuts
 `:messages`:
 View debug messages (for instance `print()` results from lua script)
 
+`VISUAL mode + gc/gb`:
+Comment out highlighted text (line/block comment)
+
 ## WSL
 
 ```
