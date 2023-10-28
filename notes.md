@@ -13,6 +13,9 @@ Setup user email locally for given repository
 `ctrl+w,w`:
 Focus on floating window
 
+`ctrl+w,=`:
+Realign windows after resize
+
 `g?`:
 While on nvim-tree - show keyboard shortcuts
 
