@@ -41,8 +41,16 @@ require("lazy").setup({
     },
     config = function()
       require('lualine').setup {
-	      options = {
-    	    theme = 'tokyonight'
+        options = {
+          theme = 'tokyonight',
+        },
+        sections = {
+          lualine_a = {'mode'},
+          lualine_b = {'diagnostics'},
+          lualine_c = {'filename'},
+          lualine_x = {'encoding', 'fileformat', 'filetype'},
+          lualine_y = {'progress'},
+          lualine_z = {'location'}
         }
       }
     end
@@ -66,11 +74,11 @@ require("lazy").setup({
         filters = {
           dotfiles = false,
         },
-	      actions = {
-	        open_file = {
-	          quit_on_open = true,
-	        }
-	      }
+        actions = {
+          open_file = {
+            quit_on_open = true,
+          }
+        }
       }
     end,
   },
@@ -186,6 +194,9 @@ vim.o.nobackup = true
 vim.o.nowritebackup = true
 vim.o.noswapfile = true
 
+vim.o.scrolloff = 999
+vim.o.sidescroll = 1
+
 vim.o.hlsearch = true
 vim.o.incsearch = true
 vim.o.laststatus=2
@@ -195,9 +206,6 @@ vim.o.signcolumn = "auto"
 
 vim.o.mouse = "a"
 vim.o.updatetime = 300
-
-vim.o.scrolloff = 999
-vim.o.sidescroll = 1
 
 vim.o.noerrorbells = true
 vim.o.visualbell = false
