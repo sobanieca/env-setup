@@ -25,6 +25,11 @@ View debug messages (for instance `print()` results from lua script)
 `VISUAL mode + gc/gb`:
 Comment out highlighted text (line/block comment)
 
+## Tmux
+
+`ctrl+space`, `c` type `swap-panes -D`:
+Swap open panes
+
 ## WSL
 
 ```
