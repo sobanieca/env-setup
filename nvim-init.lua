@@ -113,7 +113,7 @@ require("lazy").setup({
     "tomasky/bookmarks.nvim",
     config = function()
       require('bookmarks').setup {
-        save_file = vim.fn.expand "$HOME/.bookmarks",         
+        save_file = vim.fn.expand "$HOME/.config/nvim/bookmarks", 
         on_attach = function(bufnr)
           local bm = require "bookmarks"
           local map = vim.keymap.set

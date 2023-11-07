@@ -10,7 +10,7 @@ Setup user email locally for given repository
 
 ## Neovim
 
-`ctrl+w,w`:
+`ctrl+w,W`:
 Focus on floating window
 
 `ctrl+w,=`:
