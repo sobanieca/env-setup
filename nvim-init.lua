@@ -278,23 +278,6 @@ require("lazy").setup({
       require("nvim-treesitter.configs").setup(opts)
     end,
   },
-  {
-    "fannheyward/telescope-coc.nvim",
-    event = "VeryLazy",
-    config = function()
-      require("telescope").setup({
-        extensions = {
-          coc = {
-            theme = 'ivy',
-            prefer_locations = true, -- always use Telescope locations to preview definitions/declarations/implementations etc
-          }
-        },
-      })
-    end,
-    dependencies = {
-      "nvim-telescope/telescope.nvim"
-    }
-  },
 })
 
 vim.o.smartindent = true
