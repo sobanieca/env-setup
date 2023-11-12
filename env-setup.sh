@@ -67,6 +67,11 @@ echo "Installing jq..."
 sudo apt-get install jq -y
 echo "Jq installed."
 
+# Install C++ build tools
+echo "Installing C++ build tools..."
+sudo apt-get install g++ -y
+echo "C++ build tools installed."
+
 # Install Node.js
 echo "Installing nvm and node.js..."
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
