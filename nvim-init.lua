@@ -210,10 +210,6 @@ require("lazy").setup({
       },
     },
     cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
-    keys = {
-      { "<c-space>", desc = "Increment selection" },
-      { "<bs>",      desc = "Decrement selection", mode = "x" },
-    },
     ---@type TSConfig
     ---@diagnostic disable-next-line: missing-fields
     opts = {
@@ -242,15 +238,6 @@ require("lazy").setup({
         "vim",
         "vimdoc",
         "yaml",
-      },
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = "<C-space>",
-          node_incremental = "<C-space>",
-          scope_incremental = false,
-          node_decremental = "<bs>",
-        },
       },
       textobjects = {
         move = {
