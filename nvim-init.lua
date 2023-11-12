@@ -45,12 +45,12 @@ require("lazy").setup({
           theme = 'tokyonight',
         },
         sections = {
-          lualine_a = {'mode'},
-          lualine_b = {'diagnostics'},
-          lualine_c = {'filename'},
-          lualine_x = {'encoding', 'fileformat', 'filetype'},
-          lualine_y = {'progress'},
-          lualine_z = {'location'}
+          lualine_a = { 'mode' },
+          lualine_b = { 'diagnostics' },
+          lualine_c = { 'filename' },
+          lualine_x = { 'encoding', 'fileformat', 'filetype' },
+          lualine_y = { 'progress' },
+          lualine_z = { 'location' }
         }
       }
     end
@@ -83,7 +83,7 @@ require("lazy").setup({
     end,
   },
   {
-    "neoclide/coc.nvim", 
+    "neoclide/coc.nvim",
     branch = 'release',
     dependencies = { 'nvim-lua/plenary.nvim' }
   },
@@ -103,7 +103,7 @@ require("lazy").setup({
     "smoka7/multicursors.nvim",
     event = "VeryLazy",
     dependencies = {
-        'smoka7/hydra.nvim',
+      'smoka7/hydra.nvim',
     },
     opts = {},
     cmd = { 'MCunderCursor' },
@@ -113,20 +113,21 @@ require("lazy").setup({
     "tomasky/bookmarks.nvim",
     config = function()
       require('bookmarks').setup {
-        save_file = vim.fn.expand "$HOME/.config/nvim/bookmarks", 
+        save_file = vim.fn.expand "$HOME/.config/nvim/bookmarks",
         on_attach = function(bufnr)
           local bm = require "bookmarks"
           local map = vim.keymap.set
-          map("n","mm",bm.bookmark_toggle) 
-          map("n","mc",bm.bookmark_clean)
-          map("n","mn",bm.bookmark_next)
-          map("n","mp",bm.bookmark_prev)
+          map("n", "mm", bm.bookmark_toggle)
+          map("n", "mc", bm.bookmark_clean)
+          map("n", "mn", bm.bookmark_next)
+          map("n", "mp", bm.bookmark_prev)
         end
       }
     end,
   },
   {
-    "nvim-telescope/telescope.nvim", tag = '0.1.4',
+    "nvim-telescope/telescope.nvim",
+    tag = '0.1.4',
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       require('telescope').load_extension('bookmarks')
@@ -136,7 +137,7 @@ require("lazy").setup({
     'TrevorS/uuid-nvim',
     lazy = true,
     config = function()
-      require('uuid-nvim').setup{
+      require('uuid-nvim').setup {
         case = 'lower',
         quotes = 'none'
       }
@@ -163,10 +164,137 @@ require("lazy").setup({
   {
     "numToStr/Comment.nvim",
     opts = {
-        -- add any options here
+      -- add any options here
     },
     lazy = false,
-  }
+  },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    version = false, -- last release is way too old and doesn't work on Windows
+    build = ":TSUpdate",
+    event = { "VeryLazy" },
+    init = function(plugin)
+      -- PERF: add nvim-treesitter queries to the rtp and it's custom query predicates early
+      -- This is needed because a bunch of plugins no longer `require("nvim-treesitter")`, which
+      -- no longer trigger the **nvim-treeitter** module to be loaded in time.
+      -- Luckily, the only thins that those plugins need are the custom queries, which we make available
+      -- during startup.
+      require("lazy.core.loader").add_to_rtp(plugin)
+      require("nvim-treesitter.query_predicates")
+    end,
+    dependencies = {
+      {
+        "nvim-treesitter/nvim-treesitter-textobjects",
+        config = function()
+          -- When in diff mode, we want to use the default
+          -- vim text objects c & C instead of the treesitter ones.
+          local move = require("nvim-treesitter.textobjects.move") ---@type table<string,fun(...)>
+          local configs = require("nvim-treesitter.configs")
+          for name, fn in pairs(move) do
+            if name:find("goto") == 1 then
+              move[name] = function(q, ...)
+                if vim.wo.diff then
+                  local config = configs.get_module("textobjects.move")[name] ---@type table<string,string>
+                  for key, query in pairs(config or {}) do
+                    if q == query and key:find("[%]%[][cC]") then
+                      vim.cmd("normal! " .. key)
+                      return
+                    end
+                  end
+                end
+                return fn(q, ...)
+              end
+            end
+          end
+        end,
+      },
+    },
+    cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
+    keys = {
+      { "<c-space>", desc = "Increment selection" },
+      { "<bs>",      desc = "Decrement selection", mode = "x" },
+    },
+    ---@type TSConfig
+    ---@diagnostic disable-next-line: missing-fields
+    opts = {
+      highlight = { enable = true },
+      indent = { enable = true },
+      ensure_installed = {
+        "bash",
+        "c",
+        "diff",
+        "html",
+        "javascript",
+        "jsdoc",
+        "json",
+        "jsonc",
+        "lua",
+        "luadoc",
+        "luap",
+        "markdown",
+        "markdown_inline",
+        "python",
+        "query",
+        "regex",
+        "toml",
+        "tsx",
+        "typescript",
+        "vim",
+        "vimdoc",
+        "yaml",
+      },
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = "<C-space>",
+          node_incremental = "<C-space>",
+          scope_incremental = false,
+          node_decremental = "<bs>",
+        },
+      },
+      textobjects = {
+        move = {
+          enable = true,
+          goto_next_start = { ["]f"] = "@function.outer", ["]c"] = "@class.outer" },
+          goto_next_end = { ["]F"] = "@function.outer", ["]C"] = "@class.outer" },
+          goto_previous_start = { ["[f"] = "@function.outer", ["[c"] = "@class.outer" },
+          goto_previous_end = { ["[F"] = "@function.outer", ["[C"] = "@class.outer" },
+        },
+      },
+    },
+    ---@param opts TSConfig
+    config = function(_, opts)
+      if type(opts.ensure_installed) == "table" then
+        ---@type table<string, boolean>
+        local added = {}
+        opts.ensure_installed = vim.tbl_filter(function(lang)
+          if added[lang] then
+            return false
+          end
+          added[lang] = true
+          return true
+        end, opts.ensure_installed)
+      end
+      require("nvim-treesitter.configs").setup(opts)
+    end,
+  },
+  {
+    "fannheyward/telescope-coc.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("telescope").setup({
+        extensions = {
+          coc = {
+            theme = 'ivy',
+            prefer_locations = true, -- always use Telescope locations to preview definitions/declarations/implementations etc
+          }
+        },
+      })
+    end,
+    dependencies = {
+      "nvim-telescope/telescope.nvim"
+    }
+  },
 })
 
 vim.o.smartindent = true
@@ -174,9 +302,9 @@ vim.o.smartindent = true
 vim.o.expandtab = true
 vim.o.tabstop = 2
 vim.o.shiftround = true
-vim.o.shiftwidth=2
-vim.o.softtabstop=2
-vim.o.textwidth=160
+vim.o.shiftwidth = 2
+vim.o.softtabstop = 2
+vim.o.textwidth = 160
 
 vim.o.title = true
 vim.o.nowrap = true
@@ -199,7 +327,7 @@ vim.o.sidescroll = 1
 
 vim.o.hlsearch = true
 vim.o.incsearch = true
-vim.o.laststatus=2
+vim.o.laststatus = 2
 vim.o.noruler = true
 vim.o.noshowmode = true
 vim.o.signcolumn = "auto"
@@ -210,9 +338,10 @@ vim.o.updatetime = 300
 vim.o.noerrorbells = true
 vim.o.visualbell = false
 
-vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css', 'coc-prettier', 'coc-eslint', 'coc-prisma', 'coc-yaml' }
+vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css', 'coc-prettier', 'coc-eslint',
+  'coc-prisma', 'coc-yaml', 'coc-lua' }
 
-vim.cmd[[colorscheme tokyonight]]
+vim.cmd [[colorscheme tokyonight]]
 
 vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
 vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
@@ -236,7 +365,7 @@ vim.keymap.set({ 'n' }, 'gr', '<Plug>(coc-references)');
 vim.keymap.set({ 'n' }, 'qf', '<Plug>(coc-fix-current)');
 vim.keymap.set({ 'n' }, 'ca', '<Plug>(coc-codeaction)');
 vim.keymap.set({ 'n' }, 'ci', '<Plug>(coc-diagnostic-info)');
-vim.keymap.set({ 'n' } , 'rr', '<Plug>(coc-rename)');
+vim.keymap.set({ 'n' }, 'rr', '<Plug>(coc-rename)');
 
 vim.keymap.set({ 'n' }, 'p', 'P');
 
