@@ -25,6 +25,10 @@ While on nvim-tree - show keyboard shortcuts
 `:messages`:
 View debug messages (for instance `print()` results from lua script)
 
+`:checkhealth`:
+Display health checks which may help troubleshooting plugins issues. For instance, if on `save` file, error occurs that `!` is required, it's indicator that
+something is messed up.
+
 `VISUAL mode + gc/gb`:
 Comment out highlighted text (line/block comment)
 
