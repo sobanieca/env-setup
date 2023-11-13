@@ -213,6 +213,22 @@ require("lazy").setup({
       })
     end
   },
+  {
+    "fannheyward/telescope-coc.nvim",
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+    },
+    config = function()
+      require("telescope").setup({
+        extensions = {
+          coc = {
+            prefer_locations = true,
+          }
+        },
+      })
+      require('telescope').load_extension('coc')
+    end,
+  }
 })
 
 vim.o.smartindent = true
@@ -276,10 +292,10 @@ vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
 
 vim.keymap.set({ 'i' }, '<C-u>', require('uuid-nvim').insert_v4);
 
-vim.keymap.set({ 'n' }, 'gd', '<Plug>(coc-definition)');
-vim.keymap.set({ 'n' }, 'gt', '<Plug>(coc-type-definition)');
-vim.keymap.set({ 'n' }, 'gi', '<Plug>(coc-implementation)');
-vim.keymap.set({ 'n' }, 'gr', '<Plug>(coc-references)');
+vim.keymap.set({ 'n' }, 'gd', '<Cmd>Telescope coc definitions<CR>');
+vim.keymap.set({ 'n' }, 'gt', '<Cmd>Telescope coc type_definitions<CR>');
+vim.keymap.set({ 'n' }, 'gi', '<Cmd>Telescope coc implementations<CR>');
+vim.keymap.set({ 'n' }, 'gr', '<Cmd>Telescope coc references<CR>');
 vim.keymap.set({ 'n' }, 'qf', '<Plug>(coc-fix-current)');
 vim.keymap.set({ 'n' }, 'ca', '<Plug>(coc-codeaction)');
 vim.keymap.set({ 'n' }, 'ci', '<Plug>(coc-diagnostic-info)');
