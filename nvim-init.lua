@@ -213,6 +213,15 @@ require("lazy").setup({
       })
     end
   },
+  {
+    "startup-nvim/startup.nvim",
+    dependencies = { 'nvim-telescope/telescope.nvim' },
+    config = function()
+      require("startup").setup({
+        theme = "startify",
+      })
+    end
+  },
 })
 
 vim.o.smartindent = true
