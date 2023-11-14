@@ -121,6 +121,11 @@ require("lazy").setup({
     tag = '0.1.4',
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
+      require('telescope').setup({
+        defaults = {
+          dynamic_preview_title = true
+        }
+      })
       require('telescope').load_extension('bookmarks')
     end
   },
