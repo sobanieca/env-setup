@@ -64,3 +64,8 @@ wget $BASE_URL"debinfo" -O $HOME/tools/debinfo
 chmod +x $HOME/tools/debinfo
 echo "debinfo tool updated"
 
+echo "Updating gshow tool"
+wget $BASE_URL"gshow" -O $HOME/tools/gshow
+chmod +x $HOME/tools/gshow
+echo "gshow tool updated"
+

@@ -32,6 +32,12 @@ something is messed up.
 `VISUAL mode + gc/gb`:
 Comment out highlighted text (line/block comment)
 
+`:!gshow 3 %`:
+Show current file content from 3 days ago
+
+`:!gshow 3 % feat/some-branch`:
+Show current file content from 3 days ago on `feat/some-branch`
+
 ## Tmux
 
 `ctrl+space`, `c` type `swap-panes -D`:

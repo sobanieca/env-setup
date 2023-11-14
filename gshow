@@ -1,0 +1,12 @@
+#!/bin/bash
+# Get the date from the specified number of days ago
+DATE=$(date -d "$1 days ago" +"%Y-%m-%d")
+# Check if the branch name is provided
+if [ -z "$3" ]; then
+  # Use git to show the content of the file from the specified number of days ago in the current branch
+  git show HEAD@{"$DATE"}:"$2"
+else
+  # Use git to show the content of the file from the specified number of days ago in the specified branch
+  git show "$3"@{"$DATE"}:"$2"
+fi
+
