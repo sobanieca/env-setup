@@ -223,7 +223,7 @@ require("lazy").setup({
     dependencies = { 'nvim-telescope/telescope.nvim' },
     config = function()
       require("startup").setup({
-        theme = "startify",
+        theme = "dashboard",
       })
     end
   },
