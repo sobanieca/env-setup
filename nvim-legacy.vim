@@ -12,7 +12,7 @@ function! CheckBackspace() abort
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
-inoremap <silent><expr> <c-.> coc#refresh()
+inoremap <silent><expr> <c-k> coc#refresh()
 
 nnoremap <silent> K :call ShowDocumentation()<CR>
 

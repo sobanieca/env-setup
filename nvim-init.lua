@@ -263,6 +263,7 @@ vim.o.laststatus = 2
 vim.o.noruler = true
 vim.o.noshowmode = true
 vim.o.signcolumn = "auto"
+vim.o.pumheight = 10
 
 vim.o.mouse = "a"
 vim.o.updatetime = 300

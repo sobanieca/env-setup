@@ -1,4 +1,9 @@
 {
- "diagnostic.checkCurrentLine": true
+  "diagnostic.checkCurrentLine": true,
+  "suggest.languageSourcePriority": 99,
+  "suggest.defaultSortMethod": "none",
+  "suggest.lowPrioritySourceLimit": 5,
+  "coc.source.buffer.enable": false,
+  "coc.source.around.enable": false,
+  "coc.source.file.enable": false
 }
-
