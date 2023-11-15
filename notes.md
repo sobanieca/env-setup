@@ -38,6 +38,9 @@ Show current file content from 3 days ago
 `:!gshow 3 % feat/some-branch`:
 Show current file content from 3 days ago on `feat/some-branch`
 
+`:read !gshow 3 %`:
+Insert output of gshow into current buffer
+
 ## Tmux
 
 `ctrl+space`, `c` type `swap-panes -D`:
