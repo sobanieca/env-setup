@@ -69,3 +69,7 @@ wget $BASE_URL"gshow" -O $HOME/tools/gshow
 chmod +x $HOME/tools/gshow
 echo "gshow tool updated"
 
+echo "Updating gblame tool"
+wget $BASE_URL"gblame" -O $HOME/tools/gblame
+chmod +x $HOME/tools/gblame
+echo "gblame tool updated"
