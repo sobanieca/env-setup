@@ -284,28 +284,13 @@ vim.api.nvim_create_user_command('Mc', 'MCunderCursor', {});
 vim.api.nvim_create_user_command('Find', function()
   require("spectre").toggle()
 end, {});
-vim.cmd [[
-  function! GitBlame()
-    let l:current_file = expand('%:p')
-    let l:current_line = line('.')
-    execute '!gblame ' . l:current_file . ' ' . l:current_line
-  endfunction
-  command! GitBlame call GitBlame()
-]]
-vim.cmd [[
-  function! GitShow()
-    let l:current_file = expand('%:p')
-    let l:days = vim.fn.input('Days ago: ') 
-    execute '!gshow ' . l:days . ' ' . l:current_file
-  endfunction
-  command! GitShow call GitShow()
-]]
-vim.api.nvim_create_user_command('GitShow2', function()
+vim.api.nvim_create_user_command('GitBlame', function()
+  local currentLine = vim.fn.line('.')
+  vim.cmd('!gblame % ' .. currentLine);
+end, {});
+vim.api.nvim_create_user_command('GitShow', function()
   local daysAgo = vim.fn.input('Days ago: ')
-  local currentFile = expand('%:p')
-  local command = 'gshow ' .. daysAgo .. currentFile
-  local output = vim.fn.system(command)
-  print(output)
+  vim.cmd('!gshow ' .. daysAgo .. ' ' .. '%')
 end, {});
 
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
