@@ -293,6 +293,39 @@ vim.api.nvim_create_user_command('GitShow', function()
   vim.cmd('!gshow ' .. daysAgo .. ' ' .. '%')
 end, {});
 
+local noop = function()
+end
+
+vim.keymap.set({ 'n' }, 'q', noop);
+vim.keymap.set({ 'n' }, 'w', noop);
+vim.keymap.set({ 'n' }, 'e', noop);
+vim.keymap.set({ 'n' }, 'r', noop);
+vim.keymap.set({ 'n' }, 't', noop);
+vim.keymap.set({ 'n' }, 'o', noop);
+vim.keymap.set({ 'n' }, 'a', noop);
+vim.keymap.set({ 'n' }, 's', noop);
+vim.keymap.set({ 'n' }, 'f', noop);
+vim.keymap.set({ 'n' }, 'z', noop);
+vim.keymap.set({ 'n' }, 'x', noop);
+vim.keymap.set({ 'n' }, 'c', noop);
+vim.keymap.set({ 'n' }, 'b', noop);
+vim.keymap.set({ 'n' }, ',', noop);
+vim.keymap.set({ 'n' }, '.', noop);
+vim.keymap.set({ 'n' }, '?', noop);
+vim.keymap.set({ 'n' }, ';', noop);
+vim.keymap.set({ 'n' }, '"', noop);
+vim.keymap.set({ 'n' }, '[', noop);
+vim.keymap.set({ 'n' }, ']', noop);
+vim.keymap.set({ 'n' }, '-', noop);
+vim.keymap.set({ 'n' }, '=', noop);
+vim.keymap.set({ 'n' }, '_', noop);
+vim.keymap.set({ 'n' }, '+', noop);
+vim.keymap.set({ 'n' }, '{', noop);
+vim.keymap.set({ 'n' }, '}', noop);
+vim.keymap.set({ 'n' }, '<', noop);
+vim.keymap.set({ 'n' }, '>', noop);
+vim.keymap.set({ 'n' }, '?', noop);
+
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
 vim.keymap.set({ 'n' }, '<C-b>', '<Cmd>Telescope bookmarks list<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
