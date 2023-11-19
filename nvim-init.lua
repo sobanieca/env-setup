@@ -308,6 +308,10 @@ vim.keymap.set({ 'n' }, 'ca', '<Plug>(coc-codeaction)');
 vim.keymap.set({ 'n' }, 'ci', '<Plug>(coc-diagnostic-info)');
 vim.keymap.set({ 'n' }, 'rr', '<Plug>(coc-rename)');
 
+vim.keymap.set('n', '<TAB>', '>>', opts);
+vim.keymap.set('n', '<S-TAB>', '<<', opts);
+vim.keymap.set('v', '<TAB>', '<S->>gv', opts);
+vim.keymap.set('v', '<S-TAB>', '<S-<>gv', opts);
 vim.keymap.set({ 'n' }, 'p', 'P');
 
 vim.cmd('source ~/.config/nvim/legacy.vim');
