@@ -286,11 +286,11 @@ vim.api.nvim_create_user_command('Find', function()
 end, {});
 vim.api.nvim_create_user_command('GitBlame', function()
   local currentLine = vim.fn.line('.')
-  vim.cmd('!gblame % ' .. currentLine);
+  vim.cmd('!gblame "%:~:." ' .. currentLine);
 end, {});
 vim.api.nvim_create_user_command('GitShow', function()
   local daysAgo = vim.fn.input('Days ago: ')
-  vim.cmd('!gshow ' .. daysAgo .. ' ' .. '%')
+  vim.cmd('!gshow ' .. daysAgo .. ' ' .. '"%:~:."')
 end, {});
 
 local noop = function()
