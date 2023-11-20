@@ -5,7 +5,7 @@ if not vim.loop.fs_stat(lazypath) then
     "clone",
     "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
+    "--branch=stable",
     lazypath,
   })
 end
@@ -24,7 +24,7 @@ require("lazy").setup({
     version = "*",
     dependencies = {
       "SmiteshP/nvim-navic",
-      "nvim-tree/nvim-web-devicons", -- optional dependency
+      "nvim-tree/nvim-web-devicons",
     },
     opts = {
     },
@@ -321,6 +321,15 @@ vim.keymap.set({ 'n' }, '+', noop);
 vim.keymap.set({ 'n' }, '{', noop);
 vim.keymap.set({ 'n' }, '}', noop);
 vim.keymap.set({ 'n' }, '?', noop);
+
+vim.keymap.set({ 'n', 'v' }, '<C-Left>', '5h');
+vim.keymap.set({ 'n', 'v' }, '<C-Right>', '5l');
+vim.keymap.set({ 'n', 'v' }, '<S-Left>', '10h');
+vim.keymap.set({ 'n', 'v' }, '<S-Right>', '10l');
+vim.keymap.set({ 'n', 'v' }, '<C-Up>', '5k');
+vim.keymap.set({ 'n', 'v' }, '<C-Down>', '5j');
+vim.keymap.set({ 'n', 'v' }, '<S-Up>', '10k');
+vim.keymap.set({ 'n', 'v' }, '<S-Down>', '10j');
 
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
 vim.keymap.set({ 'n' }, '<C-b>', '<Cmd>Telescope bookmarks list<CR>');
