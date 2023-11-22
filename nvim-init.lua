@@ -239,7 +239,7 @@ vim.o.softtabstop = 2
 vim.o.textwidth = 160
 
 vim.o.title = true
-vim.o.nowrap = true
+vim.o.wrap = false
 
 vim.o.hidden = true
 vim.o.nofixendofline = true
