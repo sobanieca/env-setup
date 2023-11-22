@@ -262,7 +262,7 @@ vim.o.incsearch = true
 vim.o.laststatus = 2
 vim.o.noruler = true
 vim.o.noshowmode = true
-vim.o.signcolumn = "auto"
+vim.o.signcolumn = "auto:3"
 vim.o.pumheight = 10
 
 vim.o.mouse = "a"
