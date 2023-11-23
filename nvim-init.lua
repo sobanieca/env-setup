@@ -66,18 +66,13 @@ require("lazy").setup({
       require("nvim-tree").setup {
         sort_by = "case_sensitive",
         view = {
-          width = 60,
-        },
-        renderer = {
-          group_empty = true,
+          width = 50,
         },
         filters = {
           dotfiles = false,
         },
-        actions = {
-          open_file = {
-            quit_on_open = true,
-          }
+        update_focused_file = {
+          enable = true,
         }
       }
     end,
