@@ -124,7 +124,8 @@ Inside json file provide following structure:
     "server": "{server}"
     "username": "{user}",
     "port": "{port}",
-    "keyPath": "~/.ssh/id_rsa
+    "keyPath": "~/.ssh/id_rsa",
+    "portForward": "3000,4000"
 }
 ```
 

@@ -17,5 +17,16 @@ export SSH_SERVER=$(echo $DATA | jq -r '.server')
 export SSH_PORT=$(echo $DATA | jq -r '.port')
 export SSH_USERNAME=$(echo $DATA | jq -r '.username')
 export SSH_KEY_PATH=$(echo $DATA | jq -r '.keyPath')
+export SSH_PORT_FORWARD=$(echo $DATA | jq -r '.portForward')
 
-ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -q -L 3000:localhost:3000 -l $SSH_USERNAME -p $SSH_PORT -i $SSH_KEY_PATH $SSH_SERVER
+SSH_PORT_FORWARD=$1
+IFS=',' read -ra PORT_ARRAY <<< "$SSH_PORT_FORWARD"
+
+PORT_FORWARDING=""
+
+for PORT in "${PORT_ARRAY[@]}"; do
+  PORT_MAPPING="$PORT:localhost:$PORT"
+  PORT_FORWARDING+=" -L $PORT_MAPPING"
+done
+
+ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -q $PORT_FORWARDING -l $SSH_USERNAME -p $SSH_PORT -i $SSH_KEY_PATH $SSH_SERVER
