@@ -71,6 +71,11 @@ require("lazy").setup({
         filters = {
           dotfiles = false,
         },
+        actions = {
+          open_file = {
+            quit_on_open = vim.go.cols >= 200 and true or false
+          }
+        },
         update_focused_file = {
           enable = true,
         }
