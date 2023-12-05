@@ -297,7 +297,6 @@ local noop = function()
 end
 
 vim.keymap.set({ 'n' }, 'q', noop);
-vim.keymap.set({ 'n' }, 'w', noop);
 vim.keymap.set({ 'n' }, 'e', noop);
 vim.keymap.set({ 'n' }, 't', noop);
 vim.keymap.set({ 'n' }, 'o', noop);
