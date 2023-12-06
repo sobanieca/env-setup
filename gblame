@@ -13,7 +13,22 @@ git_blame_output=$(git blame -L $line_number,$line_number $file_path)
 commit_hash=$(echo $git_blame_output | cut -d' ' -f1)
 # Get the commit details
 commit_details=$(git log --format="%H %an %s" | grep $commit_hash)
+commit_date=$(git log --format="%at" -n 1 $commit_hash)
+current_date=$(date +%s)
+time_diff=$((current_date - commit_date))
+# Calculate the time difference in human-readable format
+if [ $time_diff -ge 86400 ]; then
+    time_ago="$((time_diff / 86400)) days ago"
+elif [ $time_diff -ge 3600 ]; then
+    time_ago="$((time_diff / 3600)) hours ago"
+elif [ $time_diff -ge 1800 ]; then
+    time_ago="$((time_diff / 60)) minutes ago"
+else
+    time_ago="$time_diff seconds ago"
+fi
+
 echo "Commit Hash: $(echo $commit_details | cut -d' ' -f1)"
 echo "Author: $(echo $commit_details | cut -d' ' -f2)"
 echo "Message: $(echo $commit_details | cut -d' ' -f3-)"
+echo "Date: $time_ago"
 

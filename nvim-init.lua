@@ -292,6 +292,10 @@ vim.api.nvim_create_user_command('GitShow', function()
   local daysAgo = vim.fn.input('Days ago: ')
   vim.cmd('!gshow ' .. daysAgo .. ' ' .. '"%:~:."')
 end, {});
+vim.api.nvim_create_user_command('GitShowInsert', function()
+  local daysAgo = vim.fn.input('Days ago: ')
+  vim.cmd('read !gshow ' .. daysAgo .. ' ' .. '"%:~:."')
+end, {});
 
 local noop = function()
 end
