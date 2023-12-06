@@ -35,9 +35,6 @@ Comment out highlighted text (line/block comment)
 `:!gshow 3 % feat/some-branch`:
 Show current file content from 3 days ago on `feat/some-branch`
 
-`:read !gshow 3 %`:
-Insert output of gshow into current buffer
-
 `neovim tree, select folder, press '.', type 'tcd'`:
 Change working directory temporarily for current tab/window. Useful when doing things like `live-grep` in specific folder.
 
