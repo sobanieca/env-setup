@@ -1,3 +1,16 @@
+local function inspect(t, indent)
+    indent = indent or 0
+    for k, v in pairs(t) do
+        if type(v) == "table" then
+            print(string.rep(" ", indent) .. k .. " = {")
+            inspect(v, indent + 2)
+            print(string.rep(" ", indent) .. "}")
+        else
+            print(string.rep(" ", indent) .. k .. " = " .. tostring(v))
+        end
+    end
+end
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -91,16 +104,6 @@ require("lazy").setup({
     "isobit/vim-caddyfile"
   },
   {
-    "smoka7/multicursors.nvim",
-    event = "VeryLazy",
-    dependencies = {
-      'smoka7/hydra.nvim',
-    },
-    opts = {},
-    cmd = { 'MCunderCursor' },
-    keys = {}
-  },
-  {
     "tomasky/bookmarks.nvim",
     config = function()
       require('bookmarks').setup {
@@ -166,6 +169,7 @@ require("lazy").setup({
   },
   {
     "nvim-treesitter/nvim-treesitter",
+    enabled = vim.loop.os_uname().machine ~= "aarch64",
     build = ":TSUpdate",
     event = "VeryLazy",
     config = function()
@@ -280,7 +284,6 @@ vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
 vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
 vim.api.nvim_create_user_command('Deno', 'CocCommand deno.initializeWorkspace', {});
 vim.api.nvim_create_user_command('Format', 'call CocActionAsync(\'format\')', {});
-vim.api.nvim_create_user_command('Mc', 'MCunderCursor', {});
 vim.api.nvim_create_user_command('Find', function()
   require("spectre").toggle()
 end, {});
@@ -296,6 +299,13 @@ vim.api.nvim_create_user_command('GitShowInsert', function()
   local daysAgo = vim.fn.input('Days ago: ')
   vim.cmd('read !gshow ' .. daysAgo .. ' ' .. '"%:~:."')
 end, {});
+vim.api.nvim_create_user_command('SessionSave', function()
+  vim.cmd('mksession! ~/.config/nvim/session.vim')
+end, {});
+vim.api.nvim_create_user_command('SessionRestore', function()
+  vim.cmd('source ~/.config/nvim/session.vim')
+end, {});
+
 
 local noop = function()
 end
