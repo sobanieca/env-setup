@@ -12,4 +12,5 @@ cp ./remote ~/tools/remote
 cp ./debinfo ~/tools/debinfo
 cp ./gshow ~/tools/gshow
 cp ./gblame ~/tools/gblame
+cp ./rm-nvim-bookmarks ~/tools/rm-nvim-bookmarks
 
