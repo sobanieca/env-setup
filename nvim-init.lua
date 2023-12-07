@@ -305,9 +305,6 @@ end, {});
 vim.api.nvim_create_user_command('SessionRestore', function()
   vim.cmd('source ~/.config/nvim/session.vim')
 end, {});
-vim.api.nvim_create_user_command('BookmarksClear', function()
-  vim.cmd('!rm ~/.config/nvim/bookmarks')
-end, {});
 
 local noop = function()
 end
