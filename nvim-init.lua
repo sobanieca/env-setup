@@ -257,6 +257,7 @@ vim.o.cursorline = true
 vim.o.nobackup = true
 vim.o.nowritebackup = true
 vim.o.noswapfile = true
+vim.o.autoread = true
 
 vim.o.scrolloff = 999
 vim.o.sidescroll = 1
@@ -279,6 +280,11 @@ vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css
   'coc-prisma', 'coc-yaml', 'coc-lua' }
 
 vim.cmd [[colorscheme tokyonight]]
+
+vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGained" }, {
+  command = "if mode() != 'c' | checktime | endif",
+  pattern = { "*" },
+})
 
 vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
 vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
