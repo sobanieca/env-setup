@@ -287,6 +287,9 @@ vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGai
 })
 
 vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
+vim.api.nvim_create_user_command('Tr', function()
+  require('telescope.builtin').resume()
+end, {});
 vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
 vim.api.nvim_create_user_command('Deno', 'CocCommand deno.initializeWorkspace', {});
 vim.api.nvim_create_user_command('Format', 'call CocActionAsync(\'format\')', {});
