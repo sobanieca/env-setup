@@ -290,6 +290,7 @@ vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
 vim.api.nvim_create_user_command('Tr', function()
   require('telescope.builtin').resume()
 end, {});
+vim.api.nvim_create_user_command('Ff', 'Telescope find_files', {});
 vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
 vim.api.nvim_create_user_command('Deno', 'CocCommand deno.initializeWorkspace', {});
 vim.api.nvim_create_user_command('Format', 'call CocActionAsync(\'format\')', {});
@@ -352,7 +353,7 @@ vim.keymap.set({ 'n', 'v' }, '<C-Down>', '5j');
 vim.keymap.set({ 'n', 'v' }, '<S-Up>', '10k');
 vim.keymap.set({ 'n', 'v' }, '<S-Down>', '10j');
 
-vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope find_files<CR>');
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope git_files<CR>');
 vim.keymap.set({ 'n' }, '<C-b>', '<Cmd>Telescope bookmarks list<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
 
