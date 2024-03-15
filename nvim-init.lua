@@ -315,6 +315,7 @@ end, {});
 vim.api.nvim_create_user_command('SessionRestore', function()
   vim.cmd('source ~/.config/nvim/session.vim')
 end, {});
+vim.api.nvim_create_user_command('TsNoCheck', 'call append(0, \'// @ts-nocheck\')', {});
 
 local noop = function()
 end
