@@ -16,6 +16,7 @@ alias rg="rg -A 3 -B 3 -n -S -F"
 alias rgf="rg --files --hidden --glob '!.git/**' | grep"
 alias glog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%ae>%Creset' --abbrev-commit"
 alias glog-all="git log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%ae>%Creset' --abbrev-commit"
+alias gitf="git fetch --all --prune --tags --prune-tags --progress"
 alias tree="rg --files | tree --fromfile"
 #deno install --allow-net --allow-read https://deno.land/std/http/file_server.ts
 alias serve="file_server -p 3000"
