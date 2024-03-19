@@ -354,7 +354,7 @@ vim.keymap.set({ 'n', 'v' }, '<C-Down>', '5j');
 vim.keymap.set({ 'n', 'v' }, '<S-Up>', '10k');
 vim.keymap.set({ 'n', 'v' }, '<S-Down>', '10j');
 
-vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope git_files<CR>');
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope git_files show_untracked=true<CR>');
 vim.keymap.set({ 'n' }, '<C-b>', '<Cmd>Telescope bookmarks list<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
 
