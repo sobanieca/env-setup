@@ -41,14 +41,3 @@ Change working directory temporarily for current tab/window. Useful when doing t
 `visual mode, select area, ':', 's/.{4}$/;$/`:
 Replace end of line (4 last characters) with ; symbol;
 
-## WSL
-
-```
-/etc>cat wsl.conf
-[user]
-default={user}
-
-[boot]
-systemd=true
-```
-Enable systemd

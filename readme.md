@@ -80,14 +80,11 @@ This line needs to be removed as it's not compatible with `tmux`.
 
 # WSL setup
 
-On WSL one may want to autorun some tasks on Windows startup. To do this, create `/etc/wsl.conf` file with content like:
+On WSL one may want to enable systemd. To do this, create `/etc/wsl.conf` file with content:
 
 ```
-[user]
-default={yourusername}
-
 [boot]
-command="service docker start"
+systemd=true
 ```
 
 # Font setup (Nerd font)
