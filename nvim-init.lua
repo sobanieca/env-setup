@@ -1,14 +1,14 @@
 local function inspect(t, indent)
-    indent = indent or 0
-    for k, v in pairs(t) do
-        if type(v) == "table" then
-            print(string.rep(" ", indent) .. k .. " = {")
-            inspect(v, indent + 2)
-            print(string.rep(" ", indent) .. "}")
-        else
-            print(string.rep(" ", indent) .. k .. " = " .. tostring(v))
-        end
+  indent = indent or 0
+  for k, v in pairs(t) do
+    if type(v) == "table" then
+      print(string.rep(" ", indent) .. k .. " = {")
+      inspect(v, indent + 2)
+      print(string.rep(" ", indent) .. "}")
+    else
+      print(string.rep(" ", indent) .. k .. " = " .. tostring(v))
     end
+  end
 end
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -231,6 +231,23 @@ require("lazy").setup({
       })
     end
   },
+  {
+    "fannheyward/telescope-coc.nvim",
+    dependencies = { 'nvim-telescope/telescope.nvim' },
+    config = function()
+      require("startup").setup({
+        require("telescope").setup({
+          extensions = {
+            coc = {
+              theme = 'ivy',
+              prefer_locations = true,
+              push_cursor_on_edit = true,
+            }
+          },
+        })
+      })
+    end
+  },
 })
 
 vim.o.smartindent = true
@@ -360,10 +377,10 @@ vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
 
 vim.keymap.set({ 'i' }, '<C-u>', require('uuid-nvim').insert_v4);
 
-vim.keymap.set({ 'n' }, 'gd', '<Plug>(coc-definition)');
-vim.keymap.set({ 'n' }, 'gt', '<Plug>(coc-type-definition)');
-vim.keymap.set({ 'n' }, 'gi', '<Plug>(coc-implementation)');
-vim.keymap.set({ 'n' }, 'gr', '<Plug>(coc-references)');
+vim.keymap.set({ 'n' }, 'gd', '<Cmd>Telescope coc definitions<CR>');
+vim.keymap.set({ 'n' }, 'gt', '<Cmd>Telescope coc type_definitions<CR>');
+vim.keymap.set({ 'n' }, 'gi', '<Cmd>Telescope coc implementations<CR>');
+vim.keymap.set({ 'n' }, 'gr', '<Cmd>Telescope coc references<CR>');
 vim.keymap.set({ 'n' }, 'ca', '<Plug>(coc-codeaction)');
 vim.keymap.set({ 'n' }, 'ci', '<Plug>(coc-diagnostic-info)');
 vim.keymap.set({ 'n' }, 'rr', '<Plug>(coc-rename)');
