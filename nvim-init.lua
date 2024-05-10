@@ -240,7 +240,7 @@ require("lazy").setup({
           extensions = {
             coc = {
               theme = 'ivy',
-              prefer_locations = true,
+              prefer_locations = false,
               push_cursor_on_edit = true,
             }
           },
