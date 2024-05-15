@@ -280,7 +280,7 @@ vim.o.splitbelow = true
 vim.o.splitright = true
 vim.o.ignorecase = true
 vim.o.cursorline = true
-vim.o.guicursor = {
+vim.opt.guicursor = {
   "n-v-c:block",
   "i:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor",
   "r-cr:hor20",
