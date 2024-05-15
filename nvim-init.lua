@@ -1,3 +1,5 @@
+---@diagnostic disable-next-line: unused-function
+-- Function for debugging
 local function inspect(t, indent)
   indent = indent or 0
   for k, v in pairs(t) do
@@ -278,6 +280,15 @@ vim.o.splitbelow = true
 vim.o.splitright = true
 vim.o.ignorecase = true
 vim.o.cursorline = true
+vim.o.guicursor = {
+  "n-v-c:block",
+  "i:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor",
+  "r-cr:hor20",
+  "o:hor50",
+  "ve:ver35",
+  "ci:ver25",
+  "sm:block-blinkwait175-blinkoff150-blinkon175",
+}
 
 vim.o.nobackup = true
 vim.o.nowritebackup = true
@@ -317,6 +328,8 @@ vim.api.nvim_create_user_command('Tr', function()
 end, {});
 vim.api.nvim_create_user_command('Treg', 'Telescope registers', {});
 vim.api.nvim_create_user_command('Ff', 'Telescope find_files', {});
+vim.api.nvim_create_user_command('Il', 'IBLToggle', {});
+vim.api.nvim_create_user_command('Cg', 'ChatGPT', {});
 vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
 vim.api.nvim_create_user_command('Deno', 'CocCommand deno.initializeWorkspace', {});
 vim.api.nvim_create_user_command('Format', 'call CocActionAsync(\'format\')', {});
