@@ -244,6 +244,7 @@ require("lazy").setup({
               theme = 'ivy',
               prefer_locations = false,
               push_cursor_on_edit = true,
+              timeout = 8000,
             }
           },
         })
