@@ -41,3 +41,6 @@ Change working directory temporarily for current tab/window. Useful when doing t
 `visual mode, select area, ':', 's/.{4}$/;$/`:
 Replace end of line (4 last characters) with ; symbol;
 
+`ctrl+k, shift+k`:
+Refresh autocomplete, show documentation
+
