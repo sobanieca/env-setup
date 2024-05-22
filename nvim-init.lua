@@ -328,6 +328,7 @@ vim.api.nvim_create_user_command('Tr', function()
   require('telescope.builtin').resume()
 end, {});
 vim.api.nvim_create_user_command('Treg', 'Telescope registers', {});
+vim.api.nvim_create_user_command('Jumps', 'Telescope jumplist', {});
 vim.api.nvim_create_user_command('Ff', 'Telescope find_files', {});
 vim.api.nvim_create_user_command('Il', 'IBLToggle', {});
 vim.api.nvim_create_user_command('Cg', 'ChatGPT', {});
