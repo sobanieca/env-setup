@@ -3,5 +3,6 @@
   "suggest.languageSourcePriority": 99,
   "suggest.defaultSortMethod": "none",
   "suggest.lowPrioritySourceLimit": 5,
+  "suggest.insertMode": "insert",
   "typescript.preferences.importModuleSpecifier": "project-relative"
 }
