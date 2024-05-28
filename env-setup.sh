@@ -50,6 +50,7 @@ git config --global user.email "sobanieca@gmail.com"
 git config --global user.name "Adam Sobaniec"
 git config --global credential.helper store
 git config --global pull.ff only
+git config --global stash.showIncludeUntracked true
 echo "Git installed."
 
 # Install atop
