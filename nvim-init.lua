@@ -129,7 +129,14 @@ require("lazy").setup({
       require('telescope').setup({
         defaults = {
           dynamic_preview_title = true
-        }
+        },
+        pickers = {
+          live_grep = {
+            additional_args = function()
+              return { "--hidden", "--glob", "!.git" }
+            end
+          },
+        },
       })
       require('telescope').load_extension('bookmarks')
     end
