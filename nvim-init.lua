@@ -417,6 +417,8 @@ vim.keymap.set({ 'n' }, 'ci', '<Plug>(coc-diagnostic-info)');
 vim.keymap.set({ 'n' }, 'rr', '<Plug>(coc-rename)');
 
 vim.keymap.set({ 'n' }, '<C-n>', '<C-i>');
+vim.keymap.set('n', 'd', '"_d', { noremap = true, silent = true })
+vim.keymap.set('n', 'dd', '"_dd', { noremap = true, silent = true })
 
 vim.keymap.set('n', '<TAB>', '>>', opts);
 vim.keymap.set('n', '<S-TAB>', '<<', opts);
