@@ -325,6 +325,28 @@ vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css
 
 vim.cmd [[colorscheme tokyonight]]
 
+local function is_git_repo()
+  local git_dir = vim.fn.finddir('.git', '.;')
+  return git_dir ~= ''
+end
+
+local function handle_ctrl_p()
+  if is_git_repo() then
+    vim.cmd('Telescope git_files show_untracked=true')
+  else
+    vim.cmd('Telescope find_files')
+  end
+end
+
+local function toggle_nvim_tree()
+  local view = require('nvim-tree.view')
+  if view.is_visible() then
+    require('nvim-tree').close()
+  else
+    vim.cmd('NvimTreeFindFile')
+  end
+end
+
 vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGained" }, {
   command = "if mode() != 'c' | checktime | endif",
   pattern = { "*" },
@@ -336,7 +358,6 @@ vim.api.nvim_create_user_command('Tr', function()
 end, {});
 vim.api.nvim_create_user_command('Treg', 'Telescope registers', {});
 vim.api.nvim_create_user_command('Jumps', 'Telescope jumplist', {});
-vim.api.nvim_create_user_command('Ff', 'Telescope find_files', {});
 vim.api.nvim_create_user_command('Il', 'IBLToggle', {});
 vim.api.nvim_create_user_command('Cg', 'ChatGPT', {});
 vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
@@ -402,9 +423,9 @@ vim.keymap.set({ 'n', 'v' }, '<C-Down>', '5j');
 vim.keymap.set({ 'n', 'v' }, '<S-Up>', '10k');
 vim.keymap.set({ 'n', 'v' }, '<S-Down>', '10j');
 
-vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', '<Cmd>Telescope git_files show_untracked=true<CR>');
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', handle_ctrl_p)
 vim.keymap.set({ 'n' }, '<C-l>', '<Cmd>Telescope bookmarks list<CR>');
-vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', toggle_nvim_tree)
 
 vim.keymap.set({ 'i' }, '<C-u>', require('uuid-nvim').insert_v4);
 
@@ -417,8 +438,6 @@ vim.keymap.set({ 'n' }, 'ci', '<Plug>(coc-diagnostic-info)');
 vim.keymap.set({ 'n' }, 'rr', '<Plug>(coc-rename)');
 
 vim.keymap.set({ 'n' }, '<C-n>', '<C-i>');
-vim.keymap.set('n', 'd', '"_d', { noremap = true, silent = true })
-vim.keymap.set('n', 'dd', '"_dd', { noremap = true, silent = true })
 
 vim.keymap.set('n', '<TAB>', '>>', opts);
 vim.keymap.set('n', '<S-TAB>', '<<', opts);
