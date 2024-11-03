@@ -326,8 +326,13 @@ vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css
 vim.cmd [[colorscheme tokyonight]]
 
 local function is_git_repo()
-  local git_dir = vim.fn.finddir('.git', '.;')
-  return git_dir ~= ''
+  local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
+  local result = handle:read("*a")
+  handle:close()
+  result = result:gsub("%s+", "")
+  local cwd = vim.fn.getcwd()
+
+  return result == cwd
 end
 
 local function handle_ctrl_p()
