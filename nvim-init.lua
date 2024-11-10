@@ -343,15 +343,6 @@ local function handle_ctrl_p()
   end
 end
 
-local function toggle_nvim_tree()
-  local view = require('nvim-tree.view')
-  if view.is_visible() then
-    require('nvim-tree').close()
-  else
-    vim.cmd('NvimTreeFindFile')
-  end
-end
-
 vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGained" }, {
   command = "if mode() != 'c' | checktime | endif",
   pattern = { "*" },
@@ -430,7 +421,8 @@ vim.keymap.set({ 'n', 'v' }, '<S-Down>', '10j');
 
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', handle_ctrl_p)
 vim.keymap.set({ 'n' }, '<C-l>', '<Cmd>Telescope bookmarks list<CR>');
-vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', toggle_nvim_tree)
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-y>', '<Cmd>NvimTreeClose<CR>');
 
 vim.keymap.set({ 'i' }, '<C-u>', require('uuid-nvim').insert_v4);
 
