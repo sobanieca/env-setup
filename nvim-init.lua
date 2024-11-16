@@ -269,6 +269,7 @@ require("lazy").setup({
 })
 
 vim.o.smartindent = true
+vim.o.fileformats = "unix,dos,mac"
 
 vim.o.expandtab = true
 vim.o.tabstop = 2
@@ -281,8 +282,7 @@ vim.o.title = true
 vim.o.wrap = false
 
 vim.o.hidden = true
-vim.o.nofixendofline = true
-vim.o.nostartofline = true
+vim.o.startofline = false
 vim.o.number = true
 vim.o.splitbelow = true
 vim.o.splitright = true
@@ -298,9 +298,9 @@ vim.opt.guicursor = {
   "sm:block-blinkwait175-blinkoff150-blinkon175",
 }
 
-vim.o.nobackup = true
-vim.o.nowritebackup = true
-vim.o.noswapfile = true
+vim.o.backup = false
+vim.o.writebackup = false
+vim.o.swapfile = false
 vim.o.autoread = true
 
 vim.o.scrolloff = 999
@@ -309,16 +309,16 @@ vim.o.sidescroll = 1
 vim.o.hlsearch = true
 vim.o.incsearch = true
 vim.o.laststatus = 2
-vim.o.noruler = true
-vim.o.noshowmode = true
 vim.o.signcolumn = "auto:3"
 vim.o.pumheight = 10
+vim.o.showmode = false
+vim.o.ruler = false
 
 vim.o.mouse = "a"
 vim.o.updatetime = 300
 
-vim.o.noerrorbells = true
 vim.o.visualbell = false
+vim.o.errorbells = false
 
 vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css', 'coc-prettier', 'coc-eslint',
   'coc-prisma', 'coc-yaml', 'coc-lua' }
