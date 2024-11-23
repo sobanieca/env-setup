@@ -1,12 +1,15 @@
 # Tips & Tricks
 
-## Git configuration
+## Git
 
 `git config credential.useHttpPath true`:
 Setup repo specific credentials (useful, if one wants to keep `env-setup` repo, but works with other Github repos)
 
 `git config user.email {email}`:
 Setup user email locally for given repository
+
+`git diff main...`:
+Show changes only from feature branch relative to main
 
 ## Neovim
 
