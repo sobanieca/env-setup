@@ -47,3 +47,6 @@ Replace end of line (4 last characters) with ; symbol;
 `ctrl+k, shift+k`:
 Refresh autocomplete, show documentation
 
+`gf`:
+Go to file under cursor (if path is available)
+
