@@ -286,7 +286,8 @@ vim.o.startofline = false
 vim.o.number = true
 vim.o.splitbelow = true
 vim.o.splitright = true
-vim.o.ignorecase = 'smartcase'
+vim.o.ignorecase = true
+vim.o.smartcase = true
 vim.o.cursorline = true
 vim.opt.guicursor = {
   "n-v-c:block",
