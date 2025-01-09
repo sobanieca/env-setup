@@ -155,19 +155,34 @@ require("lazy").setup({
     "nvim-pack/nvim-spectre",
     dependencies = { 'nvim-lua/plenary.nvim' },
   },
+  { "MeanderingProgrammer/render-markdown.nvim", ft = { "markdown", "codecompanion" } },
   {
-    "jackMort/ChatGPT.nvim",
-    event = "VeryLazy",
-    config = function()
-      require("chatgpt").setup({
-        api_key_cmd = "cat " .. vim.fn.expand("$HOME") .. "/.secret/oai.txt"
-      })
-    end,
+    "olimorris/codecompanion.nvim",
     dependencies = {
-      "MunifTanjim/nui.nvim",
       "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope.nvim"
-    }
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function()
+      require("codecompanion").setup({
+        adapters = {
+          openai = function()
+            return require("codecompanion.adapters").extend("openai", {
+              env = {
+                api_key = "cmd:cat " .. vim.fn.expand("$HOME") .. "/.secret/oai.txt"
+              },
+            })
+          end,
+        },
+        strategies = {
+          chat = {
+            adapter = "openai",
+          },
+          inline = {
+            adapter = "copilot",
+          },
+        },
+      })
+    end
   },
   {
     "numToStr/Comment.nvim",
@@ -356,7 +371,7 @@ end, {});
 vim.api.nvim_create_user_command('Treg', 'Telescope registers', {});
 vim.api.nvim_create_user_command('Jumps', 'Telescope jumplist', {});
 vim.api.nvim_create_user_command('Il', 'IBLToggle', {});
-vim.api.nvim_create_user_command('Cg', 'ChatGPT', {});
+vim.api.nvim_create_user_command('Cg', 'CodeCompanionChat', {});
 vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
 vim.api.nvim_create_user_command('Deno', 'CocCommand deno.initializeWorkspace', {});
 vim.api.nvim_create_user_command('Format', 'call CocActionAsync(\'format\')', {});
