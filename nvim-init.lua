@@ -294,7 +294,6 @@ require("lazy").setup({
     dependencies = {
       "rcarriga/nvim-dap-ui",
       "nvim-neotest/nvim-nio",
-      "mxsdev/nvim-dap-vscode-js",
       {
         "microsoft/vscode-js-debug",
         version = "1.x",
@@ -302,19 +301,22 @@ require("lazy").setup({
       }
     },
     keys = {
-      -- normal mode is default
-      { "<leader>d", function() require 'dap'.toggle_breakpoint() end },
-      { "<leader>c", function() require 'dap'.continue() end },
-      { "<C-'>",     function() require 'dap'.step_over() end },
-      { "<C-;>",     function() require 'dap'.step_into() end },
-      { "<C-:>",     function() require 'dap'.step_out() end },
+      { "pp", function() require 'dap'.toggle_breakpoint() end },
+      { "pc", function() require 'dap'.continue() end },
+      { "po", function() require 'dap'.step_over() end },
+      { "pi", function() require 'dap'.step_into() end },
+      { "pt", function() require 'dap'.step_out() end },
     },
     config = function()
-      require("dap-vscode-js").setup({
-        debugger_path = vim.fn.stdpath("data") .. "/lazy/vscode-js-debug",
-        adapters = { 'pwa-node', 'pwa-chrome', 'pwa-msedge', 'node-terminal', 'pwa-extensionHost' },
-      })
-
+      require("dap").adapters["pwa-node"] = {
+        type = "server",
+        host = "localhost",
+        port = "${port}",
+        executable = {
+          command = "node",
+          args = { vim.fn.stdpath("data") .. "/lazy/vscode-js-debug" .. "/src/dapDebugServer.js", "${port}" },
+        }
+      }
       for _, language in ipairs({ "typescript", "javascript", "typescriptreact", "javascriptreact" }) do
         require("dap").configurations[language] = {
           {
@@ -322,6 +324,7 @@ require("lazy").setup({
             request = "attach",
             port = 9229,
             name = "Attach debugger to existing process",
+            protocol = "inspector",
             sourceMaps = true,
             resolveSourceMapLocations = {
               "${workspaceFolder}/**",
