@@ -288,6 +288,58 @@ require("lazy").setup({
     config = function()
       require("ibl").setup()
     end
+  },
+  {
+    "mfussenegger/nvim-dap",
+    dependencies = {
+      "rcarriga/nvim-dap-ui",
+      "nvim-neotest/nvim-nio",
+      "mxsdev/nvim-dap-vscode-js",
+      {
+        "microsoft/vscode-js-debug",
+        version = "1.x",
+        build = "npm i && npm run compile vsDebugServerBundle && mv dist out"
+      }
+    },
+    keys = {
+      -- normal mode is default
+      { "<leader>d", function() require 'dap'.toggle_breakpoint() end },
+      { "<leader>c", function() require 'dap'.continue() end },
+      { "<C-'>",     function() require 'dap'.step_over() end },
+      { "<C-;>",     function() require 'dap'.step_into() end },
+      { "<C-:>",     function() require 'dap'.step_out() end },
+    },
+    config = function()
+      require("dap-vscode-js").setup({
+        debugger_path = vim.fn.stdpath("data") .. "/lazy/vscode-js-debug",
+        adapters = { 'pwa-node', 'pwa-chrome', 'pwa-msedge', 'node-terminal', 'pwa-extensionHost' },
+      })
+
+      for _, language in ipairs({ "typescript", "javascript", "typescriptreact", "javascriptreact" }) do
+        require("dap").configurations[language] = {
+          {
+            type = "pwa-node",
+            request = "attach",
+            port = 9229,
+            name = "Attach debugger to existing process",
+            sourceMaps = true,
+            resolveSourceMapLocations = {
+              "${workspaceFolder}/**",
+              "!**/node_modules/**" },
+            cwd = "${workspaceFolder}",
+            skipFiles = { "${workspaceFolder}/node_modules/**/*.js" },
+          },
+        }
+      end
+
+      require("dapui").setup()
+      local dap, dapui = require("dap"), require("dapui")
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open({ reset = true })
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = dapui.close
+      dap.listeners.before.event_exited["dapui_config"] = dapui.close
+    end
   }
 })
 
