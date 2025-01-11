@@ -176,6 +176,14 @@ require("lazy").setup({
         strategies = {
           chat = {
             adapter = "openai",
+            slash_commands = {
+              ["file"] = {
+                opts = {
+                  provider = "telescope"
+                }
+              }
+            }
+
           },
           inline = {
             adapter = "copilot",
