@@ -434,7 +434,7 @@ end, {});
 vim.api.nvim_create_user_command('Treg', 'Telescope registers', {});
 vim.api.nvim_create_user_command('Jumps', 'Telescope jumplist', {});
 vim.api.nvim_create_user_command('Il', 'IBLToggle', {});
-vim.api.nvim_create_user_command('Cg', 'CodeCompanionChat', {});
+vim.api.nvim_create_user_command('Cg', 'CodeCompanionChat Toggle', {});
 vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
 vim.api.nvim_create_user_command('Deno', 'CocCommand deno.initializeWorkspace', {});
 vim.api.nvim_create_user_command('Format', 'call CocActionAsync(\'format\')', {});
