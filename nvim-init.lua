@@ -310,11 +310,11 @@ require("lazy").setup({
     config = function()
       require("dap").adapters["pwa-node"] = {
         type = "server",
-        host = "localhost",
+        host = "127.0.0.1",
         port = "${port}",
         executable = {
           command = "node",
-          args = { vim.fn.stdpath("data") .. "/lazy/vscode-js-debug" .. "/src/dapDebugServer.js", "${port}" },
+          args = { vim.fn.stdpath("data") .. "/lazy/vscode-js-debug/src/dapDebugServer.js", "${port}" },
         }
       }
       for _, language in ipairs({ "typescript", "javascript", "typescriptreact", "javascriptreact" }) do
@@ -324,13 +324,12 @@ require("lazy").setup({
             request = "attach",
             port = 9229,
             name = "Attach debugger to existing process",
-            protocol = "inspector",
-            sourceMaps = true,
-            resolveSourceMapLocations = {
-              "${workspaceFolder}/**",
-              "!**/node_modules/**" },
-            cwd = "${workspaceFolder}",
-            skipFiles = { "${workspaceFolder}/node_modules/**/*.js" },
+            -- sourceMaps = true,
+            -- resolveSourceMapLocations = {
+            --  "${workspaceFolder}/**",
+            --  "!**/node_modules/**" },
+            --cwd = vim.fn.getcwd(),
+            -- skipFiles = { "${workspaceFolder}/node_modules/**/*.js" },
           },
         }
       end
