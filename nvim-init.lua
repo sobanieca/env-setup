@@ -297,15 +297,15 @@ require("lazy").setup({
       {
         "microsoft/vscode-js-debug",
         version = "1.x",
-        build = "npm i && npm run compile vsDebugServerBundle && mv dist out"
+        build = "npm i && npm run compile dapDebugServer && mv dist out"
       }
     },
     keys = {
-      { "pp", function() require 'dap'.toggle_breakpoint() end },
-      { "pc", function() require 'dap'.continue() end },
-      { "po", function() require 'dap'.step_over() end },
-      { "pi", function() require 'dap'.step_into() end },
-      { "pt", function() require 'dap'.step_out() end },
+      { "ab", function() require 'dap'.toggle_breakpoint() end },
+      { "ac", function() require 'dap'.continue() end },
+      { "ao", function() require 'dap'.step_over() end },
+      { "ai", function() require 'dap'.step_into() end },
+      { "at", function() require 'dap'.step_out() end },
     },
     config = function()
       require("dap").adapters["pwa-node"] = {
@@ -314,7 +314,7 @@ require("lazy").setup({
         port = "${port}",
         executable = {
           command = "node",
-          args = { vim.fn.stdpath("data") .. "/lazy/vscode-js-debug/src/dapDebugServer.js", "${port}" },
+          args = { vim.fn.stdpath("data") .. "/lazy/vscode-js-debug/out/src/dapDebugServer.js", "${port}" },
         }
       }
       for _, language in ipairs({ "typescript", "javascript", "typescriptreact", "javascriptreact" }) do
@@ -324,12 +324,12 @@ require("lazy").setup({
             request = "attach",
             port = 9229,
             name = "Attach debugger to existing process",
-            -- sourceMaps = true,
-            -- resolveSourceMapLocations = {
-            --  "${workspaceFolder}/**",
-            --  "!**/node_modules/**" },
-            --cwd = vim.fn.getcwd(),
-            -- skipFiles = { "${workspaceFolder}/node_modules/**/*.js" },
+            sourceMaps = true,
+            resolveSourceMapLocations = {
+              "${workspaceFolder}/**",
+              "!**/node_modules/**" },
+            cwd = vim.fn.getcwd(),
+            skipFiles = { "${workspaceFolder}/node_modules/**/*.js" },
           },
         }
       end
