@@ -341,6 +341,9 @@ require("lazy").setup({
       end
       dap.listeners.before.event_terminated["dapui_config"] = dapui.close
       dap.listeners.before.event_exited["dapui_config"] = dapui.close
+
+      vim.cmd("hi DapBreakpointColor guifg=#fa4848")
+      vim.fn.sign_define("DapBreakpoint", { text = "", texthl = "DapBreakpointColor", linehl = "", numhl = "" })
     end
   }
 })
@@ -434,6 +437,16 @@ vim.api.nvim_create_user_command('Treg', 'Telescope registers', {});
 vim.api.nvim_create_user_command('Jumps', 'Telescope jumplist', {});
 vim.api.nvim_create_user_command('Il', 'IBLToggle', {});
 vim.api.nvim_create_user_command('Cg', 'CodeCompanionChat Toggle', {});
+vim.api.nvim_create_user_command('Cga', function(opts)
+  require("codecompanion").last_chat().References:add({
+    id = opts.args,
+    path = opts.args,
+    source = "codecompanion.strategies.chat.slash_commands.file",
+    opts = {
+      pinned = true
+    }
+  })
+end, { nargs = 1 });
 vim.api.nvim_create_user_command('Prettier', 'CocCommand prettier.forceFormatDocument', {});
 vim.api.nvim_create_user_command('Deno', 'CocCommand deno.initializeWorkspace', {});
 vim.api.nvim_create_user_command('Format', 'call CocActionAsync(\'format\')', {});
