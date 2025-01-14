@@ -73,7 +73,7 @@ local function nvim_tree_on_attach(bufnr)
         path = path,
         source = "codecompanion.strategies.chat.slash_commands.file",
         opts = {
-          pinned = true
+          pinned = false
         }
       })
     end
@@ -511,7 +511,7 @@ vim.api.nvim_create_user_command('Cga', function(opts)
     path = opts.args,
     source = "codecompanion.strategies.chat.slash_commands.file",
     opts = {
-      pinned = true
+      pinned = false
     }
   })
 end, { nargs = 1 });
