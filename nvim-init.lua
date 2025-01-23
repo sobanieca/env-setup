@@ -505,6 +505,7 @@ vim.api.nvim_create_user_command('Treg', 'Telescope registers', {});
 vim.api.nvim_create_user_command('Jumps', 'Telescope jumplist', {});
 vim.api.nvim_create_user_command('Il', 'IBLToggle', {});
 vim.api.nvim_create_user_command('Cg', 'CodeCompanionChat Toggle', {});
+vim.api.nvim_create_user_command('Cgn', 'CodeCompanionChat openai', {});
 vim.api.nvim_create_user_command('Cga', function(opts)
   require("codecompanion").last_chat().References:add({
     id = opts.args,
