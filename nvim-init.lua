@@ -29,7 +29,7 @@ local function nvim_tree_on_attach(bufnr)
       local item_path = path .. "/" .. name
       if type == "file" then
         -- add the file to references
-        chat.References:add({
+        chat.references:add({
           id = '<file>' .. item_path .. '</file>',
           path = item_path,
           source = "codecompanion.strategies.chat.slash_commands.file",
@@ -68,7 +68,7 @@ local function nvim_tree_on_attach(bufnr)
           return print("Already added")
         end
       end
-      chat.References:add({
+      chat.references:add({
         id = '<file>' .. path .. '</file>',
         path = path,
         source = "codecompanion.strategies.chat.slash_commands.file",
@@ -507,7 +507,7 @@ vim.api.nvim_create_user_command('Il', 'IBLToggle', {});
 vim.api.nvim_create_user_command('Cg', 'CodeCompanionChat Toggle', {});
 vim.api.nvim_create_user_command('Cgn', 'CodeCompanionChat openai', {});
 vim.api.nvim_create_user_command('Cga', function(opts)
-  require("codecompanion").last_chat().References:add({
+  require("codecompanion").last_chat().references:add({
     id = opts.args,
     path = opts.args,
     source = "codecompanion.strategies.chat.slash_commands.file",
