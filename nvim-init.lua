@@ -264,6 +264,13 @@ require("lazy").setup({
             adapter = "copilot",
           },
         },
+        display = {
+          chat = {
+            window = {
+              layout = "buffer"
+            }
+          }
+        }
       })
     end
   },
