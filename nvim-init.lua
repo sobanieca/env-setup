@@ -240,10 +240,17 @@ require("lazy").setup({
               },
             })
           end,
+          anthropic = function()
+            return require("codecompanion.adapters").extend("anthropic", {
+              env = {
+                api_key = "cmd:cat " .. vim.fn.expand("$HOME") .. "/.secret/anthropic.txt"
+              },
+            })
+          end, 
         },
         strategies = {
           chat = {
-            adapter = "openai",
+            adapter = "anthropic",
             slash_commands = {
               ["file"] = {
                 opts = {
@@ -505,7 +512,8 @@ vim.api.nvim_create_user_command('Treg', 'Telescope registers', {});
 vim.api.nvim_create_user_command('Jumps', 'Telescope jumplist', {});
 vim.api.nvim_create_user_command('Il', 'IBLToggle', {});
 vim.api.nvim_create_user_command('Cg', 'CodeCompanionChat Toggle', {});
-vim.api.nvim_create_user_command('Cgn', 'CodeCompanionChat openai', {});
+vim.api.nvim_create_user_command('Cgn', 'CodeCompanionChat anthropic', {});
+vim.api.nvim_create_user_command('Cgno', 'CodeCompanionChat openai', {});
 vim.api.nvim_create_user_command('Cga', function(opts)
   require("codecompanion").last_chat().references:add({
     id = opts.args,
