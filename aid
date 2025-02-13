@@ -4,5 +4,5 @@
 apiKey=$(cat ~/.secret/anthropic.txt)
 
 # Launch aider with the API key
-aider --api-key anthropic="$apiKey" --model anthropic.claude-3-5-sonnet-20241022-v2:0 --no-auto-commits "$@"
+aider --api-key anthropic="$apiKey" --model anthropic.claude-3-5-sonnet-20241022-v2:0 --no-auto-commits --vim "$@"
 
