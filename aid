@@ -4,5 +4,5 @@
 apiKey=$(cat ~/.secrets/anthropic.txt)
 
 # Launch aider with the API key
-aider --api-key "$apiKey" --model anthropic.claude-3-5-sonnet-20241022-v2:0 "$@"
+aider --api-key anthropic="$apiKey" --model anthropic.claude-3-5-sonnet-20241022-v2:0 "$@"
 
