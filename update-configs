@@ -81,6 +81,8 @@ echo "rm-nvim-bookmarks tool updated"
 
 echo "Updating aid tool"
 wget $BASE_URL"aid" -O $HOME/tools/aid
+wget $BASE_URL"aido" -O $HOME/tools/aido
 chmod +x $HOME/tools/aid
+chmod +x $HOME/tools/aido
 echo "aid tool updated"
 

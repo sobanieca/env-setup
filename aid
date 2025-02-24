@@ -4,5 +4,5 @@
 apiKey=$(cat ~/.secret/anthropic.txt)
 
 # Launch aider with the API key
-aider --model sonnet --api-key anthropic="$apiKey" --no-auto-commits --vim "$@"
+aider --dark-mode --watch-files --subtree-only --model sonnet --api-key anthropic="$apiKey" --no-auto-commits --vim "$@"
 
