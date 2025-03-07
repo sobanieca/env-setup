@@ -250,7 +250,7 @@ require("lazy").setup({
         },
         strategies = {
           chat = {
-            adapter = "anthropic",
+            adapter = "openai",
             slash_commands = {
               ["file"] = {
                 opts = {

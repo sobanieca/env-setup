@@ -68,11 +68,6 @@ echo "Installing jq..."
 sudo apt-get install jq -y
 echo "Jq installed."
 
-# Install aider
-echo "Installing aider..."
-curl -LsSf https://aider.chat/install.sh | sh
-echo "Aider installed."
-
 # Install C++ build tools
 echo "Installing C++ build tools..."
 sudo apt-get install g++ -y

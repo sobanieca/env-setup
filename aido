@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# Read the API key from the secrets file
-apiKey=$(cat ~/.secret/oai.txt)
-
-# Launch aider with the API key
-aider --dark-mode --watch-files --subtree-only --model o1-mini --api-key openai="$apiKey" --no-auto-commits --vim "$@"
-
