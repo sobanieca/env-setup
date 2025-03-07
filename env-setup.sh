@@ -124,6 +124,11 @@ echo "Installing lsd..."
 sudo apt-get install lsd -y
 echo "Lsd installed."
 
+# Install Claude Code
+echo "Installing Claude Code..."
+npm install -g @anthropic-ai/claude-code
+echo "Claude Code installed."
+
 # Update-configs script
 wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
 chmod +x $HOME/tools/update-configs
