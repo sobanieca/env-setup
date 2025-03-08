@@ -74,14 +74,11 @@ sudo apt-get install g++ -y
 echo "C++ build tools installed."
 
 # Install Node.js
-echo "Installing nvm and node.js..."
-wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-nvm install --lts
-nvm use --lts
-echo "Nvm and node.js installed."
+echo "Installing Node.js..."
+curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh
+sudo bash nodesource_setup.sh
+sudo apt-get install -y nodejs
+echo "Node.js installed."
 
 # Install Deno
 echo "Installing Deno..."
