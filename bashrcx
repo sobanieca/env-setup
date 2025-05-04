@@ -11,6 +11,7 @@ export EDITOR="nvim"
 export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git/**'"
 export HISTCONTROL=ignoredups
 export PROMPT_COMMAND="history -a; history -n"
+export OPENAI_KEY=$(cat ~/.secret/oai.txt)
 
 alias rg="rg -A 3 -B 3 -n -S -F"
 alias rgf="rg --files --hidden --glob '!.git/**' | grep"
@@ -39,7 +40,4 @@ function tools {
 }
 
 shopt -s globstar
-
-export DENO_INSTALL="$HOME/.deno"
-export PATH="$DENO_INSTALL/bin:$PATH"
 
