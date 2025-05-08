@@ -488,16 +488,6 @@ vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css
 
 vim.cmd [[colorscheme tokyonight]]
 
-local function is_git_repo()
-  local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
-  local result = handle:read("*a")
-  handle:close()
-  result = result:gsub("%s+", "")
-  local cwd = vim.fn.getcwd()
-
-  return result == cwd
-end
-
 vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGained" }, {
   command = "if mode() != 'c' | checktime | endif",
   pattern = { "*" },
@@ -586,7 +576,9 @@ vim.keymap.set({ 'n', 'v' }, '<C-Down>', '5j');
 vim.keymap.set({ 'n', 'v' }, '<S-Up>', '10k');
 vim.keymap.set({ 'n', 'v' }, '<S-Down>', '10j');
 
-vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', require('telescope.builtin').find_files({ hidden = true }));
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', function()
+  require('telescope.builtin').find_files({ hidden = true })
+end);
 vim.keymap.set({ 'n' }, '<C-l>', '<Cmd>Telescope bookmarks list<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-y>', '<Cmd>NvimTreeClose<CR>');
