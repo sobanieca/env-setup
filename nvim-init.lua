@@ -246,7 +246,7 @@ require("lazy").setup({
                 api_key = "cmd:cat " .. vim.fn.expand("$HOME") .. "/.secret/anthropic.txt"
               },
             })
-          end, 
+          end,
         },
         strategies = {
           chat = {
@@ -498,14 +498,6 @@ local function is_git_repo()
   return result == cwd
 end
 
-local function handle_ctrl_p()
-  if is_git_repo() then
-    vim.cmd('Telescope git_files show_untracked=true')
-  else
-    vim.cmd('Telescope find_files')
-  end
-end
-
 vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGained" }, {
   command = "if mode() != 'c' | checktime | endif",
   pattern = { "*" },
@@ -594,7 +586,7 @@ vim.keymap.set({ 'n', 'v' }, '<C-Down>', '5j');
 vim.keymap.set({ 'n', 'v' }, '<S-Up>', '10k');
 vim.keymap.set({ 'n', 'v' }, '<S-Down>', '10j');
 
-vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', handle_ctrl_p)
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', require('telescope.builtin').find_files({ hidden = true }));
 vim.keymap.set({ 'n' }, '<C-l>', '<Cmd>Telescope bookmarks list<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-y>', '<Cmd>NvimTreeClose<CR>');
