@@ -22,6 +22,7 @@ alias tree="rg --files | tree --fromfile"
 alias serve="file_server -p 3000"
 alias rm="rm -I"
 alias guid="deno eval 'console.log(crypto.randomUUID())'"
+alias myip="curl -s http://whatismyip.akamai.com/"
 
 function portfwd {
     echo "Running port forward from 3000 to $1"
