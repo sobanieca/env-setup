@@ -447,7 +447,7 @@ vim.keymap.set({ 'n', 'v' }, '<S-Up>', '10k');
 vim.keymap.set({ 'n', 'v' }, '<S-Down>', '10j');
 
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', function()
-  require('telescope.builtin').find_files({ hidden = true })
+  require('telescope.builtin').find_files({ hidden = true, path_display = { 'truncate' } })
 end);
 vim.keymap.set({ 'n' }, '<C-l>', '<Cmd>Telescope bookmarks list<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
