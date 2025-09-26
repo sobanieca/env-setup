@@ -40,7 +40,7 @@ function tools {
 }
 
 function notify {
-  tmux display-message -d 3000 "$@" 
+  tmux display-message -d 0 "$@" 
 }
 
 shopt -s globstar
