@@ -39,5 +39,9 @@ function tools {
   ls $HOME/tools
 }
 
+function notify {
+  tmux display-message -d 3000 "$@" 
+}
+
 shopt -s globstar
 
