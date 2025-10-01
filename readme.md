@@ -87,6 +87,13 @@ On WSL one may want to enable systemd. To do this, create `/etc/wsl.conf` file w
 systemd=true
 ```
 
+Also, mirrored network mode is beneficial. Add following to `C:\Users<YourUsername>.wslconfig`:
+
+```
+[wsl2]
+networkingMode=mirrored
+```
+
 # Font setup (Nerd font)
 
 For termux font should be installed as part of `termux.sh` script. For other terminals (like Windows Terminal) install 
