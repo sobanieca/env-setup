@@ -50,3 +50,8 @@ Refresh autocomplete, show documentation
 `gf`:
 Go to file under cursor (if path is available)
 
+## Chrome
+
+Remote debug - to enable remote debug (Chrome MCP etc.) use following to start chrome:
+
+`"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\Users\{My USER}\chrome-debug"`
