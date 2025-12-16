@@ -372,6 +372,8 @@ vim.o.updatetime = 300
 vim.o.visualbell = false
 vim.o.errorbells = false
 
+vim.o.includeexpr = "substitute(v:fname, '#.*$', '', '')"
+
 vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css', 'coc-prettier', 'coc-eslint',
   'coc-prisma', 'coc-yaml', 'coc-lua', 'coc-terraform', 'coc-docker', 'coc-sh', 'coc-html' }
 
