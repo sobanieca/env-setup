@@ -4,5 +4,18 @@
   "suggest.defaultSortMethod": "none",
   "suggest.lowPrioritySourceLimit": 5,
   "suggest.insertMode": "insert",
-  "typescript.preferences.importModuleSpecifier": "project-relative"
+  "typescript.preferences.importModuleSpecifier": "project-relative",
+  "tsserver.watchOptions": {
+    "excludeDirectories": [
+      "**/node_modules",
+      "**/.git",
+      "**/.nx",
+      "**/dist",
+      "**/build",
+      "**/.next",
+      "**/out"
+    ]
+  },
+  "tsserver.maxTsServerMemory": 8192,
+  "tsserver.trace.server": "off"
 }
