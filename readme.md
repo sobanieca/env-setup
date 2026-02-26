@@ -71,6 +71,27 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub -p {ssh_port} user@host
 
 > `~/.ssh/id_rsa` is the private key, `~/.ssh/id_rsa.pub` is the public key
 
+### Disable password authentication
+
+After verifying that key-based login works, disable password authentication:
+
+```
+sudo nano /etc/ssh/sshd_config
+```
+
+Set the following:
+
+```
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+```
+
+Then reload:
+
+```bash
+sudo systemctl reload sshd.service
+```
+
 ### Setup timezone information
 `sudo dpkg-reconfigure tzdata`
 
