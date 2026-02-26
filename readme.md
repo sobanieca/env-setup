@@ -65,10 +65,11 @@ if using putty, remember to specify user explicitly (not via prompt)
 ```bash
 ssh-keygen -t rsa
 
-ssh-copy-id user@host
+ssh-copy-id -i ~/.ssh/id_rsa.pub -p {ssh_port} user@host
 
-alias vps='ssh user@host -p {ssh_port}' in .bashrc
 ```
+
+> `~/.ssh/id_rsa` is the private key, `~/.ssh/id_rsa.pub` is the public key
 
 ### Setup timezone information
 `sudo dpkg-reconfigure tzdata`
@@ -76,7 +77,7 @@ alias vps='ssh user@host -p {ssh_port}' in .bashrc
 # Connect
 
 ```bash
-ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -q -L 3000:localhost:3000 -l {login-name} -p {port} -i {path-to-ssh-key} {vps-url}
+ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -q -L 3000:localhost:3000 -l {login-name} -p {port} -i ~/.ssh/id_rsa {vps-url}
 ```
 
 > `-L 3000:localhost:3000` parameter is for port-forwarding to enable development. Ensure that sshd_config contains `AllowTcpForwarding yes`
