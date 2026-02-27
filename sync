@@ -7,10 +7,9 @@ cp ./nvim-init.lua ~/.config/nvim/init.lua
 cp ./nvim-legacy.vim ~/.config/nvim/legacy.vim
 cp ./coc-settings.json ~/.config/nvim/coc-settings.json
 cp ./ports ~/tools/ports
-cp ./sniff ~/tools/sniff
-cp ./remote ~/tools/remote
 cp ./debinfo ~/tools/debinfo
 cp ./gshow ~/tools/gshow
 cp ./gblame ~/tools/gblame
 cp ./rm-nvim-bookmarks ~/tools/rm-nvim-bookmarks
+cp ./usage ~/tools/usage
 
