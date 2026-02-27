@@ -94,6 +94,21 @@ sudo systemctl reload sshd.service
 
 > You may need to check `/etc/ssh/sshd_config.d` for files that potentially override main config. In such case, update it there as well.
 
+### Setup firewall
+
+Allow only SSH traffic using `ufw`:
+
+```bash
+sudo apt install ufw
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow {ssh_port}/tcp
+sudo ufw enable
+sudo ufw status verbose
+```
+
+> Always allow SSH before enabling the firewall to avoid locking yourself out.
+
 ### Setup timezone information
 `sudo dpkg-reconfigure tzdata`
 
