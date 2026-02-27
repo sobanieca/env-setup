@@ -1,3 +1,0 @@
-#!/bin/bash
-
-sudo tshark -i any -f "tcp port $1" -Y "http"
