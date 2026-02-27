@@ -109,6 +109,21 @@ sudo ufw status verbose
 
 > Always allow SSH before enabling the firewall to avoid locking yourself out.
 
+#### Lock SSH to current IP on login
+
+To automatically restrict SSH access to only the currently connected IP, add the following to `.bashrc`:
+
+```bash
+# Allow only my current IP on SSH
+MY_IP=$(echo "$SSH_CONNECTION" | awk '{print $1}')
+if [ -n "$MY_IP" ]; then
+    sudo ufw delete allow {ssh_port}/tcp 2>/dev/null
+    sudo ufw insert 1 allow from "$MY_IP" to any port {ssh_port}
+fi
+```
+
+> On each SSH login, the firewall rule is updated to allow only the connecting IP. If you change networks (e.g. switch to cellular), reboot the server via provider's web console to reset the rules.
+
 ### Setup timezone information
 `sudo dpkg-reconfigure tzdata`
 
