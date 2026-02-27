@@ -111,20 +111,10 @@ cd ..
 rm -rf temp
 echo "Gitmux installed."
 
-# Install tshark
-echo "Installing tshark..."
-sudo apt-get install tshark -y
-echo "Tshark installed."
-
 # Install lsd
 echo "Installing lsd..."
 sudo apt-get install lsd -y
 echo "Lsd installed."
-
-# Install chatgpt shell
-echo "Installing ChatGPT shell..."
-curl -sS https://raw.githubusercontent.com/0xacx/chatGPT-shell-cli/main/install.sh | sudo -E bash
-echo "ChatGPT shell installed."
 
 # Update-configs script
 wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
