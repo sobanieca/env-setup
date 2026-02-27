@@ -92,6 +92,8 @@ Then reload:
 sudo systemctl reload sshd.service
 ```
 
+> You may need to check `/etc/ssh/sshd_config.d` for files that potentially override main config. In such case, update it there as well.
+
 ### Setup timezone information
 `sudo dpkg-reconfigure tzdata`
 
