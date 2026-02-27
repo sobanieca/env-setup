@@ -1,0 +1,43 @@
+#!/bin/bash
+
+PREV_CPU_TOTAL=0
+PREV_CPU_IDLE=0
+CPU=0
+
+update_cpu() {
+    read -r _ user nice system idle iowait irq softirq steal _ < /proc/stat
+    local total=$((user + nice + system + idle + iowait + irq + softirq + steal))
+    local total_idle=$((idle + iowait))
+    local diff_total=$((total - PREV_CPU_TOTAL))
+    local diff_idle=$((total_idle - PREV_CPU_IDLE))
+    PREV_CPU_TOTAL=$total
+    PREV_CPU_IDLE=$total_idle
+    if [[ $diff_total -eq 0 ]]; then
+        CPU=0
+    else
+        CPU=$(( (diff_total - diff_idle) * 100 / diff_total ))
+    fi
+}
+
+# Function to display system stats
+show_stats() {
+    update_cpu
+    MEM_USED=$(free -m | awk '/Mem:/ {printf "%.2f", $3/1024}')
+    MEM_TOTAL=$(free -m | awk '/Mem:/ {printf "%.2f", $2/1024}')
+    DISK_USED=$(df -BG / | awk 'NR==2 {gsub("G","",$3); print $3}')
+    DISK_TOTAL=$(df -BG / | awk 'NR==2 {gsub("G","",$2); print $2}')
+    printf "CPU: ${CPU}%%, MEMORY: ${MEM_USED}GB/${MEM_TOTAL}GB, DISK: ${DISK_USED}GB/${DISK_TOTAL}GB\033[K\r"
+}
+
+# Check if -w or --watch is passed
+if [[ "$1" == "-w" || "$1" == "--watch" ]]; then
+    while true; do
+        show_stats
+        sleep 1
+    done
+else
+    update_cpu
+    sleep 0.5
+    show_stats
+    echo  # print newline for single run
+fi

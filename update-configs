@@ -49,16 +49,6 @@ wget $BASE_URL"ports" -O $HOME/tools/ports
 chmod +x $HOME/tools/ports
 echo "ports tool updated"
 
-echo "Updating sniff tool"
-wget $BASE_URL"sniff" -O $HOME/tools/sniff
-chmod +x $HOME/tools/sniff
-echo "sniff tool updated"
-
-echo "Updating remote tool"
-wget $BASE_URL"remote" -O $HOME/tools/remote
-chmod +x $HOME/tools/remote
-echo "remote tool updated"
-
 echo "Updating debinfo tool"
 wget $BASE_URL"debinfo" -O $HOME/tools/debinfo
 chmod +x $HOME/tools/debinfo
