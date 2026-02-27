@@ -157,30 +157,6 @@ Add following to .bashrc file:
 
 If any issues occur run `apt-cache show fzf` for details on how to enable fuzzy autocompletion.
 
-# Connection to remote ssh server
-
-Use earlier steps to generate ssh key and upload it to remote machine.
-
-In `.bashrc` file append following:
-
-```bash
-export REMOTE_SSH_CONFIG_PATH="/home/{users}/remote-config.json"
-```
-
-Inside json file provide following structure:
-
-```
-{
-    "server": "{server}"
-    "username": "{user}",
-    "port": "{port}",
-    "keyPath": "~/.ssh/id_rsa",
-    "portForward": "3000,4000"
-}
-```
-
-Run `remote` tool to connect to remote ssh server.
-
 # Tips & Tricks
 
 To view various notes about tools defined in this repository [go here](./notes.md)
