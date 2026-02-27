@@ -4,6 +4,31 @@ PREV_CPU_TOTAL=0
 PREV_CPU_IDLE=0
 CPU=0
 
+GREEN='\033[32m'
+YELLOW='\033[33m'
+RED='\033[31m'
+RESET='\033[0m'
+
+WATCH=false
+
+for arg in "$@"; do
+    case "$arg" in
+        -w|--watch) WATCH=true ;;
+        --no-color) GREEN=''; YELLOW=''; RED=''; RESET='' ;;
+        -h|--help)
+            echo "Usage: usage [OPTIONS]"
+            echo ""
+            echo "Display current CPU, memory, and disk usage."
+            echo ""
+            echo "Options:"
+            echo "  -w, --watch     Refresh stats every second"
+            echo "  --no-color      Disable colored output"
+            echo "  -h, --help      Show this help message"
+            exit 0
+            ;;
+    esac
+done
+
 update_cpu() {
     read -r _ user nice system idle iowait irq softirq steal _ < /proc/stat
     local total=$((user + nice + system + idle + iowait + irq + softirq + steal))
@@ -19,18 +44,26 @@ update_cpu() {
     fi
 }
 
-# Function to display system stats
-show_stats() {
-    update_cpu
-    MEM_USED=$(free -m | awk '/Mem:/ {printf "%.2f", $3/1024}')
-    MEM_TOTAL=$(free -m | awk '/Mem:/ {printf "%.2f", $2/1024}')
-    DISK_USED=$(df -BG / | awk 'NR==2 {gsub("G","",$3); print $3}')
-    DISK_TOTAL=$(df -BG / | awk 'NR==2 {gsub("G","",$2); print $2}')
-    printf "CPU: ${CPU}%%, MEMORY: ${MEM_USED}GB/${MEM_TOTAL}GB, DISK: ${DISK_USED}GB/${DISK_TOTAL}GB\033[K\r"
+color_for() {
+    local pct=$1
+    if [[ $pct -ge 95 ]]; then
+        printf '%s' "$RED"
+    elif [[ $pct -ge 80 ]]; then
+        printf '%s' "$YELLOW"
+    else
+        printf '%s' "$GREEN"
+    fi
 }
 
-# Check if -w or --watch is passed
-if [[ "$1" == "-w" || "$1" == "--watch" ]]; then
+show_stats() {
+    update_cpu
+    read -r MEM_USED MEM_TOTAL MEM_PCT < <(free -m | awk '/Mem:/ {printf "%.2f %.2f %d\n", $3/1024, $2/1024, $3/$2*100}')
+    read -r DISK_USED DISK_TOTAL DISK_PCT < <(df -BG / | awk 'NR==2 {gsub("G","",$3); gsub("G","",$2); printf "%d %d %d\n", $3, $2, $3/$2*100}')
+
+    printf "CPU: $(color_for $CPU)${CPU}%%${RESET}, MEMORY: $(color_for $MEM_PCT)${MEM_USED}GB/${MEM_TOTAL}GB${RESET}, DISK: $(color_for $DISK_PCT)${DISK_USED}GB/${DISK_TOTAL}GB${RESET}\033[K\r"
+}
+
+if $WATCH; then
     while true; do
         show_stats
         sleep 1
