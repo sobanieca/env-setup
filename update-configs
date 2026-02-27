@@ -69,3 +69,8 @@ wget $BASE_URL"rm-nvim-bookmarks" -O $HOME/tools/rm-nvim-bookmarks
 chmod +x $HOME/tools/rm-nvim-bookmarks
 echo "rm-nvim-bookmarks tool updated"
 
+echo "Updating usage tool"
+wget $BASE_URL"usage" -O $HOME/tools/usage
+chmod +x $HOME/tools/usage
+echo "usage tool updated"
+
