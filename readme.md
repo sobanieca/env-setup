@@ -112,6 +112,7 @@ sudo ufw status verbose
 #### Lock SSH to current IP on login
 
 To automatically restrict SSH access to only the currently connected IP, add the following to `.bashrc`.
+Replace `{ssh_port}` with your SSH port
 
 ```bash
 # Lock SSH to current IP (iptables - non-persistent, works alongside ufw)
