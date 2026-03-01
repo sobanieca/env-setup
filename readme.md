@@ -111,18 +111,23 @@ sudo ufw status verbose
 
 #### Lock SSH to current IP on login
 
-To automatically restrict SSH access to only the currently connected IP, add the following to `.bashrc`:
+To automatically restrict SSH access to only the currently connected IP, add the following to `.bashrc`.
 
 ```bash
-# Allow only my current IP on SSH
+# Lock SSH to current IP (iptables - non-persistent, works alongside ufw)
 MY_IP=$(echo "$SSH_CONNECTION" | awk '{print $1}')
 if [ -n "$MY_IP" ]; then
-    sudo ufw delete allow {ssh_port}/tcp 2>/dev/null
-    sudo ufw insert 1 allow from "$MY_IP" to any port {ssh_port}
+    if ! sudo iptables -C INPUT -p tcp --dport {ssh_port} -s "$MY_IP" -j ACCEPT 2>/dev/null; then
+        sudo iptables -S INPUT | grep -E "\-\-dport {ssh_port}" | sed 's/^-A/-D/' | while read -r rule; do
+            sudo iptables $rule
+        done
+        sudo iptables -I INPUT 1 -p tcp --dport {ssh_port} -s "$MY_IP" -j ACCEPT
+        sudo iptables -I INPUT 2 -p tcp --dport {ssh_port} -j DROP
+    fi
 fi
 ```
 
-> On each SSH login, the firewall rule is updated to allow only the connecting IP. If you change networks (e.g. switch to cellular), reboot the server via provider's web console to reset the rules.
+- On reboot, these rules disappear and UFW's generic `allow {ssh_port}/tcp` takes effect again
 
 ### Setup timezone information
 `sudo dpkg-reconfigure tzdata`
