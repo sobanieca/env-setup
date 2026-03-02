@@ -117,6 +117,7 @@ sudo apt-get install lsd -y
 echo "Lsd installed."
 
 # Install Github CLI
+echo "Installing Github CLI..."
 (type -p wget >/dev/null || (sudo apt update && sudo apt install wget -y)) \
 	&& sudo mkdir -p -m 755 /etc/apt/keyrings \
 	&& out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
@@ -126,8 +127,10 @@ echo "Lsd installed."
 	&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
 	&& sudo apt update \
 	&& sudo apt install gh -y
+echo "Github CLI installed."
 
 # Install Docker
+echo "Installing Docker..."
 sudo apt update
 sudo apt install ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
@@ -158,8 +161,10 @@ sudo tee /etc/docker/daemon.json <<EOF
 }
 EOF
 echo "Docker logging configured."
+echo "Docker installed."
 
 # Install Neovim
+echo "Installing Neovim..."
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
 sudo rm -rf /opt/nvim-linux-x86_64
 sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
@@ -169,6 +174,7 @@ if ! grep -q '/opt/nvim-linux-x86_64/bin' "$HOME/.bashrc"; then
   echo 'export PATH="$PATH:/opt/nvim-linux-x86_64/bin"' >> "$HOME/.bashrc"
   echo '' >> "$HOME/.bashrc"
 fi
+echo "Neovim installed."
 
 # Update-configs script
 wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
