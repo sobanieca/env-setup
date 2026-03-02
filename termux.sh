@@ -19,5 +19,3 @@ mv InconsolataGoNerdFontMono-Regular.ttf ~/.termux/font.ttf
 cd ..
 rm -rf nerdfont
 termux-reload-settings
-git clone https://github.com/sobanieca/env-setup.git
-proot-distro install debian

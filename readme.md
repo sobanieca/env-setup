@@ -136,10 +136,13 @@ fi
 # Connect
 
 ```bash
-ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -q -L 3000:localhost:3000 -l {login-name} -p {port} -i ~/.ssh/id_rsa {vps-url}
+ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -q -L 8000:localhost:8000 -l {login-name} -p {port} -i ~/.ssh/id_rsa {vps-url}
 ```
 
-> `-L 3000:localhost:3000` parameter is for port-forwarding to enable development. Ensure that sshd_config contains `AllowTcpForwarding yes`
+> `-L 8000:localhost:8000` parameter is for port-forwarding to enable development. Add as many ports as you need for development.
+> Ensure that sshd_config contains `AllowTcpForwarding yes`
+
+> If command doesn't work, ensure that private key has proper permissions. If not, run `chmod 600 ~/.ssh/id_rsa` (or other path if needed)
 
 # Run
 
