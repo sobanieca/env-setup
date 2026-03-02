@@ -147,7 +147,6 @@ sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin dock
 sudo groupadd docker
 sudo usermod -aG docker $USER
 
-# Configure Docker logging
 echo "Configuring Docker logging..."
 sudo tee /etc/docker/daemon.json <<EOF
 {
@@ -159,6 +158,17 @@ sudo tee /etc/docker/daemon.json <<EOF
 }
 EOF
 echo "Docker logging configured."
+
+# Install Neovim
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+sudo rm -rf /opt/nvim-linux-x86_64
+sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+
+if ! grep -q '/opt/nvim-linux-x86_64/bin' "$HOME/.bashrc"; then
+  echo '' >> "$HOME/.bashrc"
+  echo 'export PATH="$PATH:/opt/nvim-linux-x86_64/bin"' >> "$HOME/.bashrc"
+  echo '' >> "$HOME/.bashrc"
+fi
 
 # Update-configs script
 wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
