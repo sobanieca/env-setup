@@ -124,7 +124,6 @@ require("lazy").setup({
   },
   {
     "nvim-telescope/telescope.nvim",
-    tag = '0.1.4',
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       require('telescope').setup({
@@ -166,7 +165,6 @@ require("lazy").setup({
   },
   {
     "nvim-treesitter/nvim-treesitter",
-    enabled = vim.loop.os_uname().machine ~= "aarch64",
     build = ":TSUpdate",
     event = "VeryLazy",
     config = function()
@@ -453,7 +451,7 @@ vim.keymap.set({ 'n', 'v' }, '<S-Up>', '10k');
 vim.keymap.set({ 'n', 'v' }, '<S-Down>', '10j');
 
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-p>', function()
-  require('telescope.builtin').find_files({ hidden = true, path_display = { 'truncate' } })
+  require('telescope.builtin').find_files({ hidden = true, no_ignore = false, path_display = { 'truncate' }, file_ignore_patterns = { "^.git/" } })
 end);
 vim.keymap.set({ 'n' }, '<C-l>', '<Cmd>Telescope bookmarks list<CR>');
 vim.keymap.set({ 'n', 'v', 'i' }, '<C-t>', '<Cmd>NvimTreeFindFile<CR>');
