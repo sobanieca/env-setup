@@ -147,6 +147,19 @@ sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin dock
 sudo groupadd docker
 sudo usermod -aG docker $USER
 
+# Configure Docker logging
+echo "Configuring Docker logging..."
+sudo tee /etc/docker/daemon.json <<EOF
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+EOF
+echo "Docker logging configured."
+
 # Update-configs script
 wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
 chmod +x $HOME/tools/update-configs
