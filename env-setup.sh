@@ -176,6 +176,16 @@ if ! grep -q '/opt/nvim-linux-x86_64/bin' "$HOME/.bashrc"; then
 fi
 echo "Neovim installed."
 
+# Install jsonr
+echo "Installing jsonr..."
+deno install -g --allow-write --allow-net --allow-read --allow-env=HOME,USERPROFILE -f -r -n jsonr jsr:@sobanieca/jsonr
+echo "Jsonr installed."
+
+# Install remote-file-manager
+echo "Installing remote file manager..."
+deno install -g --allow-write --allow-net --allow-read -f -r -n rfm jsr:@sobanieca/remote-file-manager
+echo "Remote file manager installed."
+
 # Update-configs script
 wget $BASE_URL"update-configs" -O $HOME/tools/update-configs
 chmod +x $HOME/tools/update-configs
