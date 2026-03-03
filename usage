@@ -10,11 +10,13 @@ RED='\033[31m'
 RESET='\033[0m'
 
 WATCH=false
+TMUX_MODE=false
 
 for arg in "$@"; do
     case "$arg" in
         -w|--watch) WATCH=true ;;
         --no-color) GREEN=''; YELLOW=''; RED=''; RESET='' ;;
+        --tmux) TMUX_MODE=true; GREEN='#[fg=#00ffd2]'; YELLOW='#[fg=#e0af68]'; RED='#[fg=#ff4499]'; RESET='#[fg=#7aa2f7]' ;;
         -h|--help)
             echo "Usage: usage [OPTIONS]"
             echo ""
@@ -23,6 +25,7 @@ for arg in "$@"; do
             echo "Options:"
             echo "  -w, --watch     Refresh stats every second"
             echo "  --no-color      Disable colored output"
+            echo "  --tmux          Output with tmux-compatible color codes"
             echo "  -h, --help      Show this help message"
             exit 0
             ;;
@@ -60,7 +63,11 @@ show_stats() {
     read -r MEM_USED MEM_TOTAL MEM_PCT < <(free -m | awk '/Mem:/ {printf "%.2f %.2f %d\n", $3/1024, $2/1024, $3/$2*100}')
     read -r DISK_USED DISK_TOTAL DISK_PCT < <(df -BG / | awk 'NR==2 {gsub("G","",$3); gsub("G","",$2); printf "%d %d %d\n", $3, $2, $3/$2*100}')
 
-    printf "CPU: $(color_for $CPU)${CPU}%%${RESET}, MEMORY: $(color_for $MEM_PCT)${MEM_USED}GB/${MEM_TOTAL}GB${RESET}, DISK: $(color_for $DISK_PCT)${DISK_USED}GB/${DISK_TOTAL}GB${RESET}\033[K\r"
+    if $TMUX_MODE; then
+        printf "CPU:$(color_for $CPU)${CPU}%%${RESET} MEM:$(color_for $MEM_PCT)${MEM_USED}/${MEM_TOTAL}GB${RESET} DISK:$(color_for $DISK_PCT)${DISK_USED}/${DISK_TOTAL}GB${RESET}"
+    else
+        printf "CPU: $(color_for $CPU)${CPU}%%${RESET}, MEMORY: $(color_for $MEM_PCT)${MEM_USED}GB/${MEM_TOTAL}GB${RESET}, DISK: $(color_for $DISK_PCT)${DISK_USED}GB/${DISK_TOTAL}GB${RESET}\033[K\r"
+    fi
 }
 
 if $WATCH; then
@@ -70,7 +77,11 @@ if $WATCH; then
     done
 else
     update_cpu
-    sleep 0.5
+    if ! $TMUX_MODE; then
+        sleep 0.5
+    fi
     show_stats
-    echo  # print newline for single run
+    if ! $TMUX_MODE; then
+        echo  # print newline for single run
+    fi
 fi
