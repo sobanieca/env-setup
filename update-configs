@@ -74,3 +74,9 @@ wget $BASE_URL"usage" -O $HOME/tools/usage
 chmod +x $HOME/tools/usage
 echo "usage tool updated"
 
+mkdir -p $HOME/.tmux
+echo "Updating tmux-status-resize script"
+wget $BASE_URL"tmux-status-resize" -O $HOME/.tmux/tmux-status-resize
+chmod +x $HOME/.tmux/tmux-status-resize
+echo "tmux-status-resize script updated"
+

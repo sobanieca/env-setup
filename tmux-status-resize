@@ -1,0 +1,20 @@
+#!/bin/bash
+
+PL_RIGHT=$'\uE0B0'
+PL_LEFT=$'\uE0B2'
+PL_LEFT_THIN=$'\uE0B3'
+
+width=$(tmux display -p "#{client_width}")
+
+USAGE="#[fg=#7aa2f7,bg=#3b4261] #($HOME/tools/usage --tmux) #[fg=#3b4261,bg=#1f2335]${PL_RIGHT}"
+GITMUX_DATE_RIGHT="#[align=right]#[fg=#3b4261,bg=#1f2335]${PL_LEFT}#[fg=#7aa2f7,bg=#3b4261] #(gitmux -cfg $HOME/.config/.gitmux.conf '#{pane_current_path}')#[fg=#7aa2f7,bg=#3b4261] ${PL_LEFT_THIN} %a %Y-%m-%d #[fg=#7aa2f7,bg=#3b4261]${PL_LEFT}#[fg=#1d202f,bg=#7aa2f7,bold] %H:%M "
+GITMUX_DATE_LEFT="#[fg=#7aa2f7,bg=#3b4261] #(gitmux -cfg $HOME/.config/.gitmux.conf '#{pane_current_path}')#[fg=#7aa2f7,bg=#3b4261] ${PL_LEFT_THIN} %a %Y-%m-%d #[fg=#7aa2f7,bg=#3b4261]${PL_LEFT}#[fg=#1d202f,bg=#7aa2f7,bold] %H:%M #[fg=#7aa2f7,bg=#1f2335]${PL_RIGHT}"
+
+if [ "$width" -lt 85 ]; then
+    tmux set -g status 3
+    tmux set -g status-format[1] "$USAGE"
+    tmux set -g status-format[2] "$GITMUX_DATE_LEFT"
+else
+    tmux set -g status 2
+    tmux set -g status-format[1] "${USAGE}${GITMUX_DATE_RIGHT}"
+fi

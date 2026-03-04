@@ -13,4 +13,5 @@ cp ./gblame ~/tools/gblame
 cp ./rm-nvim-bookmarks ~/tools/rm-nvim-bookmarks
 cp ./update-configs ~/tools/update-configs
 cp ./usage ~/tools/usage
-
+mkdir -p ~/.tmux
+cp ./tmux-status-resize ~/.tmux/tmux-status-resize
