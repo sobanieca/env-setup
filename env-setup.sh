@@ -58,6 +58,11 @@ echo "Installing atop..."
 sudo apt-get install atop -y
 echo "Atop installed."
 
+# Install htop
+echo "Installing htop..."
+sudo apt-get install htop -y
+echo "Htop installed."
+
 # Install fzf
 echo "Installing fzf..."
 sudo apt-get install fzf -y
