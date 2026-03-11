@@ -381,6 +381,10 @@ vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGai
 })
 
 vim.api.nvim_create_user_command('Lg', 'Telescope live_grep', {});
+vim.api.nvim_create_user_command('Lgp', function()
+  local pattern = vim.fn.input('Glob pattern: ')
+  require('telescope.builtin').live_grep({ glob_pattern = pattern })
+end, {});
 vim.api.nvim_create_user_command('Tr', function()
   require('telescope.builtin').resume()
 end, {});
