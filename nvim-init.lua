@@ -92,7 +92,7 @@ require("lazy").setup({
           }
         },
         update_focused_file = {
-          enable = true,
+          enable = false,
         },
         on_attach = nvim_tree_on_attach
       }
@@ -416,6 +416,28 @@ vim.api.nvim_create_user_command('SessionRestore', function()
   vim.cmd('source ~/.config/nvim/session.vim')
 end, {});
 vim.api.nvim_create_user_command('TsNoCheck', 'call append(0, \'// @ts-nocheck\')', {});
+
+local tree_follow_locked = false
+vim.api.nvim_create_user_command('TreeLock', function()
+  tree_follow_locked = not tree_follow_locked
+  if tree_follow_locked then
+    print("NvimTree: auto-follow OFF (locked)")
+  else
+    require("nvim-tree.api").tree.find_file({ update_root = false, focus = false })
+    print("NvimTree: auto-follow ON")
+  end
+end, {});
+
+vim.api.nvim_create_autocmd("BufEnter", {
+  callback = function()
+    if not tree_follow_locked and vim.bo.buftype == "" then
+      local ok, api = pcall(require, "nvim-tree.api")
+      if ok and api.tree.is_visible() then
+        api.tree.find_file({ update_root = false, focus = false })
+      end
+    end
+  end,
+});
 
 local noop = function()
 end
