@@ -168,7 +168,7 @@ require("lazy").setup({
     build = ":TSUpdate",
     event = "VeryLazy",
     config = function()
-      require("nvim-treesitter").setup({
+      require("nvim-treesitter.configs").setup({
         ensure_installed = {
           "bash",
           "c",
