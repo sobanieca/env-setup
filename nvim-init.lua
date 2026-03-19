@@ -256,63 +256,6 @@ require("lazy").setup({
     opts = { -- set to setup table
     },
   },
-  {
-    "mfussenegger/nvim-dap",
-    dependencies = {
-      "rcarriga/nvim-dap-ui",
-      "nvim-neotest/nvim-nio",
-      {
-        "microsoft/vscode-js-debug",
-        version = "1.x",
-        build = "npm i && npm run compile dapDebugServer && rm -rf out && mv dist out"
-      }
-    },
-    keys = {
-      { "ab", function() require 'dap'.toggle_breakpoint() end },
-      { "ac", function() require 'dap'.continue() end },
-      { "ao", function() require 'dap'.step_over() end },
-      { "ai", function() require 'dap'.step_into() end },
-      { "at", function() require 'dap'.step_out() end },
-    },
-    config = function()
-      require("dap").adapters["pwa-node"] = {
-        type = "server",
-        host = "localhost",
-        port = "${port}",
-        executable = {
-          command = "node",
-          args = { vim.fn.stdpath("data") .. "/lazy/vscode-js-debug/out/src/dapDebugServer.js", "${port}" },
-        }
-      }
-      for _, language in ipairs({ "typescript", "javascript", "typescriptreact", "javascriptreact" }) do
-        require("dap").configurations[language] = {
-          {
-            type = "pwa-node",
-            request = "attach",
-            port = 9229,
-            name = "Attach debugger to existing process",
-            sourceMaps = true,
-            resolveSourceMapLocations = {
-              "${workspaceFolder}/**",
-              "!**/node_modules/**" },
-            cwd = vim.fn.getcwd(),
-            skipFiles = { "${workspaceFolder}/node_modules/**/*.js" },
-          },
-        }
-      end
-
-      require("dapui").setup()
-      local dap, dapui = require("dap"), require("dapui")
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open({ reset = true })
-      end
-      dap.listeners.before.event_terminated["dapui_config"] = dapui.close
-      dap.listeners.before.event_exited["dapui_config"] = dapui.close
-
-      vim.cmd("hi DapBreakpointColor guifg=#fa4848")
-      vim.fn.sign_define("DapBreakpoint", { text = "", texthl = "DapBreakpointColor", linehl = "", numhl = "" })
-    end
-  }
 })
 
 vim.o.smartindent = true
