@@ -14,19 +14,13 @@ One needs to configure user account and ssh to proceed:
 ### Configure user permissions
 `run visudo and add following entry below root permissions: $USER ALL=(ALL) NOPASSWD:ALL`
 
+> to change visudo editor type 'sudo update-alternatives --config editor'
+
 ### Limit parallel ssh sessions to 1
 ```
 sudo nano /etc/security/limits.conf
 * hard maxsyslogins 1
 ```
-
-### Setup ssh client timeout
-
-`sudo nano /etc/ssh/sshd_config`
-
-search for `ClientAliveInterval`, if found set to 0
-
-restart server or `sudo systemctl reload sshd.service`
 
 ### Setup hostname
 
@@ -35,9 +29,36 @@ sudo hostname {target hostname}
 sudo nano /etc/hosts - replace old hostname references with the new one
 ```
 
-> to change visudo editor type 'sudo update-alternatives --config editor'
+### Configure SSHD 
+
+Edit `/etc/ssh/sshd_config` and apply all of the following in a single edit:
+
+```
+sudo nano /etc/ssh/sshd_config
+```
+
+- `Port` — set to a non-default value (not `22`)
+- `PermitRootLogin no` — disable root SSH login
+- `ClientAliveInterval 0` — support long-lived SSH sessions
+- `AllowTcpForwarding yes` — enable port forwarding for development
+
+Then reload sshd (first restart):
+
+```bash
+sudo systemctl reload sshd.service
+```
+
+> You may need to check `/etc/ssh/sshd_config.d` for files that potentially override the main config. If so, update it there as well.
+
+> Keep this root session open until you've confirmed you can reconnect as the new user on the new port.
 
 ## As a given user
+
+Disconnect from the root session and reconnect as the newly created user on the new SSH port:
+
+```bash
+ssh -p {ssh_port} {user}@{host}
+```
 
 ### Create ssh directory in ~ if not exists
 
@@ -46,12 +67,6 @@ mkdir -p ~/.ssh
 chmod 700 ~/.ssh
 touch ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
-```
-
-### Setup ssh port
-```
-edit /etc/ssh/sshd_config file and specify #Port different than 22
-edit /etc/ssh/sshd_config file and disable root login #PermitRootLogin no
 ```
 
 ### Setup ssh key on Windows client
@@ -71,9 +86,13 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub -p {ssh_port} user@host
 
 > `~/.ssh/id_rsa` is the private key, `~/.ssh/id_rsa.pub` is the public key
 
-### Disable password authentication
+### Disable password authentication 
 
-After verifying that key-based login works, disable password authentication:
+Open a fresh SSH session using the key to confirm key-based login works before
+proceeding. Keep your current session open as a fallback in case something is
+wrong with the key setup.
+
+Once verified, edit sshd config one more time:
 
 ```
 sudo nano /etc/ssh/sshd_config
@@ -86,13 +105,14 @@ PasswordAuthentication no
 ChallengeResponseAuthentication no
 ```
 
-Then reload:
+Then reload sshd (second restart):
 
 ```bash
 sudo systemctl reload sshd.service
 ```
 
-> You may need to check `/etc/ssh/sshd_config.d` for files that potentially override main config. In such case, update it there as well.
+> Again check `/etc/ssh/sshd_config.d` for override files
+> and update them there if needed.
 
 ### Setup firewall
 
