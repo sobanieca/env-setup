@@ -1,11 +1,12 @@
 #!/bin/bash
 
-PREV_CPU_TOTAL=0
-PREV_CPU_IDLE=0
 declare -a PREV_CORE_TOTAL
 declare -a PREV_CORE_IDLE
-CPU=0
-CPU_MAX=0
+declare -a CORE_USAGE
+PREV_DISK_SECTORS=0
+PREV_NET_BYTES=0
+DISK_IO_PCT=0
+NET_IO_PCT=0
 
 GREEN='\033[32m'
 YELLOW='\033[33m'
@@ -23,7 +24,7 @@ for arg in "$@"; do
         -h|--help)
             echo "Usage: usage [OPTIONS]"
             echo ""
-            echo "Display current CPU, memory, and disk usage."
+            echo "Display current CPU, memory, disk, I/O, and network usage."
             echo ""
             echo "Options:"
             echo "  -w, --watch     Refresh stats every second"
@@ -35,43 +36,71 @@ for arg in "$@"; do
     esac
 done
 
+BLOCKS=(▁ ▂ ▃ ▄ ▅ ▆ ▇ █)
+
 update_cpu() {
-    local max=0
     local i=0
     local label user nice system idle iowait irq softirq steal
+    CORE_USAGE=()
     while read -r label user nice system idle iowait irq softirq steal _; do
         case "$label" in
-            cpu|cpu[0-9]*) ;;
+            cpu[0-9]*) ;;
+            cpu) continue ;;
             *) break ;;
         esac
         local total=$((user + nice + system + idle + iowait + irq + softirq + steal))
         local total_idle=$((idle + iowait))
-        if [[ "$label" == "cpu" ]]; then
-            local diff_total=$((total - PREV_CPU_TOTAL))
-            local diff_idle=$((total_idle - PREV_CPU_IDLE))
-            PREV_CPU_TOTAL=$total
-            PREV_CPU_IDLE=$total_idle
-            if [[ $diff_total -gt 0 ]]; then
-                CPU=$(( (diff_total - diff_idle) * 100 / diff_total ))
-            else
-                CPU=0
-            fi
-        else
-            local prev_total=${PREV_CORE_TOTAL[$i]:-0}
-            local prev_idle=${PREV_CORE_IDLE[$i]:-0}
-            local diff_total=$((total - prev_total))
-            local diff_idle=$((total_idle - prev_idle))
-            PREV_CORE_TOTAL[$i]=$total
-            PREV_CORE_IDLE[$i]=$total_idle
-            local pct=0
-            if [[ $diff_total -gt 0 ]]; then
-                pct=$(( (diff_total - diff_idle) * 100 / diff_total ))
-            fi
-            (( pct > max )) && max=$pct
-            i=$((i + 1))
+        local prev_total=${PREV_CORE_TOTAL[$i]:-0}
+        local prev_idle=${PREV_CORE_IDLE[$i]:-0}
+        local diff_total=$((total - prev_total))
+        local diff_idle=$((total_idle - prev_idle))
+        PREV_CORE_TOTAL[$i]=$total
+        PREV_CORE_IDLE[$i]=$total_idle
+        local pct=0
+        if [[ $diff_total -gt 0 ]]; then
+            pct=$(( (diff_total - diff_idle) * 100 / diff_total ))
         fi
+        CORE_USAGE[$i]=$pct
+        i=$((i + 1))
     done < /proc/stat
-    CPU_MAX=$max
+}
+
+update_io() {
+    # Disk I/O - sum read+write sectors from whole disk devices only
+    local disk_sectors
+    disk_sectors=$(awk '$3 ~ /^(sd[a-z]+|vd[a-z]+|nvme[0-9]+n[0-9]+|xvd[a-z]+)$/ {s += $6 + $10} END {print s+0}' /proc/diskstats)
+    local disk_diff=$(( disk_sectors - PREV_DISK_SECTORS ))
+    PREV_DISK_SECTORS=$disk_sectors
+    # sectors are 512 bytes, /2 gives KB per sample interval (~1s)
+    local disk_kbps=$(( disk_diff / 2 ))
+    DISK_IO_PCT=$(kbps_to_pct $disk_kbps)
+
+    # Network I/O - sum rx+tx bytes from all interfaces except lo
+    local net_bytes
+    net_bytes=$(awk '!/lo:/ && /:/ {s += $2 + $10} END {print s+0}' /proc/net/dev)
+    local net_diff=$(( net_bytes - PREV_NET_BYTES ))
+    PREV_NET_BYTES=$net_bytes
+    local net_kbps=$(( net_diff / 1024 ))
+    NET_IO_PCT=$(kbps_to_pct $net_kbps)
+}
+
+kbps_to_pct() {
+    local kbps=$1
+    if (( kbps < 10 )); then printf 0
+    elif (( kbps < 100 )); then printf 14
+    elif (( kbps < 500 )); then printf 28
+    elif (( kbps < 2000 )); then printf 42
+    elif (( kbps < 10000 )); then printf 56
+    elif (( kbps < 50000 )); then printf 70
+    elif (( kbps < 200000 )); then printf 85
+    else printf 100
+    fi
+}
+
+block_for() {
+    local pct=$1
+    local idx=$(( pct * 8 / 101 ))
+    printf '%s' "${BLOCKS[$idx]}"
 }
 
 color_for() {
@@ -87,18 +116,27 @@ color_for() {
 
 show_stats() {
     update_cpu
+    update_io
+
     read -r MEM_USED MEM_TOTAL MEM_PCT < <(free -m | awk '/Mem:/ {printf "%.2f %.2f %d\n", $3/1024, $2/1024, $3/$2*100}')
     read -r DISK_USED DISK_TOTAL DISK_PCT < <(df -BG / | awk 'NR==2 {gsub("G","",$3); gsub("G","",$2); printf "%d %d %d\n", $3, $2, $3/$2*100}')
 
+    local cpu_bar=""
+    for pct in "${CORE_USAGE[@]}"; do
+        cpu_bar+="$(color_for $pct)$(block_for $pct)"
+    done
+    cpu_bar+="$RESET"
+
     if $TMUX_MODE; then
-        printf "CPU:$(color_for $CPU)${CPU}%%${RESET} ($(color_for $CPU_MAX)${CPU_MAX}%%${RESET}) MEM:$(color_for $MEM_PCT)${MEM_USED}/${MEM_TOTAL}GB${RESET} DISK:$(color_for $DISK_PCT)${DISK_USED}/${DISK_TOTAL}GB${RESET}"
+        printf "CPU:${cpu_bar} IO:$(color_for $DISK_IO_PCT)$(block_for $DISK_IO_PCT)${RESET} NET:$(color_for $NET_IO_PCT)$(block_for $NET_IO_PCT)${RESET} MEM:$(color_for $MEM_PCT)${MEM_USED}/${MEM_TOTAL}GB${RESET} DISK:$(color_for $DISK_PCT)${DISK_USED}/${DISK_TOTAL}GB${RESET}"
     else
-        printf "CPU: $(color_for $CPU)${CPU}%%${RESET} ($(color_for $CPU_MAX)${CPU_MAX}%%${RESET}), MEMORY: $(color_for $MEM_PCT)${MEM_USED}GB/${MEM_TOTAL}GB${RESET}, DISK: $(color_for $DISK_PCT)${DISK_USED}GB/${DISK_TOTAL}GB${RESET}\033[K\r"
+        printf "CPU: ${cpu_bar}, IO: $(color_for $DISK_IO_PCT)$(block_for $DISK_IO_PCT)${RESET}, NET: $(color_for $NET_IO_PCT)$(block_for $NET_IO_PCT)${RESET}, MEMORY: $(color_for $MEM_PCT)${MEM_USED}GB/${MEM_TOTAL}GB${RESET}, DISK: $(color_for $DISK_PCT)${DISK_USED}GB/${DISK_TOTAL}GB${RESET}\033[K\r"
     fi
 }
 
 if $WATCH; then
     update_cpu
+    update_io
     sleep 1
     while true; do
         show_stats
@@ -106,6 +144,7 @@ if $WATCH; then
     done
 else
     update_cpu
+    update_io
     sleep 0.5
     show_stats
     if ! $TMUX_MODE; then
