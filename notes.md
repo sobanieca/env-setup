@@ -55,3 +55,49 @@ Go to file under cursor (if path is available)
 Remote debug - to enable remote debug (Chrome MCP etc.) use following to start chrome:
 
 `"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\Users\{My USER}\chrome-debug"`
+
+## Claude Code
+
+Configure MCP servers in `~/.claude.json` file under root level:
+
+```json
+"mcpServers": {                                                                        
+  "chrome-devtools": {                                                                 
+    "type": "stdio",                                                                   
+    "command": "npx",                                                                  
+    "args": [                                                                          
+      "chrome-devtools-mcp@latest",                                                    
+      "--browserUrl",                                                                  
+      "http://localhost:9222"                                                          
+    ],                                                                                 
+    "env": {}                                                                          
+  },                                                                                   
+  "figma-remote-mcp": {                                                                
+    "type": "http",                                                                    
+    "url": "https://mcp.figma.com/mcp"                                                 
+  },                                                                                   
+  "grafana": {                                                                         
+    "command": "uvx",                                                                  
+    "args": [                                                                          
+      "mcp-grafana",                                                                   
+      "--enabled-tools",                                                               
+      "clickhouse,prometheus,datasource,cloudwatch,runpanelquery,dashboard"            
+    ],                                                                                 
+    "env": {                                                                           
+      "GRAFANA_URL": "{url}",                                    
+      "GRAFANA_SERVICE_ACCOUNT_TOKEN": "*****"
+    }                                                                                
+  }                                                                                    
+}                                                                                      
+```
+
+## WSL
+
+.wslconfig content (in C:\Users<YourUsername>.wslconfig):
+
+```
+[wsl2]
+memory=14GB
+processors=8
+networkingMode=mirrored
+```
