@@ -68,7 +68,7 @@ update_cpu() {
 update_io() {
     # Disk I/O - sum read+write sectors from whole disk devices only
     local disk_sectors
-    disk_sectors=$(awk '$3 ~ /^(sd[a-z]+|vd[a-z]+|nvme[0-9]+n[0-9]+|xvd[a-z]+)$/ {s += $6 + $10} END {print s+0}' /proc/diskstats)
+    disk_sectors=$(awk '$3 ~ /^(sd[a-z]+|vd[a-z]+|nvme[0-9]+n[0-9]+|xvd[a-z]+)$/ {s += $6 + $10} END {printf "%d\n", s+0}' /proc/diskstats)
     local disk_diff=$(( disk_sectors - PREV_DISK_SECTORS ))
     PREV_DISK_SECTORS=$disk_sectors
     # sectors are 512 bytes, /2 gives KB per sample interval (~1s)
