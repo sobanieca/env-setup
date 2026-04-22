@@ -77,7 +77,7 @@ update_io() {
 
     # Network I/O - sum rx+tx bytes from all interfaces except lo
     local net_bytes
-    net_bytes=$(awk '!/lo:/ && /:/ {s += $2 + $10} END {print s+0}' /proc/net/dev)
+    net_bytes=$(awk '!/lo:/ && /:/ {s += $2 + $10} END {printf "%d\n", s+0}' /proc/net/dev)
     local net_diff=$(( net_bytes - PREV_NET_BYTES ))
     PREV_NET_BYTES=$net_bytes
     local net_kbps=$(( net_diff / 1024 ))
