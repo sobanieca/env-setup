@@ -85,3 +85,7 @@ echo "Updating claude keybindings.json..."
 wget $BASE_URL"claude-keybindings.json" -O $HOME/.claude/keybindings.json
 echo "claude keybindings.json updated."
 
+echo "Updating claude settings.json..."
+wget $BASE_URL"claude-settings.json" -O $HOME/.claude/settings.json
+echo "claude settings.json updated."
+
