@@ -15,3 +15,5 @@ cp ./update-configs ~/tools/update-configs
 cp ./usage ~/tools/usage
 mkdir -p ~/.tmux
 cp ./tmux-status-resize ~/.tmux/tmux-status-resize
+mkdir -p ~/.claude
+cp ./claude-keybindings.json ~/.claude/keybindings.json

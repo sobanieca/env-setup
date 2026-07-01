@@ -80,3 +80,8 @@ wget $BASE_URL"tmux-status-resize" -O $HOME/.tmux/tmux-status-resize
 chmod +x $HOME/.tmux/tmux-status-resize
 echo "tmux-status-resize script updated"
 
+mkdir -p $HOME/.claude
+echo "Updating claude keybindings.json..."
+wget $BASE_URL"claude-keybindings.json" -O $HOME/.claude/keybindings.json
+echo "claude keybindings.json updated."
+
