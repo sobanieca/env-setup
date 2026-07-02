@@ -5,8 +5,8 @@
     {
       "context": "Scroll",
       "bindings": {
-        "up": "scroll:lineUp",
-        "down": "scroll:lineDown"
+        "ctrl+up": "scroll:lineUp",
+        "ctrl+down": "scroll:lineDown"
       }
     }
   ]
