@@ -6,7 +6,15 @@
       "Bash(grep:*)",
       "Bash(ls:*)",
       "Bash(find)"
-    ]
+    ],
+    "deny": [
+      "Bash(git commit:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)",
+      "Bash(git revert:*)",
+      "Bash(git cherry-pick:*)"
+    ],
+    "defaultMode": "auto"
   },
   "model": "opus[1m]",
   "alwaysThinkingEnabled": true,
