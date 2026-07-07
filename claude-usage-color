@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Wraps the tmux-claude-status `claude-usage` plugin and colorizes every
+# utilization percentage (5h and 7d) with tmux color codes, matching the
+# thresholds used by the `usage` (CPU) tool:
+#   < 80%    green
+#   80-95%   yellow
+#   > 95%    red
+# Non-percentage output (cost mode, reset times, staleness like "[3m ago]")
+# is passed through untouched. Intended for the tmux status bar.
+
+CLAUDE_USAGE="$HOME/.local/bin/claude-usage"
+
+GREEN='#[fg=#00ffd2]'
+YELLOW='#[fg=#e0af68]'
+RED='#[fg=#ff4499]'
+RESET='#[fg=#7aa2f7]'
+
+out=$("$CLAUDE_USAGE" "${1:-short}" 2>/dev/null)
+
+printf '%s\n' "$out" | awk -v g="$GREEN" -v y="$YELLOW" -v r="$RED" -v reset="$RESET" '
+{
+    line = $0
+    result = ""
+    while (match(line, /[0-9]+%/)) {
+        pre = substr(line, 1, RSTART - 1)
+        tok = substr(line, RSTART, RLENGTH)
+        num = substr(tok, 1, RLENGTH - 1) + 0
+        if (num > 95)       col = r
+        else if (num >= 80) col = y
+        else                col = g
+        result = result pre col tok reset
+        line = substr(line, RSTART + RLENGTH)
+    }
+    printf "%s%s\n", result, line
+}'
