@@ -318,6 +318,33 @@ vim.g.coc_global_extensions = { 'coc-json', 'coc-tsserver', 'coc-deno', 'coc-css
 
 vim.cmd [[colorscheme tokyonight]]
 
+-- Dim background when the tmux pane is inactive, matching window-style in tmux.conf.
+-- Requires "set -g focus-events on" in tmux.conf.
+local inactive_bg = "#16161e"
+local dim_groups = { "Normal", "NormalNC", "SignColumn", "LineNr", "EndOfBuffer", "NvimTreeNormal", "NvimTreeNormalNC" }
+local active_hl = {}
+
+vim.api.nvim_create_autocmd("FocusLost", {
+  callback = function()
+    active_hl = {}
+    for _, group in ipairs(dim_groups) do
+      local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
+      if next(hl) ~= nil then
+        active_hl[group] = hl
+        vim.api.nvim_set_hl(0, group, vim.tbl_extend("force", hl, { bg = inactive_bg }))
+      end
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd("FocusGained", {
+  callback = function()
+    for group, hl in pairs(active_hl) do
+      vim.api.nvim_set_hl(0, group, hl)
+    end
+  end,
+})
+
 vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGained" }, {
   command = "if mode() != 'c' | checktime | endif",
   pattern = { "*" },
