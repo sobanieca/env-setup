@@ -24,5 +24,6 @@
   "effort": "high",
   "tui": "fullscreen",
   "preferredNotifChannel": "terminal_bell",
-  "autoMemoryEnabled": false
+  "autoMemoryEnabled": false,
+  "remoteControlAtStartup": true
 }
