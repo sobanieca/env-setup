@@ -50,6 +50,9 @@ Refresh autocomplete, show documentation
 `gf`:
 Go to file under cursor (if path is available)
 
+`:windo set scrollbind`:
+Lock scroll
+
 ## Chrome
 
 Remote debug - to enable remote debug (Chrome MCP etc.) use following to start chrome:
