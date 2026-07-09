@@ -12,7 +12,8 @@
       "Bash(git merge:*)",
       "Bash(git rebase:*)",
       "Bash(git revert:*)",
-      "Bash(git cherry-pick:*)"
+      "Bash(git cherry-pick:*)",
+      "Artifact"
     ],
     "defaultMode": "auto"
   },
