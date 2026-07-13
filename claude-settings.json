@@ -22,5 +22,10 @@
   "tui": "fullscreen",
   "preferredNotifChannel": "terminal_bell",
   "autoMemoryEnabled": false,
-  "remoteControlAtStartup": true
+  "remoteControlAtStartup": true,
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  }
 }
