@@ -14,7 +14,7 @@ CLAUDE_USAGE_RIGHT="#[align=right]#[fg=#3b4261,bg=#1f2335]${PL_LEFT}#[fg=#7aa2f7
 GITMUX_DATE_RIGHT="#[align=right]#[fg=#3b4261,bg=#1f2335]${PL_LEFT}#[fg=#7aa2f7,bg=#3b4261] #(gitmux -cfg $HOME/.config/.gitmux.conf '#{pane_current_path}')#[fg=#7aa2f7,bg=#3b4261] ${PL_LEFT_THIN} %a %Y-%m-%d #[fg=#7aa2f7,bg=#3b4261]${PL_LEFT}#[fg=#1d202f,bg=#7aa2f7,bold] %H:%M "
 GITMUX_DATE_LEFT="#[fg=#7aa2f7,bg=#3b4261] #(gitmux -cfg $HOME/.config/.gitmux.conf '#{pane_current_path}')#[fg=#7aa2f7,bg=#3b4261] ${PL_LEFT_THIN} %a %Y-%m-%d #[fg=#7aa2f7,bg=#3b4261]${PL_LEFT}#[fg=#1d202f,bg=#7aa2f7,bold] %H:%M #[fg=#7aa2f7,bg=#1f2335]${PL_RIGHT}"
 
-if [ "$width" -lt 110 ]; then
+if [ "$width" -le 120 ]; then
     tmux set -g status 4
     tmux set -g status-format[1] "$GITMUX_DATE_LEFT"
     tmux set -g status-format[2] "$CLAUDE_LEFT"
