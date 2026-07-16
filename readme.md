@@ -164,6 +164,52 @@ ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -q -
 
 > If command doesn't work, ensure that private key has proper permissions. If not, run `chmod 600 ~/.ssh/id_rsa` (or other path if needed)
 
+## Adding port forwards to a running session
+
+The `-L` forwards above have to be decided up front, at connect time. To add them
+later, without dropping the session, enable connection multiplexing on the
+**client** machine by adding to `~/.ssh/config`:
+
+```
+Host *
+    ControlMaster auto
+    ControlPath ~/.ssh/sockets/cm-%r@%h:%p
+    ControlPersist 10m
+```
+
+```bash
+mkdir -p ~/.ssh/sockets
+```
+
+The first connection to a host becomes the *master* and opens a control socket
+under `~/.ssh/sockets`. Further sessions to the same host reuse that connection
+(no re-authentication), and the master accepts commands on the socket
+(`ssh -O forward|cancel|check`) — which is how forwards can be added to an
+already established session. `ControlPersist 10m` keeps the master alive in the
+background for 10 minutes after the last session exits, so quick reconnects are
+instant.
+
+> Only connections established *after* this config was added are masters.
+> Sessions started earlier have no control socket and won't accept new forwards.
+
+The `ssh-port` tool wraps this:
+
+```bash
+ssh-port                # list active connections, marking which ones are masters
+ssh-port -p 8000        # forward localhost:8000 -> host:8000 (single connection)
+ssh-port -p 8000 2      # same, on connection no. 2 from the list
+ssh-port -c 8000        # cancel that forward
+```
+
+`ssh-port` runs on the client, so it is **not** installed by `env-setup.sh` /
+`update-configs` (those provision the server). Install it on the client with:
+
+```bash
+mkdir -p ~/tools
+wget https://raw.githubusercontent.com/sobanieca/env-setup/master/ssh-port -O ~/tools/ssh-port
+chmod +x ~/tools/ssh-port
+```
+
 # Run
 
 First run `apt-get update` then
