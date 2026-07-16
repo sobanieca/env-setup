@@ -166,40 +166,34 @@ ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -q -
 
 ## Adding port forwards to a running session
 
-The `-L` forwards above have to be decided up front, at connect time. To add them
-later, without dropping the session, enable connection multiplexing on the
-**client** machine by adding to `~/.ssh/config`:
-
-```
-Host *
-    ControlMaster auto
-    ControlPath ~/.ssh/sockets/cm-%r@%h:%p
-    ControlPersist 10m
-```
+The `-L` forwards above have to be decided up front, at connect time. The
+`ssh-port` tool adds them afterwards, without dropping the session:
 
 ```bash
-mkdir -p ~/.ssh/sockets
-```
-
-The first connection to a host becomes the *master* and opens a control socket
-under `~/.ssh/sockets`. Further sessions to the same host reuse that connection
-(no re-authentication), and the master accepts commands on the socket
-(`ssh -O forward|cancel|check`) — which is how forwards can be added to an
-already established session. `ControlPersist 10m` keeps the master alive in the
-background for 10 minutes after the last session exits, so quick reconnects are
-instant.
-
-> Only connections established *after* this config was added are masters.
-> Sessions started earlier have no control socket and won't accept new forwards.
-
-The `ssh-port` tool wraps this:
-
-```bash
-ssh-port                # list active connections, marking which ones are masters
+ssh-port                # list active connections (and tunnels already opened)
 ssh-port -p 8000        # forward localhost:8000 -> host:8000 (single connection)
 ssh-port -p 8000 2      # same, on connection no. 2 from the list
-ssh-port -c 8000        # cancel that forward
+ssh-port -c 8000        # close that tunnel
+ssh-port -p 8000 -n     # dry-run: print the ssh command instead of running it
 ```
+
+Because that is a real second connection, mind the following:
+
+> The server authenticates it **again**. With a passphrase-less key (or a loaded
+> `ssh-agent`) it goes through unattended; otherwise ssh will ask for the
+> passphrase.
+
+> It is another login, so a `maxlogins` / `maxsyslogins` limit in the server's
+> `/etc/security/limits.conf` can reject it. Raise the limit if you use one.
+
+> Each `-p` opens its own connection, so `-c PORT` kills only the tunnel for
+> that port. Other tunnels and your interactive session are left alone.
+
+> Tunnels are independent connections, so they **outlive the session** they were
+> copied from. Closing your ssh session does not close them — run `ssh-port` to
+> see what is still open and `-c` them, or they stay up until the link drops.
+
+### Install on the client
 
 `ssh-port` runs on the client, so it is **not** installed by `env-setup.sh` /
 `update-configs` (those provision the server). Install it on the client with:
@@ -208,6 +202,12 @@ ssh-port -c 8000        # cancel that forward
 mkdir -p ~/tools
 wget https://raw.githubusercontent.com/sobanieca/env-setup/master/ssh-port -O ~/tools/ssh-port
 chmod +x ~/tools/ssh-port
+```
+
+Add to the client's `~/.bashrc`:
+
+```bash
+export PATH="$HOME/tools:$PATH"
 ```
 
 # Run

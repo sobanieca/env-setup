@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 #
-# ssh-port — add port forwards to existing SSH connections (ControlMaster)
+# ssh-port — add port forwards to a running SSH session
 #
 # Runs on the client machine (the one initiating SSH), not on the server.
 #
 # Usage:
 #   ssh-port                      List active SSH connections with indexes
-#   ssh-port -p PORT [TARGET]     Add tunnel PORT -> TARGET:PORT to the
-#   ssh-port --port PORT [TARGET] existing connection (ssh -O forward)
-#   ssh-port -c PORT [TARGET]     Cancel a previously added tunnel
+#   ssh-port -p PORT [TARGET]     Open tunnel PORT -> TARGET:PORT
+#   ssh-port --port PORT [TARGET]
+#   ssh-port -c PORT [TARGET]     Close a tunnel opened earlier
+#   ssh-port -n, --dry-run        Print the ssh command instead of running it
 #
 # TARGET can be:
 #   - an index from the connection list (e.g. 1, 2, ...)
@@ -16,11 +17,17 @@
 #   - omitted: if exactly one active connection exists, it is used;
 #     otherwise the list is shown and you must pick one.
 #
-# Requires ControlMaster in ~/.ssh/config:
-#   Host *
-#       ControlMaster auto
-#       ControlPath ~/.ssh/sockets/cm-%r@%h:%p
-#       ControlPersist 10m
+# The connection flags of the already running ssh process (-i, -l, -p, -o ...)
+# are read from /proc and reused to start a second, background connection:
+#
+#   ssh <same flags> -f -N -L PORT:localhost:PORT TARGET
+#
+# So no ControlMaster / ~/.ssh/config setup is needed. Two caveats follow from
+# it being a real second connection:
+#   - the server authenticates it again, so key auth must work unattended
+#     (a passphrase-protected key without ssh-agent will prompt)
+#   - it counts as another login, so a 'maxsyslogins' / 'maxlogins' limit in
+#     the server's /etc/security/limits.conf can reject it
 
 set -euo pipefail
 
@@ -29,70 +36,164 @@ usage() {
     exit "${1:-0}"
 }
 
-# Extract the destination (user@host or host) from an ssh command line.
-parse_ssh_target() {
-    local args_with_value="BbcDEeFIiJLlmOopQRSWw"
+US=$'\x1f' # separator used to keep argv intact across command substitution
+
+# ssh options taking a separate value, split by whether the value describes the
+# connection itself (reused) or the session/forwarding (dropped).
+VAL_KEEP="BbcFIiJlmoPp"
+VAL_DROP="DEeLOQRSWw"
+VAL_ALL="$VAL_KEEP$VAL_DROP"
+BOOL_KEEP="46ACq"
+
+# Our own ssh processes, one per line: PID US arg US arg ...
+ssh_procs() {
+    local dir pid comm argv joined a
+    for dir in /proc/[0-9]*; do
+        pid=${dir#/proc/}
+        [[ -O "$dir" ]] || continue # only our own processes
+        read -r comm <"$dir/comm" 2>/dev/null || continue
+        [[ $comm == ssh ]] || continue
+        mapfile -d '' -t argv <"$dir/cmdline" 2>/dev/null || continue
+        ((${#argv[@]} > 1)) || continue
+        joined=""
+        for a in "${argv[@]:1}"; do joined+="$US$a"; done
+        printf '%s%s\n' "$pid" "$joined"
+    done
+}
+
+# Parse an ssh argv (passed as "$@").
+# Sets: P_TARGET, P_CONN (array, connection flags), P_FWD (array, -L specs),
+#       P_NOSHELL (1 if -N, i.e. a tunnel we opened)
+parse_argv() {
+    P_TARGET=""
+    P_CONN=()
+    P_FWD=()
+    P_NOSHELL=0
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --) shift; break ;;
-            -[$args_with_value])  shift 2 || return 1; continue ;;
-            -[$args_with_value]*) shift; continue ;;
-            -*)                   shift; continue ;;
-            *)  printf '%s\n' "$1"; return 0 ;;
+            -[$VAL_ALL])
+                [[ $# -ge 2 ]] || return 1
+                case "$1" in
+                    -L) P_FWD+=("$2") ;;
+                    -[$VAL_KEEP]) P_CONN+=("$1" "$2") ;;
+                esac
+                shift 2
+                ;;
+            -[$VAL_ALL]*)
+                case "$1" in
+                    -L*) P_FWD+=("${1#-L}") ;;
+                    -[$VAL_KEEP]*) P_CONN+=("$1") ;;
+                esac
+                shift
+                ;;
+            -*)
+                [[ $1 == *N* ]] && P_NOSHELL=1
+                # keep only harmless connection-level boolean flags
+                [[ $1 =~ ^-[$BOOL_KEEP]+$ ]] && P_CONN+=("$1")
+                shift
+                ;;
+            *)
+                P_TARGET="$1"
+                return 0 # anything after the target is a remote command
+                ;;
         esac
+    done
+    [[ -n $P_TARGET ]]
+}
+
+# Read one ssh_procs line into P_PID + parsed fields.
+parse_proc_line() {
+    local line="$1" parts
+    IFS="$US" read -r -a parts <<<"$line"
+    P_PID="${parts[0]}"
+    parse_argv "${parts[@]:1}" 2>/dev/null || return 1
+    [[ -n $P_TARGET ]]
+}
+
+# Interactive sessions (not tunnels), deduplicated, stable order.
+get_hosts() {
+    local line seen=""
+    while IFS= read -r line; do
+        parse_proc_line "$line" || continue
+        (( P_NOSHELL )) && continue
+        case " $seen " in *" $P_TARGET "*) continue ;; esac
+        seen="$seen $P_TARGET"
+        printf '%s\n' "$P_TARGET"
+    done < <(ssh_procs)
+}
+
+# Tunnels this tool opened: PID, target, forward spec.
+get_tunnels() {
+    local line f
+    while IFS= read -r line; do
+        parse_proc_line "$line" || continue
+        (( P_NOSHELL )) || continue
+        for f in "${P_FWD[@]:-}"; do
+            [[ -n $f ]] && printf '%s\t%s\t%s\n' "$P_PID" "$P_TARGET" "$f"
+        done
+    done < <(ssh_procs)
+}
+
+# Hosts we can cancel a tunnel on: sessions first (so indexes match the list),
+# then hosts that only have tunnels left (the session may already be closed).
+get_all_hosts() {
+    { get_hosts; get_tunnels | cut -f2; } | awk 'NF && !seen[$0]++'
+}
+
+# Connection flags of a running ssh process for a host (first match wins).
+# Prefers an interactive session, falls back to a tunnel we opened earlier —
+# both carry the same connection flags. Sets P_CONN; fails if neither exists.
+conn_args_for() {
+    local host="$1" want_tunnel line
+    for want_tunnel in 0 1; do
+        while IFS= read -r line; do
+            parse_proc_line "$line" || continue
+            (( P_NOSHELL == want_tunnel )) || continue
+            [[ $P_TARGET == "$host" ]] && return 0
+        done < <(ssh_procs)
     done
     return 1
 }
 
-# One active outgoing ssh destination per line (deduplicated, stable order).
-get_hosts() {
-    local pid cmd rest target
-    local seen=""
-    while read -r pid cmd rest; do
-        [[ -n "${rest:-}" ]] || continue
-        # shellcheck disable=SC2086
-        target=$(eval parse_ssh_target $rest 2>/dev/null) || continue
-        [[ -n "$target" ]] || continue
-        case " $seen " in *" $target "*) continue ;; esac
-        seen="$seen $target"
-        printf '%s\n' "$target"
-    done < <(pgrep -a -x ssh 2>/dev/null || true)
-}
-
-has_master() {
-    ssh -O check "$1" >/dev/null 2>&1
-}
-
 print_indexed() {
-    local i=1 host mark
+    local i=1 host
     while IFS= read -r host; do
-        if has_master "$host"; then mark="[master]"; else mark="[no master]"; fi
-        printf '  %d - %-50s %s\n' "$i" "$host" "$mark"
+        printf '  %d - %s\n' "$i" "$host"
         i=$((i + 1))
     done
 }
 
 list_connections() {
-    local hosts
+    local hosts tunnels pid target fwd
     hosts=$(get_hosts)
 
     echo "=== Active outgoing SSH connections ==="
     if [[ -n "$hosts" ]]; then
-        print_indexed <<< "$hosts"
+        print_indexed <<<"$hosts"
         echo
-        echo "Tunnels can be added to [master] connections: $(basename "$0") -p PORT <index>"
+        echo "Add a tunnel with: $(basename "$0") -p PORT <index>"
     else
         echo "  (none)"
     fi
+
+    tunnels=$(get_tunnels)
+    if [[ -n "$tunnels" ]]; then
+        echo
+        echo "=== Tunnels opened by $(basename "$0") ==="
+        while IFS=$'\t' read -r pid target fwd; do
+            printf '  %-24s -> %-24s (pid %s)\n' "$fwd" "$target" "$pid"
+        done <<<"$tunnels"
+    fi
 }
 
-# Resolve TARGET (index, hostname, or empty) to a host.
+# Resolve TARGET (index, hostname, or empty) to a host, picking from $2.
 resolve_target() {
     local target="${1:-}"
-    local hosts count
-    hosts=$(get_hosts)
+    local hosts="${2:-}"
+    local count
     count=0
-    [[ -n "$hosts" ]] && count=$(wc -l <<< "$hosts")
+    [[ -n "$hosts" ]] && count=$(wc -l <<<"$hosts")
 
     if [[ -z "$target" ]]; then
         if (( count == 1 )); then
@@ -103,7 +204,7 @@ resolve_target() {
             exit 1
         else
             echo "Error: there are $count active connections. Which one to choose?" >&2
-            print_indexed <<< "$hosts" >&2
+            print_indexed <<<"$hosts" >&2
             echo "Re-run with an index or hostname: $(basename "$0") -p PORT <index|host>" >&2
             exit 1
         fi
@@ -111,11 +212,11 @@ resolve_target() {
 
     if [[ "$target" =~ ^[0-9]+$ ]]; then
         if (( target >= 1 && target <= count )); then
-            sed -n "${target}p" <<< "$hosts"
+            sed -n "${target}p" <<<"$hosts"
             return 0
         fi
         echo "Error: index '$target' out of range (there are $count active connections):" >&2
-        [[ -n "$hosts" ]] && print_indexed <<< "$hosts" >&2
+        [[ -n "$hosts" ]] && print_indexed <<<"$hosts" >&2
         exit 1
     fi
 
@@ -127,25 +228,9 @@ resolve_target() {
                 printf '%s\n' "$t"
                 return 0
             fi
-        done <<< "$hosts"
+        done <<<"$hosts"
     fi
     printf '%s\n' "$target"
-}
-
-require_master() {
-    local host="$1"
-    if ! has_master "$host"; then
-        echo "Error: no ControlMaster connection for '$host'." >&2
-        echo >&2
-        echo "This tool adds tunnels to existing connections and needs ControlMaster." >&2
-        echo "Make sure ~/.ssh/config contains:" >&2
-        echo "    Host *" >&2
-        echo "        ControlMaster auto" >&2
-        echo "        ControlPath ~/.ssh/sockets/cm-%r@%h:%p" >&2
-        echo "        ControlPersist 10m" >&2
-        echo "then reconnect to '$host' and try again." >&2
-        exit 1
-    fi
 }
 
 validate_port() {
@@ -156,37 +241,69 @@ validate_port() {
 }
 
 open_tunnel() {
-    local port="$1" host="$2"
-    validate_port "$port"
+    local port="$1" host="$2" spec
 
     if { ss -tln 2>/dev/null || true; } | awk '{print $4}' | grep -qE "[:.]${port}\$"; then
         echo "Error: local port $port is already in use." >&2
         exit 1
     fi
 
-    require_master "$host"
-    ssh -O forward -L "${port}:localhost:${port}" "$host"
+    if ! conn_args_for "$host"; then
+        echo "Error: no active SSH connection to '$host' to copy settings from." >&2
+        echo "Connect to it first — this tool reuses the flags of a running session." >&2
+        exit 1
+    fi
+
+    spec="${port}:localhost:${port}"
+    if (( DRY_RUN )); then
+        printf 'ssh'
+        printf ' %q' "${P_CONN[@]:-}" -f -N -L "$spec" "$host"
+        printf '\n'
+        return 0
+    fi
+
+    ssh "${P_CONN[@]:-}" -f -N -L "$spec" "$host"
     echo "Tunnel active: localhost:${port} -> ${host}:${port}"
     echo "Remove it with: $(basename "$0") -c ${port} ${host}"
 }
 
 cancel_tunnel() {
-    local port="$1" host="$2"
-    validate_port "$port"
-    require_master "$host"
-    ssh -O cancel -L "${port}:localhost:${port}" "$host"
-    echo "Tunnel removed: localhost:${port} -> ${host}:${port}"
+    local port="$1" host="$2" spec pid target fwd found=0
+    spec="${port}:localhost:${port}"
+
+    while IFS=$'\t' read -r pid target fwd; do
+        [[ -n "$pid" ]] || continue
+        [[ "$target" == "$host" && "$fwd" == "$spec" ]] || continue
+        if (( DRY_RUN )); then
+            echo "kill $pid  # $fwd -> $target"
+        else
+            kill "$pid"
+            echo "Tunnel removed: localhost:${port} -> ${host}:${port} (pid $pid)"
+        fi
+        found=1
+    done < <(get_tunnels)
+
+    if (( ! found )); then
+        echo "Error: no tunnel for port $port on '$host' found." >&2
+        echo "Run '$(basename "$0")' to see tunnels that are currently open." >&2
+        exit 1
+    fi
 }
 
 # ---------------- argument parsing ----------------
 PORT=""
 CANCEL_PORT=""
 TARGET=""
+DRY_RUN=0
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -h|--help)
             usage 0
+            ;;
+        -n|--dry-run)
+            DRY_RUN=1
+            shift
             ;;
         -p|--port)
             [[ $# -ge 2 ]] || { echo "Error: $1 requires a port number." >&2; exit 1; }
@@ -221,10 +338,12 @@ if [[ -n "$PORT" && -n "$CANCEL_PORT" ]]; then
     echo "Error: -p and -c cannot be combined." >&2
     exit 1
 elif [[ -n "$PORT" ]]; then
-    HOST=$(resolve_target "$TARGET")
+    validate_port "$PORT"
+    HOST=$(resolve_target "$TARGET" "$(get_all_hosts)")
     open_tunnel "$PORT" "$HOST"
 elif [[ -n "$CANCEL_PORT" ]]; then
-    HOST=$(resolve_target "$TARGET")
+    validate_port "$CANCEL_PORT"
+    HOST=$(resolve_target "$TARGET" "$(get_all_hosts)")
     cancel_tunnel "$CANCEL_PORT" "$HOST"
 else
     list_connections
