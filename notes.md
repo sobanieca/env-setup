@@ -11,6 +11,9 @@ Setup user email locally for given repository
 `git diff main...`:
 Show changes only from feature branch relative to main
 
+`gsquash -m "feat: some feature" 3`:
+Squash last 3 commits into a single one with given single-line message
+
 ## Neovim
 
 `ctrl+w,W`:

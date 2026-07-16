@@ -64,6 +64,11 @@ wget $BASE_URL"gblame" -O $HOME/tools/gblame
 chmod +x $HOME/tools/gblame
 echo "gblame tool updated"
 
+echo "Updating gsquash tool"
+wget $BASE_URL"gsquash" -O $HOME/tools/gsquash
+chmod +x $HOME/tools/gsquash
+echo "gsquash tool updated"
+
 echo "Updating rm-nvim-bookmarks tool"
 wget $BASE_URL"rm-nvim-bookmarks" -O $HOME/tools/rm-nvim-bookmarks
 chmod +x $HOME/tools/rm-nvim-bookmarks

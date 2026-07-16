@@ -10,6 +10,7 @@ cp ./ports ~/tools/ports
 cp ./debinfo ~/tools/debinfo
 cp ./gshow ~/tools/gshow
 cp ./gblame ~/tools/gblame
+cp ./gsquash ~/tools/gsquash
 cp ./rm-nvim-bookmarks ~/tools/rm-nvim-bookmarks
 cp ./update-configs ~/tools/update-configs
 cp ./usage ~/tools/usage

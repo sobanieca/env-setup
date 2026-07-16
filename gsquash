@@ -1,0 +1,93 @@
+#!/bin/bash
+set -e
+
+usage() {
+    echo "Usage: gsquash -m <message> <number_of_commits>"
+    echo "Example: gsquash -m \"feat: some feature\" 3"
+    exit 1
+}
+
+message=""
+count=""
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -m)
+            [ -n "$2" ] || usage
+            message="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            [ -z "$count" ] || usage
+            count="$1"
+            shift
+            ;;
+    esac
+done
+
+[ -n "$message" ] || usage
+[ -n "$count" ] || usage
+
+case "$count" in
+    ''|*[!0-9]*) usage ;;
+esac
+
+if [ "$count" -lt 2 ]; then
+    echo "Error: number of commits to squash must be at least 2"
+    echo "To reword a single commit use: git commit --amend"
+    exit 1
+fi
+
+if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+    echo "Error: not a git repository"
+    exit 1
+fi
+
+if ! git diff --cached --quiet; then
+    echo "Error: you have staged changes that would be swallowed by the squash"
+    echo "Commit or unstage them first"
+    exit 1
+fi
+
+if ! base=$(git rev-parse --verify --quiet "HEAD~$count"); then
+    echo "Error: branch does not have $count commits above the root commit"
+    exit 1
+fi
+
+oldest=$(git rev-parse "HEAD~$((count - 1))")
+
+if upstream=$(git rev-parse --abbrev-ref --symbolic-full-name "@{upstream}" 2>/dev/null); then
+    if git merge-base --is-ancestor "$oldest" "$upstream"; then
+        echo "Warning: some of the last $count commits are already pushed to $upstream"
+        echo "Squashing them rewrites published history and will require a force push"
+        if [ ! -t 0 ]; then
+            echo "Aborted (run interactively to confirm)"
+            exit 1
+        fi
+        read -r -p "Continue? [y/N] " answer
+        case "$answer" in
+            y|Y|yes|Yes) ;;
+            *) echo "Aborted"; exit 1 ;;
+        esac
+    fi
+fi
+
+echo "Squashing the following commits:"
+git log --oneline "$base..HEAD"
+
+old_head=$(git rev-parse --short HEAD)
+
+git reset --soft "$base"
+
+if ! git commit -q -m "$message"; then
+    echo "Error: commit failed, restoring previous state"
+    git reset --soft "$old_head"
+    exit 1
+fi
+
+echo "Squashed $count commits into:"
+git log --oneline -1
+echo "To undo: git reset --hard $old_head"
