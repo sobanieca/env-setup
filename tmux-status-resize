@@ -11,8 +11,8 @@ USAGE_LEFT="#[fg=#7aa2f7,bg=#3b4261] #($HOME/tools/usage --tmux) #[fg=#3b4261,bg
 USAGE_RIGHT="#[align=right]#[fg=#3b4261,bg=#1f2335]${PL_LEFT}#[fg=#7aa2f7,bg=#3b4261] #($HOME/tools/usage --tmux) "
 # Wide mode: claude usage and cpu usage grouped in a single right-aligned pill (claude first).
 CLAUDE_USAGE_RIGHT="#[align=right]#[fg=#3b4261,bg=#1f2335]${PL_LEFT}#[fg=#7aa2f7,bg=#3b4261] #($HOME/.tmux/claude-usage-color short) #[fg=#7aa2f7,bg=#3b4261]${PL_LEFT_THIN} #($HOME/tools/usage --tmux) "
-GITMUX_DATE_RIGHT="#[align=right]#[fg=#3b4261,bg=#1f2335]${PL_LEFT}#[fg=#7aa2f7,bg=#3b4261] #(gitmux -cfg $HOME/.config/.gitmux.conf '#{pane_current_path}')#[fg=#7aa2f7,bg=#3b4261] ${PL_LEFT_THIN} %a %Y-%m-%d #[fg=#7aa2f7,bg=#3b4261]${PL_LEFT}#[fg=#1d202f,bg=#7aa2f7,bold] %H:%M "
-GITMUX_DATE_LEFT="#[fg=#7aa2f7,bg=#3b4261] #(gitmux -cfg $HOME/.config/.gitmux.conf '#{pane_current_path}')#[fg=#7aa2f7,bg=#3b4261] ${PL_LEFT_THIN} %a %Y-%m-%d #[fg=#7aa2f7,bg=#3b4261]${PL_LEFT}#[fg=#1d202f,bg=#7aa2f7,bold] %H:%M #[fg=#7aa2f7,bg=#1f2335]${PL_RIGHT}"
+GITMUX_DATE_RIGHT="#[align=right]#[fg=#3b4261,bg=#1f2335]${PL_LEFT}#[fg=#7aa2f7,bg=#3b4261] #(gitmux -cfg $HOME/.config/.gitmux.conf '#{pane_current_path}')#[fg=#bb9af7,bg=#3b4261]#($HOME/.tmux/tmux-git-worktree '#{pane_current_path}')#[fg=#7aa2f7,bg=#3b4261] ${PL_LEFT_THIN} %a %Y-%m-%d #[fg=#7aa2f7,bg=#3b4261]${PL_LEFT}#[fg=#1d202f,bg=#7aa2f7,bold] %H:%M "
+GITMUX_DATE_LEFT="#[fg=#7aa2f7,bg=#3b4261] #(gitmux -cfg $HOME/.config/.gitmux.conf '#{pane_current_path}')#[fg=#bb9af7,bg=#3b4261]#($HOME/.tmux/tmux-git-worktree '#{pane_current_path}')#[fg=#7aa2f7,bg=#3b4261] ${PL_LEFT_THIN} %a %Y-%m-%d #[fg=#7aa2f7,bg=#3b4261]${PL_LEFT}#[fg=#1d202f,bg=#7aa2f7,bold] %H:%M #[fg=#7aa2f7,bg=#1f2335]${PL_RIGHT}"
 
 if [ "$width" -le 120 ]; then
     tmux set -g status 4

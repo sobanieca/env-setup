@@ -90,6 +90,11 @@ wget $BASE_URL"claude-usage-color" -O $HOME/.tmux/claude-usage-color
 chmod +x $HOME/.tmux/claude-usage-color
 echo "claude-usage-color script updated"
 
+echo "Updating tmux-git-worktree script"
+wget $BASE_URL"tmux-git-worktree" -O $HOME/.tmux/tmux-git-worktree
+chmod +x $HOME/.tmux/tmux-git-worktree
+echo "tmux-git-worktree script updated"
+
 mkdir -p $HOME/.claude
 echo "Updating claude keybindings.json..."
 wget $BASE_URL"claude-keybindings.json" -O $HOME/.claude/keybindings.json
