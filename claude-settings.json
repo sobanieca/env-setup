@@ -27,5 +27,6 @@
     "commit": "",
     "pr": "",
     "sessionUrl": false
-  }
+  },
+  "outputStyle": "Concise"
 }
