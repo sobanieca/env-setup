@@ -79,6 +79,11 @@ wget $BASE_URL"gpush" -O $HOME/tools/gpush
 chmod +x $HOME/tools/gpush
 echo "gpush tool updated"
 
+echo "Updating claude-rc-service tool"
+wget $BASE_URL"claude-rc-service" -O $HOME/tools/claude-rc-service
+chmod +x $HOME/tools/claude-rc-service
+echo "claude-rc-service tool updated"
+
 echo "Updating usage tool"
 wget $BASE_URL"usage" -O $HOME/tools/usage
 chmod +x $HOME/tools/usage

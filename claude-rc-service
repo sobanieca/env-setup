@@ -1,0 +1,76 @@
+#!/bin/bash
+set -e
+
+# Installs a systemd user service that runs `claude remote-control` on machine
+# boot, so sessions in a given directory can be driven from claude.ai/code or
+# the Claude mobile app without logging in first.
+#
+# Usage: claude-rc-service [work-dir]   (default: ~/code)
+
+WORK_DIR="${1:-$HOME/code}"
+SERVICE_NAME="claude-rc"
+UNIT_DIR="$HOME/.config/systemd/user"
+UNIT_FILE="$UNIT_DIR/$SERVICE_NAME.service"
+
+if ! command -v systemctl >/dev/null; then
+    echo "systemd not available - cannot install the service." >&2
+    exit 1
+fi
+
+CLAUDE_BIN=$(command -v claude || true)
+if [ -z "$CLAUDE_BIN" ]; then
+    echo "claude not found in PATH. Install it first: https://claude.ai/code" >&2
+    exit 1
+fi
+
+if [ ! -d "$WORK_DIR" ]; then
+    echo "Directory $WORK_DIR does not exist." >&2
+    exit 1
+fi
+
+# On start-up the bridge tries to resurrect the session recorded in this file.
+# After a reboot that session is usually archived server-side, the pre-created
+# session dies immediately ("end_session, reason=archived") and nothing usable
+# shows up in claude.ai/code. Dropping the pointer forces a fresh environment.
+POINTER="$HOME/.claude/projects/$(echo "$WORK_DIR" | tr '/' '-')/bridge-pointer.json"
+
+echo "Installing $SERVICE_NAME service (dir: $WORK_DIR, binary: $CLAUDE_BIN)..."
+mkdir -p "$UNIT_DIR"
+cat > "$UNIT_FILE" <<EOF
+[Unit]
+Description=Claude Code Remote Control ($WORK_DIR)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=$WORK_DIR
+ExecStartPre=-/bin/rm -f $POINTER
+ExecStart=$CLAUDE_BIN remote-control
+Restart=always
+RestartSec=10
+Environment=HOME=%h
+Environment=PATH=%h/.local/bin:%h/tools:/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user enable "$SERVICE_NAME.service"
+
+# Without lingering, user services are killed on logout and never start at boot
+if [ "$(loginctl show-user "$USER" --property=Linger --value 2>/dev/null)" != "yes" ]; then
+    echo "Enabling lingering for $USER..."
+    loginctl enable-linger "$USER" || sudo loginctl enable-linger "$USER"
+fi
+
+systemctl --user restart "$SERVICE_NAME.service"
+echo "$SERVICE_NAME service installed and started."
+echo
+echo "  status:  systemctl --user status $SERVICE_NAME"
+echo "  logs:    journalctl --user -u $SERVICE_NAME -f"
+echo "  stop:    systemctl --user disable --now $SERVICE_NAME"
+echo
+echo "Note: it reuses credentials from ~/.claude. If they expire, the service"
+echo "restart-loops until you re-authenticate by running 'claude' in a terminal."

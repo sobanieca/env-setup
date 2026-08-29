@@ -218,6 +218,42 @@ First run `apt-get update` then
 bash -c "$(wget -O - https://raw.githubusercontent.com/sobanieca/env-setup/master/env-setup.sh)"
 ```
 
+# Claude Remote Control on boot
+
+`claude-rc-service` installs a systemd **user** service that keeps
+`claude remote-control` running in a chosen directory, so the machine's sessions
+are reachable from claude.ai/code and the Claude mobile app after every reboot.
+
+It is installed to `~/tools` by `update-configs`. Run it once per machine:
+
+```bash
+claude-rc-service            # defaults to ~/code
+claude-rc-service ~/work     # or any other directory
+```
+
+The script writes `~/.config/systemd/user/claude-rc.service`, enables it for
+`default.target`, enables lingering for the user, and starts it.
+
+```bash
+systemctl --user status claude-rc          # is it running
+journalctl --user -u claude-rc -f          # follow logs (session name, QR link)
+systemctl --user disable --now claude-rc   # turn it off
+```
+
+> Lingering (`loginctl enable-linger`) is what makes it start at boot without a
+> login and survive logout. Without it, systemd kills user services on logout.
+
+> Each start wipes `~/.claude/projects/<dir>/bridge-pointer.json` (via
+> `ExecStartPre`). Otherwise the bridge tries to resurrect the session recorded
+> there, the server rejects it as archived (`end_session, reason=archived`), the
+> pre-created session exits immediately and nothing usable appears in the web UI.
+> Cost of wiping it: a new environment id on every boot, so a bookmarked
+> `?environment=...` link goes stale - pick the machine from the list instead.
+
+> The service authenticates with the credentials already stored in `~/.claude`.
+> Run `claude` interactively at least once first. If the credentials expire the
+> service restart-loops - check `journalctl` and re-authenticate.
+
 # Termux setup
 
 ```bash
