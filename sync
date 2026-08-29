@@ -15,6 +15,7 @@ cp ./gpush ~/tools/gpush
 cp ./rm-nvim-bookmarks ~/tools/rm-nvim-bookmarks
 cp ./update-configs ~/tools/update-configs
 cp ./claude-rc-service ~/tools/claude-rc-service
+cp ./claude-ping-cron ~/tools/claude-ping-cron
 cp ./usage ~/tools/usage
 mkdir -p ~/.tmux
 cp ./tmux-status-resize ~/.tmux/tmux-status-resize

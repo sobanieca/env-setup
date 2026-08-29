@@ -240,19 +240,27 @@ journalctl --user -u claude-rc -f          # follow logs (session name, QR link)
 systemctl --user disable --now claude-rc   # turn it off
 ```
 
-> Lingering (`loginctl enable-linger`) is what makes it start at boot without a
-> login and survive logout. Without it, systemd kills user services on logout.
+# Claude usage window pinger
 
-> Each start wipes `~/.claude/projects/<dir>/bridge-pointer.json` (via
-> `ExecStartPre`). Otherwise the bridge tries to resurrect the session recorded
-> there, the server rejects it as archived (`end_session, reason=archived`), the
-> pre-created session exits immediately and nothing usable appears in the web UI.
-> Cost of wiping it: a new environment id on every boot, so a bookmarked
-> `?environment=...` link goes stale - pick the machine from the list instead.
+`claude-ping-cron` registers cron jobs that run `claude -p ping` at fixed hours,
+so the 5-hour usage window always starts at a predictable time of day instead of
+whenever the first prompt happens to be sent.
 
-> The service authenticates with the credentials already stored in `~/.claude`.
-> Run `claude` interactively at least once first. If the credentials expire the
-> service restart-loops - check `journalctl` and re-authenticate.
+It is installed to `~/tools` by `update-configs`. Run it once per machine:
+
+```bash
+claude-ping-cron                       # default times, pings in ~/code
+claude-ping-cron -d ~/work             # ping in another directory
+claude-ping-cron 04:00 09:01 14:01     # custom times (UTC)
+claude-ping-cron --show                # print the registered jobs
+claude-ping-cron --ping                # ping now (same thing cron runs)
+claude-ping-cron --remove              # drop the jobs
+tail -f ~/.claude/ping-cron.log        # what each run printed
+```
+
+Re-running the tool replaces its managed block in `crontab -e`, so changing the
+hours is just running it again with new ones. Other crontab entries are left
+alone.
 
 # Termux setup
 

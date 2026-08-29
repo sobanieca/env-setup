@@ -84,6 +84,11 @@ wget $BASE_URL"claude-rc-service" -O $HOME/tools/claude-rc-service
 chmod +x $HOME/tools/claude-rc-service
 echo "claude-rc-service tool updated"
 
+echo "Updating claude-ping-cron tool"
+wget $BASE_URL"claude-ping-cron" -O $HOME/tools/claude-ping-cron
+chmod +x $HOME/tools/claude-ping-cron
+echo "claude-ping-cron tool updated"
+
 echo "Updating usage tool"
 wget $BASE_URL"usage" -O $HOME/tools/usage
 chmod +x $HOME/tools/usage

@@ -1,0 +1,112 @@
+#!/bin/bash
+set -e
+
+# Registers cron jobs that run `claude -p ping` at fixed hours, so the 5-hour
+# usage window always starts at a predictable time of day. Times are UTC and
+# spaced 5h 1min apart: 04:00, 09:01, 14:01 UTC = 06:00, 11:01, 16:01 Warsaw.
+#
+# Usage:
+#   claude-ping-cron [-d DIR] [HH:MM ...]   register / update the cron jobs
+#   claude-ping-cron --show                 print the managed crontab block
+#   claude-ping-cron --remove               drop the managed crontab block
+#   claude-ping-cron --ping [DIR]           ping now (what cron calls)
+
+TIMES_UTC=(04:00 09:01 14:01)
+WORK_DIR="$HOME/code"
+LOG_FILE="$HOME/.claude/ping-cron.log"
+LOG_MAX_LINES=500
+LOG_MAX_BYTES=65536
+SELF="$HOME/tools/claude-ping-cron"
+BEGIN="# >>> claude-ping-cron >>>"
+END="# <<< claude-ping-cron <<<"
+
+usage() { sed -n '4,13p' "$0" | sed 's/^# \?//'; }
+
+do_ping() {
+    local dir="${1:-$WORK_DIR}"
+    local claude_bin
+    claude_bin=$(command -v claude || echo "$HOME/.local/bin/claude")
+    mkdir -p "$(dirname "$LOG_FILE")"
+    {
+        echo "--- $(date '+%Y-%m-%d %H:%M:%S %Z') ping in $dir ---"
+        cd "$dir" && timeout 300 "$claude_bin" -p ping || echo "[claude exited with $?]"
+        echo
+    } >> "$LOG_FILE" 2>&1
+    # Cap the log after every run: by lines, and by bytes as well - a single
+    # run spewing one huge line would slip past a line-only cap
+    if [ "$(wc -l < "$LOG_FILE")" -gt "$LOG_MAX_LINES" ]; then
+        tail -n "$LOG_MAX_LINES" "$LOG_FILE" > "$LOG_FILE.tmp" && mv "$LOG_FILE.tmp" "$LOG_FILE"
+    fi
+    if [ "$(wc -c < "$LOG_FILE")" -gt "$LOG_MAX_BYTES" ]; then
+        tail -c "$LOG_MAX_BYTES" "$LOG_FILE" > "$LOG_FILE.tmp" && mv "$LOG_FILE.tmp" "$LOG_FILE"
+    fi
+}
+
+# Everything except the managed block, so re-running replaces it in place
+crontab_without_block() {
+    crontab -l 2>/dev/null | sed "\|^$BEGIN\$|,\|^$END\$|d" || true
+}
+
+show_block() {
+    crontab -l 2>/dev/null | sed -n "\|^$BEGIN\$|,\|^$END\$|p"
+}
+
+case "${1:-}" in
+    -h|--help) usage; exit 0 ;;
+    --ping) shift; do_ping "$@"; exit 0 ;;
+    --show)
+        block=$(show_block)
+        [ -n "$block" ] || { echo "No claude-ping-cron jobs registered."; exit 0; }
+        echo "$block"
+        exit 0 ;;
+    --remove)
+        kept=$(crontab_without_block)
+        printf '%s\n' "$kept" | crontab -
+        echo "claude-ping-cron jobs removed."
+        exit 0 ;;
+    -d|--dir) WORK_DIR="$2"; shift 2 ;;
+esac
+
+[ $# -gt 0 ] && TIMES_UTC=("$@")
+
+command -v crontab >/dev/null || { echo "crontab not found - install it: sudo apt-get install cron" >&2; exit 1; }
+command -v claude >/dev/null || { echo "claude not found in PATH. Install it first: https://claude.ai/code" >&2; exit 1; }
+[ -d "$WORK_DIR" ] || { echo "Directory $WORK_DIR does not exist." >&2; exit 1; }
+[ -x "$SELF" ] || { echo "$SELF not found - run update-configs first." >&2; exit 1; }
+
+# cron always schedules in the machine's timezone (Debian cron has no per-user
+# timezone support), so UTC times are converted to local ones here. Re-run the
+# tool after a DST switch if the machine does not run on UTC.
+lines=""
+summary=""
+for t in "${TIMES_UTC[@]}"; do
+    [[ "$t" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]] || { echo "Invalid time '$t', expected HH:MM (UTC)." >&2; exit 1; }
+    read -r min hour < <(date -d "${t}Z" +'%M %H')
+    lines+="$min $hour * * * $SELF --ping $WORK_DIR >/dev/null 2>&1"$'\n'
+    summary+="  $t UTC -> $(date -d "${t}Z" '+%H:%M %Z')"$'\n'
+done
+
+# Read the old crontab fully before writing the new one, and put the block last:
+# SHELL/PATH/MAILTO would otherwise apply to every entry below it
+kept=$(crontab_without_block)
+block="$BEGIN
+# Managed by claude-ping-cron - re-run the tool instead of editing.
+# Starts a Claude 5-hour usage window at ${TIMES_UTC[*]} UTC.
+SHELL=/bin/bash
+PATH=$HOME/.local/bin:$HOME/tools:/usr/local/bin:/usr/bin:/bin
+MAILTO=\"\"
+$lines$END"
+printf '%s\n%s\n' "$kept" "$block" | crontab -
+
+if command -v systemctl >/dev/null && ! systemctl is-active --quiet cron; then
+    echo "cron service is not running - starting it..."
+    sudo systemctl enable --now cron || echo "Could not start cron - do it manually." >&2
+fi
+
+echo "claude-ping-cron jobs registered (dir: $WORK_DIR):"
+printf '%s' "$summary"
+echo
+echo "  show:    claude-ping-cron --show"
+echo "  test:    claude-ping-cron --ping"
+echo "  logs:    tail -f $LOG_FILE"
+echo "  remove:  claude-ping-cron --remove"
