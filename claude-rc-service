@@ -5,12 +5,33 @@ set -e
 # boot, so sessions in a given directory can be driven from claude.ai/code or
 # the Claude mobile app without logging in first.
 #
-# Usage: claude-rc-service [work-dir]   (default: ~/code)
+# Usage: claude-rc-service [-s MODE] [work-dir]   (default: worktree, ~/code)
+#
+# Spawn modes (passed to `claude remote-control --spawn`):
+#   worktree   every on-demand session started from claude.ai/code gets its own
+#              git worktree under <work-dir>/.claude/worktrees (default here)
+#   same-dir   all sessions share the checkout (Claude Code's own default)
+#   session    classic single-session mode, the service exits when it ends
+
+SPAWN_MODE="worktree"
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -s|--spawn) SPAWN_MODE="$2"; shift 2 ;;
+        --spawn=*) SPAWN_MODE="${1#--spawn=}"; shift ;;
+        -h|--help) sed -n '4,15p' "$0" | sed 's/^# \?//'; exit 0 ;;
+        *) break ;;
+    esac
+done
 
 WORK_DIR="${1:-$HOME/code}"
 SERVICE_NAME="claude-rc"
 UNIT_DIR="$HOME/.config/systemd/user"
 UNIT_FILE="$UNIT_DIR/$SERVICE_NAME.service"
+
+case "$SPAWN_MODE" in
+    worktree|same-dir|session) ;;
+    *) echo "Invalid spawn mode '$SPAWN_MODE' (expected worktree, same-dir or session)." >&2; exit 1 ;;
+esac
 
 if ! command -v systemctl >/dev/null; then
     echo "systemd not available - cannot install the service." >&2
@@ -28,17 +49,25 @@ if [ ! -d "$WORK_DIR" ]; then
     exit 1
 fi
 
+# Worktree spawning is refused at start-up outside a git repository, and the
+# service would restart-loop instead of failing visibly here.
+if [ "$SPAWN_MODE" = "worktree" ] && ! git -C "$WORK_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+    echo "$WORK_DIR is not a git repository - worktree spawn mode needs one." >&2
+    echo "Use: claude-rc-service -s same-dir $WORK_DIR" >&2
+    exit 1
+fi
+
 # On start-up the bridge tries to resurrect the session recorded in this file.
 # After a reboot that session is usually archived server-side, the pre-created
 # session dies immediately ("end_session, reason=archived") and nothing usable
 # shows up in claude.ai/code. Dropping the pointer forces a fresh environment.
 POINTER="$HOME/.claude/projects/$(echo "$WORK_DIR" | tr '/' '-')/bridge-pointer.json"
 
-echo "Installing $SERVICE_NAME service (dir: $WORK_DIR, binary: $CLAUDE_BIN)..."
+echo "Installing $SERVICE_NAME service (dir: $WORK_DIR, spawn: $SPAWN_MODE, binary: $CLAUDE_BIN)..."
 mkdir -p "$UNIT_DIR"
 cat > "$UNIT_FILE" <<EOF
 [Unit]
-Description=Claude Code Remote Control ($WORK_DIR)
+Description=Claude Code Remote Control ($WORK_DIR, spawn=$SPAWN_MODE)
 After=network-online.target
 Wants=network-online.target
 
@@ -46,7 +75,7 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=$WORK_DIR
 ExecStartPre=-/bin/rm -f $POINTER
-ExecStart=$CLAUDE_BIN remote-control
+ExecStart=$CLAUDE_BIN remote-control --spawn=$SPAWN_MODE
 Restart=always
 RestartSec=10
 Environment=HOME=%h
@@ -74,3 +103,5 @@ echo "  stop:    systemctl --user disable --now $SERVICE_NAME"
 echo
 echo "Note: it reuses credentials from ~/.claude. If they expire, the service"
 echo "restart-loops until you re-authenticate by running 'claude' in a terminal."
+echo "The directory must also be trusted - run 'claude' in $WORK_DIR once and"
+echo "accept the workspace trust dialog, otherwise the bridge refuses to start."

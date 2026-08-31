@@ -229,6 +229,7 @@ It is installed to `~/tools` by `update-configs`. Run it once per machine:
 ```bash
 claude-rc-service            # defaults to ~/code
 claude-rc-service ~/work     # or any other directory
+claude-rc-service -s same-dir ~/work   # spawn mode (default: worktree)
 ```
 
 The script writes `~/.config/systemd/user/claude-rc.service`, enables it for
