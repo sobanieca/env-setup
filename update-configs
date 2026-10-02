@@ -119,3 +119,8 @@ echo "Updating claude settings.json..."
 wget $BASE_URL"claude-settings.json" -O $HOME/.claude/settings.json
 echo "claude settings.json updated."
 
+CLAUDE_USAGE=$(command -v claude-usage || echo "$HOME/.local/bin/claude-usage")
+if [ -x "$CLAUDE_USAGE" ]; then
+    echo "Installing claude-usage Stop hook..."
+    "$CLAUDE_USAGE" --install-hook || echo "claude-usage hook install failed, skipping."
+fi
