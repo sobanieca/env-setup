@@ -155,53 +155,86 @@ fi
 
 # Connect
 
-```bash
-ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15 -q -L 8000:localhost:8000 -l {login-name} -p {port} -i ~/.ssh/id_rsa {vps-url}
-```
+Register the host once on the **client** with `ssh-new-host`. It asks for a
+connection name, hostname, user, SSH port, identity file and the ports to
+forward, shows what it will write, and then:
 
-> `-L 8000:localhost:8000` parameter is for port-forwarding to enable development. Add as many ports as you need for development.
-> Ensure that sshd_config contains `AllowTcpForwarding yes`
-
-> If command doesn't work, ensure that private key has proper permissions. If not, run `chmod 600 ~/.ssh/id_rsa` (or other path if needed)
-
-## Adding port forwards to a running session
-
-The `-L` forwards above have to be decided up front, at connect time. The
-`ssh-port` tool adds them afterwards, without dropping the session:
+- appends a `Host` block to `~/.ssh/config` with keep-alives, connection sharing
+  (`ControlMaster`) and one `LocalForward` per port
+- creates `~/.ssh/cm` (mode 700) for the shared connection sockets
+- appends to `~/.bashrc` an alias plus `fwd-NAME` / `unfwd-NAME` functions
 
 ```bash
-ssh-port                # list active connections (and tunnels already opened)
-ssh-port -p 8000        # forward localhost:8000 -> host:8000 (single connection)
-ssh-port -p 8000 2      # same, on connection no. 2 from the list
-ssh-port -c 8000        # close that tunnel
-ssh-port -p 8000 -n     # dry-run: print the ssh command instead of running it
+ssh-new-host
+source ~/.bashrc
+
+my-dev                    # connect (same as: ssh my-dev)
+fwd-my-dev 5173 6006      # forward more ports on the running connection
+unfwd-my-dev 5173         # remove a forward
+ssh -O exit my-dev        # close the shared connection and all its forwards
 ```
 
-Because that is a real second connection, mind the following:
+Example of the generated `~/.ssh/config` block:
 
-> The server authenticates it **again**. With a passphrase-less key (or a loaded
-> `ssh-agent`) it goes through unattended; otherwise ssh will ask for the
-> passphrase.
+```
+# ssh-new-host: my-dev
+Host my-dev
+    HostName {vps-url}
+    User {login-name}
+    Port {port}
+    IdentityFile ~/.ssh/id_rsa
+    IdentitiesOnly yes
 
-> It is another login, so a `maxlogins` / `maxsyslogins` limit in the server's
-> `/etc/security/limits.conf` can reject it. Raise the limit if you use one.
+    TCPKeepAlive yes
+    ServerAliveInterval 15
+    ServerAliveCountMax 20
+    LogLevel QUIET
 
-> Each `-p` opens its own connection, so `-c PORT` kills only the tunnel for
-> that port. Other tunnels and your interactive session are left alone.
+    ControlMaster auto
+    ControlPath ~/.ssh/cm/%C
+    ControlPersist 10m
 
-> Tunnels are independent connections, so they **outlive the session** they were
-> copied from. Closing your ssh session does not close them — run `ssh-port` to
-> see what is still open and `-c` them, or they stay up until the link drops.
+    LocalForward 8000 localhost:8000
+```
+
+> If you leave the identity file empty, the tool can generate a key and install
+> it with `ssh-copy-id`, which asks for the password once. This only works while
+> the server still allows password authentication. If you skip it, ssh asks for
+> the password on each new connection.
+
+> All sessions and forwards share one connection, so `fwd-NAME` needs no second
+> login (no re-auth, no `maxsyslogins` conflict). They also go down together if
+> it drops. If connecting hangs after a network drop, run `ssh -O exit NAME`.
+
+> `ControlPersist 10m` keeps the connection and forwards up for 10 minutes after
+> the last session closes. Forwards added with `fwd-NAME` last only as long as
+> the connection. Put ports you always need into the config.
+
+> To remove a host, delete its `# ssh-new-host: NAME` blocks from
+> `~/.ssh/config` and `~/.bashrc`.
+
+> Connection sharing does not work with Windows OpenSSH or PuTTY. There, connect
+> with plain flags:
+> `ssh -o ServerAliveInterval=15 -L 8000:localhost:8000 -l {login-name} -p {port} -i ~/.ssh/id_rsa {vps-url}`
+
+> Ensure that sshd_config contains `AllowTcpForwarding yes`. If the key is
+> rejected, check its permissions: `chmod 600 ~/.ssh/id_rsa`.
 
 ### Install on the client
 
-`ssh-port` runs on the client, so it is **not** installed by `env-setup.sh` /
-`update-configs` (those provision the server). Install it on the client with:
+To run it once without installing anything:
+
+```bash
+bash -c "$(wget -qO - https://raw.githubusercontent.com/sobanieca/env-setup/master/ssh-new-host)"
+```
+
+`update-configs` installs `ssh-new-host` to `~/tools`. On a client that is not
+set up with this repo, install it with:
 
 ```bash
 mkdir -p ~/tools
-wget https://raw.githubusercontent.com/sobanieca/env-setup/master/ssh-port -O ~/tools/ssh-port
-chmod +x ~/tools/ssh-port
+wget https://raw.githubusercontent.com/sobanieca/env-setup/master/ssh-new-host -O ~/tools/ssh-new-host
+chmod +x ~/tools/ssh-new-host
 ```
 
 Add to the client's `~/.bashrc`:

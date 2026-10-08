@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+#
+# ssh-new-host — register an SSH host with connection sharing and port forwards
+#
+# Runs on the client machine (the one initiating SSH), not on the server.
+#
+# Usage:
+#   ssh-new-host          Ask for the connection details and write the config
+#
+# Asks for a connection name, hostname, user, port, identity file and ports to
+# forward, then:
+#   - appends a Host block to ~/.ssh/config (ControlMaster, keep-alives,
+#     LocalForward per port)
+#   - creates ~/.ssh/cm (ControlPath sockets) with mode 700
+#   - appends to ~/.bashrc:
+#       NAME              alias for 'ssh NAME'
+#       fwd-NAME PORT..   add forwards to the running connection
+#       unfwd-NAME PORT.. remove them again
+#
+# Without an identity file it can generate a key and install it on the server
+# with ssh-copy-id (which asks for the password once). Otherwise the config
+# uses password auth and ssh asks for it on each new connection.
+#
+# Both blocks are marked with '# ssh-new-host: NAME', so a host can be removed
+# by deleting its marked blocks.
+
+set -euo pipefail
+
+usage() {
+    awk 'NR==1{next} /^#/{sub(/^# ?/,""); print; next} {exit}' "$0"
+    exit "${1:-0}"
+}
+
+case "${1:-}" in
+    -h|--help) usage 0 ;;
+    "") ;;
+    *) echo "Error: unknown argument '$1'." >&2; usage 1 ;;
+esac
+
+SSH_DIR="$HOME/.ssh"
+SSH_CONFIG="$SSH_DIR/config"
+CM_DIR="$SSH_DIR/cm"
+BASHRC="$HOME/.bashrc"
+
+# ask VAR "Prompt" [default]
+ask() {
+    local __var="$1" __prompt="$2" __default="${3:-}" __reply
+    if [[ -n $__default ]]; then
+        read -r -e -p "$__prompt [$__default]: " __reply
+        __reply="${__reply:-$__default}"
+    else
+        read -r -e -p "$__prompt: " __reply
+    fi
+    printf -v "$__var" '%s' "$__reply"
+}
+
+# confirm "Question" -> 0 for yes (default), 1 for no
+confirm() {
+    local reply
+    read -r -p "$1 [Y/n]: " reply
+    [[ -z $reply || $reply =~ ^[Yy] ]]
+}
+
+valid_port() {
+    [[ $1 =~ ^[0-9]+$ ]] && (( $1 >= 1 && $1 <= 65535 ))
+}
+
+host_exists() {
+    [[ -f $SSH_CONFIG ]] && grep -qiE "^[[:space:]]*Host[[:space:]]+(.*[[:space:]])?$1([[:space:]]|\$)" "$SSH_CONFIG"
+}
+
+# ---------------- questions ----------------
+
+while true; do
+    ask NAME "Connection name (alias, e.g. my-dev)"
+    if ! [[ $NAME =~ ^[A-Za-z0-9_-]+$ ]]; then
+        echo "  Use letters, digits, '-' and '_' only." >&2
+    elif host_exists "$NAME"; then
+        echo "  Host '$NAME' already exists in $SSH_CONFIG." >&2
+    elif [[ -f $BASHRC ]] && grep -qxF "# ssh-new-host: $NAME" "$BASHRC"; then
+        echo "  '$NAME' is already registered in $BASHRC." >&2
+    else
+        break
+    fi
+done
+
+while true; do
+    ask HOSTNAME_ "Hostname or IP"
+    [[ -n $HOSTNAME_ ]] && break
+done
+
+while true; do
+    ask USER_ "User" "$USER"
+    [[ -n $USER_ ]] && break
+done
+
+while true; do
+    ask PORT "SSH port" "22"
+    valid_port "$PORT" && break
+    echo "  '$PORT' is not a valid port (1-65535)." >&2
+done
+
+GENERATE_KEY=0
+while true; do
+    ask IDENTITY "Identity file path (empty if you don't have one)"
+    if [[ -z $IDENTITY ]]; then
+        if confirm "Generate a new key and install it on the server (asks for the password once)?"; then
+            IDENTITY="~/.ssh/$NAME.id"
+            GENERATE_KEY=1
+        else
+            echo "  No key: ssh will ask for the password on each new connection."
+        fi
+        break
+    fi
+    if [[ -f ${IDENTITY/#\~/$HOME} ]]; then
+        break
+    fi
+    echo "  File '$IDENTITY' does not exist." >&2
+done
+IDENTITY_PATH="${IDENTITY/#\~/$HOME}"
+
+while true; do
+    ask PORTS_RAW "Ports to forward (space or comma separated, empty for none)"
+    FWD_PORTS=()
+    bad=""
+    for p in ${PORTS_RAW//,/ }; do
+        if valid_port "$p"; then
+            [[ " ${FWD_PORTS[*]:-} " == *" $p "* ]] || FWD_PORTS+=("$p")
+        else
+            bad+=" $p"
+        fi
+    done
+    [[ -z $bad ]] && break
+    echo "  Not valid ports:$bad" >&2
+done
+
+# ---------------- generated content ----------------
+
+CONFIG_BLOCK="# ssh-new-host: $NAME
+Host $NAME
+    HostName $HOSTNAME_
+    User $USER_
+    Port $PORT"
+if [[ -n $IDENTITY ]]; then
+    CONFIG_BLOCK+="
+    IdentityFile $IDENTITY
+    IdentitiesOnly yes"
+fi
+CONFIG_BLOCK+="
+
+    TCPKeepAlive yes
+    ServerAliveInterval 15
+    ServerAliveCountMax 20
+    LogLevel QUIET
+
+    ControlMaster auto
+    ControlPath ~/.ssh/cm/%C
+    ControlPersist 10m"
+if (( ${#FWD_PORTS[@]} )); then
+    CONFIG_BLOCK+=$'\n'
+    for p in "${FWD_PORTS[@]}"; do
+        CONFIG_BLOCK+="
+    LocalForward $p localhost:$p"
+    done
+fi
+
+BASHRC_BLOCK="# ssh-new-host: $NAME
+alias $NAME=\"ssh $NAME\"
+fwd-$NAME() { local p; for p in \"\$@\"; do ssh -O forward -L \"\$p:localhost:\$p\" $NAME; done; }
+unfwd-$NAME() { local p; for p in \"\$@\"; do ssh -O cancel -L \"\$p:localhost:\$p\" $NAME; done; }"
+
+echo
+echo "=== Will append to $SSH_CONFIG ==="
+echo "$CONFIG_BLOCK"
+echo
+echo "=== Will append to $BASHRC ==="
+echo "$BASHRC_BLOCK"
+echo
+confirm "Write it?" || { echo "Aborted, nothing written."; exit 1; }
+
+# ---------------- write ----------------
+
+mkdir -p "$SSH_DIR" "$CM_DIR"
+chmod 700 "$SSH_DIR" "$CM_DIR"
+
+if (( GENERATE_KEY )); then
+    if [[ -f $IDENTITY_PATH ]]; then
+        echo "Key $IDENTITY already exists, reusing it."
+    else
+        ssh-keygen -t ed25519 -N "" -C "$NAME" -f "$IDENTITY_PATH"
+    fi
+    if ! ssh-copy-id -i "$IDENTITY_PATH.pub" -p "$PORT" -o ControlMaster=no "$USER_@$HOSTNAME_"; then
+        echo "Warning: ssh-copy-id failed. Add $IDENTITY.pub to the server's" >&2
+        echo "~/.ssh/authorized_keys yourself." >&2
+    fi
+fi
+
+touch "$SSH_CONFIG"
+chmod 600 "$SSH_CONFIG"
+{ [[ -s $SSH_CONFIG ]] && echo; echo "$CONFIG_BLOCK"; } >>"$SSH_CONFIG"
+
+{ [[ -s $BASHRC ]] && echo; echo "$BASHRC_BLOCK"; } >>"$BASHRC"
+
+echo
+echo "Done. Load the new alias with: source $BASHRC"
+echo "  $NAME                 connect"
+echo "  fwd-$NAME 5173        forward another port on the running connection"
+echo "  unfwd-$NAME 5173      remove it"
+echo "  ssh -O exit $NAME     close the shared connection and all its forwards"
