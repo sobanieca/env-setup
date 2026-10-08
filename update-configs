@@ -119,6 +119,11 @@ echo "Updating claude settings.json..."
 wget $BASE_URL"claude-settings.json" -O $HOME/.claude/settings.json
 echo "claude settings.json updated."
 
+echo "Updating claude check-usage skill..."
+mkdir -p $HOME/.claude/skills/check-usage
+wget $BASE_URL"claude-skill-check-usage.md" -O $HOME/.claude/skills/check-usage/SKILL.md
+echo "claude check-usage skill updated."
+
 CLAUDE_USAGE=$(command -v claude-usage || echo "$HOME/.local/bin/claude-usage")
 if [ -x "$CLAUDE_USAGE" ]; then
     echo "Installing claude-usage Stop hook..."
