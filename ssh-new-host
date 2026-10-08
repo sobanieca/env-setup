@@ -90,7 +90,7 @@ while true; do
 done
 
 while true; do
-    ask USER_ "User" "$USER"
+    ask USER_ "User" "${USER:-}"
     [[ -n $USER_ ]] && break
 done
 
