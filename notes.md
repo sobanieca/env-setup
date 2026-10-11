@@ -107,3 +107,7 @@ memory=14GB
 processors=8
 networkingMode=mirrored
 ```
+
+## Docker
+
+Bind published ports to localhost by default: add `"ip": "127.0.0.1"` to `/etc/docker/daemon.json` and run `sudo systemctl restart docker`. To expose a port externally, set the address explicitly (e.g. `-p 0.0.0.0:8080:80`).
