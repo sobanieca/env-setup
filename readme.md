@@ -233,6 +233,13 @@ To run it once without installing anything:
 bash -c "$(wget -qO - https://raw.githubusercontent.com/sobanieca/env-setup/master/ssh-new-host)"
 ```
 
+To change the IP of a host the same way (run it without `my-dev 203.0.113.7`
+to list the hosts):
+
+```bash
+bash -c "$(wget -qO - https://raw.githubusercontent.com/sobanieca/env-setup/master/ssh-host-ip)" ssh-host-ip my-dev 203.0.113.7
+```
+
 `update-configs` installs `ssh-new-host` and `ssh-host-ip` to `~/tools`. On a
 client that is not set up with this repo, install them with:
 
