@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+#
+# ssh-host-ip — list SSH hosts or change the HostName of one of them
+#
+# Runs on the client machine, against ~/.ssh/config.
+#
+# Usage:
+#   ssh-host-ip              List configured hosts with their HostName
+#   ssh-host-ip NAME HOST    Set HostName of host NAME to HOST (IP or URL)
+#
+# Only the first HostName line of the matching Host block is replaced, the rest
+# of the file is left untouched. Wildcard hosts (Host *) are not listed.
+#
+# A shared connection (ControlMaster) to the old address is closed first,
+# because its socket path is derived from the HostName and would be left
+# running after the change.
+
+set -euo pipefail
+
+usage() {
+    awk 'NR==1{next} /^#/{sub(/^# ?/,""); print; next} {exit}' "$0"
+    exit "${1:-0}"
+}
+
+SSH_CONFIG="$HOME/.ssh/config"
+
+# Splits a config line into keyword and arguments; accepts 'Key value' and
+# 'Key=value'. Sets n and f[] for the caller, skips blanks and comments.
+AWK_SPLIT='
+function parse(   line) {
+    line = $0
+    sub(/^[ \t]+/, "", line)
+    if (line == "" || line ~ /^#/) { n = 0; return }
+    n = split(line, f, /[ \t]*=[ \t]*|[ \t]+/)
+    f[1] = tolower(f[1])
+}'
+
+list_hosts() {
+    awk "$AWK_SPLIT"'
+    function flush() {
+        if (hosts != "" && hosts !~ /[*?!]/)
+            printf "  %-24s %s\n", hosts, (hn == "" ? "-" : hn)
+        hosts = ""; hn = ""
+    }
+    { parse() }
+    n == 0 { next }
+    f[1] == "host" || f[1] == "match" {
+        flush()
+        if (f[1] == "host")
+            for (i = 2; i <= n; i++) hosts = hosts (i > 2 ? " " : "") f[i]
+        next
+    }
+    f[1] == "hostname" && hn == "" { hn = f[2] }
+    END { flush() }
+    ' "$SSH_CONFIG"
+}
+
+# current_hostname NAME -> prints HostName of the first block matching NAME
+current_hostname() {
+    awk -v name="$1" "$AWK_SPLIT"'
+    { parse() }
+    n == 0 { next }
+    f[1] == "host" || f[1] == "match" {
+        in_block = 0
+        if (f[1] == "host")
+            for (i = 2; i <= n; i++) if (tolower(f[i]) == tolower(name)) in_block = 1
+        next
+    }
+    in_block && f[1] == "hostname" { print f[2]; exit }
+    ' "$SSH_CONFIG"
+}
+
+if [[ ! -f $SSH_CONFIG ]]; then
+    echo "Error: $SSH_CONFIG does not exist." >&2
+    exit 1
+fi
+
+case "${1:-}" in
+    -h|--help) usage 0 ;;
+    "")
+        echo "Configured hosts ($SSH_CONFIG):"
+        list_hosts
+        echo
+        echo "Tip: to update ip for host run: ssh-host-ip {host name} {new ip}"
+        exit 0
+        ;;
+esac
+
+(( $# == 2 )) || { echo "Error: expected NAME and HOST." >&2; usage 1; }
+
+NAME="$1"
+NEW_HOST="$2"
+
+if ! [[ $NEW_HOST =~ ^[A-Za-z0-9._:-]+$ ]]; then
+    echo "Error: '$NEW_HOST' is not a valid IP or hostname." >&2
+    exit 1
+fi
+
+OLD_HOST="$(current_hostname "$NAME")"
+if [[ -z $OLD_HOST ]]; then
+    echo "Error: no Host '$NAME' with a HostName line in $SSH_CONFIG." >&2
+    echo "Run ssh-host-ip without arguments to list hosts." >&2
+    exit 1
+fi
+
+if [[ $OLD_HOST == "$NEW_HOST" ]]; then
+    echo "$NAME already points to $NEW_HOST, nothing to do."
+    exit 0
+fi
+
+if ssh -O check "$NAME" 2>/dev/null; then
+    ssh -O exit "$NAME" 2>/dev/null || true
+    echo "Closed the shared connection to $OLD_HOST."
+fi
+
+TMP="$(mktemp)"
+trap 'rm -f "$TMP"' EXIT
+
+awk -v name="$NAME" -v new_host="$NEW_HOST" "$AWK_SPLIT"'
+{ parse() }
+n > 0 && (f[1] == "host" || f[1] == "match") {
+    in_block = 0
+    if (f[1] == "host")
+        for (i = 2; i <= n; i++) if (tolower(f[i]) == tolower(name)) in_block = 1
+}
+!done && in_block && n > 0 && f[1] == "hostname" {
+    match($0, /^[ \t]*/)
+    print substr($0, 1, RLENGTH) "HostName " new_host
+    done = 1
+    next
+}
+{ print }
+' "$SSH_CONFIG" >"$TMP"
+
+# Write in place so permissions and symlinks of the config are kept
+cat "$TMP" >"$SSH_CONFIG"
+
+echo "$NAME: $OLD_HOST -> $NEW_HOST"

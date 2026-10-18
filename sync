@@ -18,6 +18,7 @@ cp ./claude-rc-service ~/tools/claude-rc-service
 cp ./claude-ping-cron ~/tools/claude-ping-cron
 cp ./usage ~/tools/usage
 cp ./ssh-new-host ~/tools/ssh-new-host
+cp ./ssh-host-ip ~/tools/ssh-host-ip
 mkdir -p ~/.tmux
 cp ./tmux-status-resize ~/.tmux/tmux-status-resize
 cp ./claude-usage-color ~/.tmux/claude-usage-color

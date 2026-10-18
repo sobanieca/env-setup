@@ -99,6 +99,11 @@ wget $BASE_URL"ssh-new-host" -O $HOME/tools/ssh-new-host
 chmod +x $HOME/tools/ssh-new-host
 echo "ssh-new-host tool updated"
 
+echo "Updating ssh-host-ip tool"
+wget $BASE_URL"ssh-host-ip" -O $HOME/tools/ssh-host-ip
+chmod +x $HOME/tools/ssh-host-ip
+echo "ssh-host-ip tool updated"
+
 mkdir -p $HOME/.tmux
 echo "Updating tmux-status-resize script"
 wget $BASE_URL"tmux-status-resize" -O $HOME/.tmux/tmux-status-resize

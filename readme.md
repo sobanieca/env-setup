@@ -210,6 +210,11 @@ Host my-dev
 > the last session closes. Forwards added with `fwd-NAME` last only as long as
 > the connection. Put ports you always need into the config.
 
+> For a host with a dynamic IP, change its address with `ssh-host-ip`.
+> Without arguments it lists the hosts in `~/.ssh/config` with their HostName.
+> `ssh-host-ip my-dev 203.0.113.7` replaces the HostName of `my-dev` and
+> first closes a shared connection still open to the old address.
+
 > To remove a host, delete its `# ssh-new-host: NAME` blocks from
 > `~/.ssh/config` and `~/.bashrc`.
 
@@ -228,13 +233,15 @@ To run it once without installing anything:
 bash -c "$(wget -qO - https://raw.githubusercontent.com/sobanieca/env-setup/master/ssh-new-host)"
 ```
 
-`update-configs` installs `ssh-new-host` to `~/tools`. On a client that is not
-set up with this repo, install it with:
+`update-configs` installs `ssh-new-host` and `ssh-host-ip` to `~/tools`. On a
+client that is not set up with this repo, install them with:
 
 ```bash
 mkdir -p ~/tools
-wget https://raw.githubusercontent.com/sobanieca/env-setup/master/ssh-new-host -O ~/tools/ssh-new-host
-chmod +x ~/tools/ssh-new-host
+for t in ssh-new-host ssh-host-ip; do
+    wget https://raw.githubusercontent.com/sobanieca/env-setup/master/$t -O ~/tools/$t
+    chmod +x ~/tools/$t
+done
 ```
 
 Add to the client's `~/.bashrc`:
