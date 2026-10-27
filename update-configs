@@ -129,6 +129,10 @@ echo "Updating claude settings.json..."
 wget $BASE_URL"claude-settings.json" -O $HOME/.claude/settings.json
 echo "claude settings.json updated."
 
+echo "Updating claude CLAUDE.md..."
+wget $BASE_URL"claude-CLAUDE.md" -O $HOME/.claude/CLAUDE.md
+echo "claude CLAUDE.md updated."
+
 echo "Updating claude check-usage skill..."
 mkdir -p $HOME/.claude/skills/check-usage
 wget $BASE_URL"claude-skill-check-usage.md" -O $HOME/.claude/skills/check-usage/SKILL.md
