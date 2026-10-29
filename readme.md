@@ -132,23 +132,34 @@ sudo ufw status verbose
 #### Lock SSH to current IP on login
 
 To automatically restrict SSH access to only the currently connected IP, add the following to `.bashrc`.
-Replace `{ssh_port}` with your SSH port
+Replace `{ssh_port}` with your SSH port (only in the `SSH_PORT=` line)
 
 ```bash
-# Lock SSH to current IP (iptables - non-persistent, works alongside ufw)
+# Lock SSH to current IP (iptables/ip6tables - non-persistent, works alongside ufw)
+SSH_PORT={ssh_port}
 MY_IP=$(echo "$SSH_CONNECTION" | awk '{print $1}')
 if [ -n "$MY_IP" ]; then
-    if ! sudo iptables -C INPUT -p tcp --dport {ssh_port} -s "$MY_IP" -j ACCEPT 2>/dev/null; then
-        sudo iptables -S INPUT | grep -E "\-\-dport {ssh_port}" | sed 's/^-A/-D/' | while read -r rule; do
-            sudo iptables $rule
+    case "$MY_IP" in
+        *:*) MY_FW=ip6tables; OTHER_FW=iptables ;;
+        *) MY_FW=iptables; OTHER_FW=ip6tables ;;
+    esac
+    if ! { sudo $MY_FW -C INPUT -p tcp --dport "$SSH_PORT" -s "$MY_IP" -j ACCEPT &&
+        sudo $OTHER_FW -C INPUT -p tcp --dport "$SSH_PORT" -j DROP; } 2>/dev/null; then
+        for fw in iptables ip6tables; do
+            sudo $fw -S INPUT | grep -E -- "--dport $SSH_PORT( |$)" | sed 's/^-A/-D/' | while read -r rule; do
+                sudo $fw $rule
+            done
         done
-        sudo iptables -I INPUT 1 -p tcp --dport {ssh_port} -s "$MY_IP" -j ACCEPT
-        sudo iptables -I INPUT 2 -p tcp --dport {ssh_port} -j DROP
+        sudo $MY_FW -I INPUT 1 -p tcp --dport "$SSH_PORT" -s "$MY_IP" -j ACCEPT
+        sudo $MY_FW -I INPUT 2 -p tcp --dport "$SSH_PORT" -j DROP
+        sudo $OTHER_FW -I INPUT 1 -p tcp --dport "$SSH_PORT" -j DROP
     fi
 fi
 ```
 
-- On reboot, these rules disappear and UFW's generic `allow {ssh_port}/tcp` takes effect again
+- Locks both IPv4 and IPv6: the protocol you are connected over accepts only your IP, the other one drops SSH completely
+- On reboot, these rules disappear and UFW's generic `allow {ssh_port}/tcp` takes effect again. This is on purpose: if your IP
+  changes and you are locked out, reboot the machine (e.g. from the provider's panel) and log in again
 
 ### Setup timezone information
 `sudo dpkg-reconfigure tzdata`
