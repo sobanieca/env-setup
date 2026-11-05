@@ -138,6 +138,11 @@ mkdir -p $HOME/.claude/skills/check-usage
 wget $BASE_URL"claude-skill-check-usage.md" -O $HOME/.claude/skills/check-usage/SKILL.md
 echo "claude check-usage skill updated."
 
+echo "Updating claude repos-status skill..."
+mkdir -p $HOME/.claude/skills/repos-status
+wget $BASE_URL"claude-skill-repos-status.md" -O $HOME/.claude/skills/repos-status/SKILL.md
+echo "claude repos-status skill updated."
+
 CLAUDE_USAGE=$(command -v claude-usage || echo "$HOME/.local/bin/claude-usage")
 if [ -x "$CLAUDE_USAGE" ]; then
     echo "Installing claude-usage Stop hook..."

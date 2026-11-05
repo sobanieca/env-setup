@@ -29,6 +29,8 @@ cp ./claude-settings.json ~/.claude/settings.json
 cp ./claude-CLAUDE.md ~/.claude/CLAUDE.md
 mkdir -p ~/.claude/skills/check-usage
 cp ./claude-skill-check-usage.md ~/.claude/skills/check-usage/SKILL.md
+mkdir -p ~/.claude/skills/repos-status
+cp ./claude-skill-repos-status.md ~/.claude/skills/repos-status/SKILL.md
 CLAUDE_USAGE=$(command -v claude-usage || echo "$HOME/.local/bin/claude-usage")
 if [ -x "$CLAUDE_USAGE" ]; then
     "$CLAUDE_USAGE" --install-hook || true
