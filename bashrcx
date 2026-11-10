@@ -8,7 +8,7 @@ LC_ALL="C.UTF-8";
 export LC_ALL;
 
 export PS1="\w>"
-export EDITOR="nvim"
+if command -v nvim >/dev/null 2>&1; then export EDITOR="nvim"; else export EDITOR="yate"; fi
 export FZF_DEFAULT_COMMAND="rg --files --hidden --glob '!.git/**'"
 export HISTCONTROL=ignoredups
 export PROMPT_COMMAND="history -a; history -n"

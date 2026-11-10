@@ -16,6 +16,7 @@
 #
 # Steps:
 #   - git identity, GitHub CLI and its login (also used as git credentials)
+#   - Neovim and its plugins
 #   - Docker, with published ports bound to 127.0.0.1 instead of 0.0.0.0
 #   - jsonr, sqlr, remote-file-manager (rfm) and todoer
 #   - lock SSH to the IP of the current login (block in ~/.bashrc)
@@ -144,7 +145,7 @@ echo "${B}Summary${N}"
 echo "  git:           $GIT_NAME <$GIT_EMAIL>"
 echo "  Lock SSH IP:   $LOCK_IP (port $SSH_PORT)"
 echo "  Claude:        $CLAUDE_SERVICES (claude-rc-service, claude-ping-cron in $CODE_DIR)"
-echo "  Installs:      GitHub CLI, Docker (ports on 127.0.0.1), jsonr, sqlr, rfm, todoer"
+echo "  Installs:      Neovim, GitHub CLI, Docker (ports on 127.0.0.1), jsonr, sqlr, rfm, todoer"
 echo
 if (( ! ASSUME_YES )); then
     confirm "Continue?" || { echo "Aborted, nothing changed."; exit 1; }
@@ -179,6 +180,24 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubc
     sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
 sudo apt-get update
 "${APT[@]}" install gh
+
+# ---------------- Neovim ----------------
+
+case "$(dpkg --print-architecture)" in
+    amd64) NVIM_ARCH=x86_64 ;;
+    arm64) NVIM_ARCH=arm64 ;;
+    *) die "Unsupported architecture $(dpkg --print-architecture) (amd64 and arm64 only)." ;;
+esac
+
+step "Installing Neovim"
+curl -fsSL -o "$TMP/nvim.tar.gz" "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-$NVIM_ARCH.tar.gz"
+sudo rm -rf "/opt/nvim-linux-$NVIM_ARCH"
+sudo tar -C /opt -xzf "$TMP/nvim.tar.gz"
+sudo ln -sf "/opt/nvim-linux-$NVIM_ARCH/bin/nvim" /usr/local/bin/nvim
+
+step "Installing Neovim plugins (may take a few minutes)"
+nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1 ||
+    warn "Neovim plugin install did not finish, it continues when you open nvim."
 
 # ---------------- Docker ----------------
 

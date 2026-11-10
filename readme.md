@@ -19,9 +19,10 @@ bash -c "$(wget -qO- https://raw.githubusercontent.com/sobanieca/env-setup/maste
 ```
 
 Asks for the user to create, the public key, the SSH port, extra ports to open (e.g. `8400,8404` for an app), the
-hostname and the timezone. Then it installs basic tools (tmux, atop, htop, git without credentials, neovim, Node.js,
-Claude Code) and the dotfiles, allows SSH only with the key on the new port, enables the firewall, and checks the
-effective sshd configuration (`sshd -T`) and that a password login is refused.
+hostname and the timezone. Then it installs basic tools (tmux, atop, htop, git without credentials, the
+[yate](https://adam.sobaniec.com/yate/) editor, Node.js, Claude Code) and the dotfiles, allows SSH only with the key on
+the new port, enables the firewall, and checks the effective sshd configuration (`sshd -T`) and that a password login
+is refused.
 
 Keep the root session open until you can log in as the new user.
 
@@ -50,9 +51,10 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/sobanieca/env-setup/mast
 bash -c "$(wget -qO- https://raw.githubusercontent.com/sobanieca/env-setup/master/dev-setup)"
 ```
 
-Sets your git name and email, installs the GitHub CLI and logs you in (also used as git credentials), installs Docker
-with published ports bound to `127.0.0.1`, plus jsonr, sqlr, rfm and todoer, locks SSH to the IP you log in from, and
-sets up `claude-rc-service` and `claude-ping-cron` in `~/code`. Log out and in again when it is done.
+Sets your git name and email, installs Neovim with its plugins and the GitHub CLI and logs you in (also used as git
+credentials), installs Docker with published ports bound to `127.0.0.1`, plus jsonr, sqlr, rfm and todoer, locks SSH to
+the IP you log in from, and sets up `claude-rc-service` and `claude-ping-cron` in `~/code`. Log out and in again when it
+is done.
 
 ## Termux
 

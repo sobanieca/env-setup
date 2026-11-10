@@ -18,11 +18,11 @@
 #   -y, --yes              do not ask for confirmation
 #
 # Steps:
-#   - upgrade packages, install tmux, atop, htop, git (no credentials), neovim,
-#     Node.js (neovim plugins need it), gitmux and other basic tools
+#   - upgrade packages, install tmux, atop, htop, git (no credentials), the yate
+#     editor, Node.js, gitmux and other basic tools (dev-setup adds neovim)
 #   - set hostname and timezone
 #   - create the user with the key and passwordless sudo
-#   - install the dotfiles (tmux, neovim, bash) and Claude Code for the user
+#   - install the dotfiles (tmux, bash, neovim configs) and Claude Code for the user
 #   - sshd: new port, key only, no root login (/etc/ssh/sshd_config.d/00-env-setup.conf)
 #   - ufw: allow only the SSH port and the extra ports
 #   - verify the effective sshd configuration, that password login is refused,
@@ -354,16 +354,14 @@ bash "$TMP/nodesource_setup.sh"
 
 ARCH=$(dpkg --print-architecture)
 case "$ARCH" in
-    amd64) NVIM_ARCH=x86_64 ;;
-    arm64) NVIM_ARCH=arm64 ;;
+    amd64|arm64) ;;
     *) die "Unsupported architecture $ARCH (amd64 and arm64 only)." ;;
 esac
 
-step "Installing Neovim"
-curl -fsSL -o "$TMP/nvim.tar.gz" "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-$NVIM_ARCH.tar.gz"
-rm -rf "/opt/nvim-linux-$NVIM_ARCH"
-tar -C /opt -xzf "$TMP/nvim.tar.gz"
-ln -sf "/opt/nvim-linux-$NVIM_ARCH/bin/nvim" /usr/local/bin/nvim
+step "Installing the yate editor"
+# Installs the single yate binary to /usr/local/bin, update later with: sudo yate update
+curl -fsSL https://sobanieca.github.io/yate/install.sh -o "$TMP/yate-install.sh"
+bash "$TMP/yate-install.sh"
 
 step "Installing gitmux $GITMUX_VERSION"
 curl -fsSL -o "$TMP/gitmux.tar.gz" \
@@ -447,10 +445,6 @@ grep -q bashrcx ~/.bashrc 2>/dev/null || printf "\n[ -f ~/.bashrcx ] && . ~/.bas
 ~/tools/update-configs >/dev/null 2>&1 || ~/tools/update-configs
 echo "  bashrcx, tmux, gitmux, neovim and Claude configs installed, tools in ~/tools"
 '
-
-step "Installing Neovim plugins (may take a few minutes)"
-as_user 'nvim --headless "+Lazy! sync" +qa' >/dev/null 2>&1 ||
-    warn "Neovim plugin install did not finish, it continues when you open nvim."
 
 # ---------------- sshd ----------------
 
@@ -602,6 +596,7 @@ if [[ -n $PUBKEY ]]; then
 fi
 if sudo -l -U "$NEW_USER" | grep -q 'NOPASSWD: ALL'; then pass "passwordless sudo"; else fail "no passwordless sudo"; fi
 if [[ -x $HOME_DIR/.local/bin/claude ]]; then pass "Claude Code installed"; else fail "Claude Code missing in ~/.local/bin"; fi
+if [[ -x /usr/local/bin/yate ]]; then pass "yate installed"; else fail "yate missing in /usr/local/bin"; fi
 
 # ---------------- result ----------------
 
@@ -627,7 +622,7 @@ ${B}Next, on the client${N}, register the server:
 Keep this root session open until you can log in as $NEW_USER from the client.
 Root cannot log in over SSH any more. In tmux, press prefix + I once to install its plugins.
 
-For a development server, log in as $NEW_USER and run:
+For a development server (adds neovim, Docker, GitHub CLI), log in as $NEW_USER and run:
   bash -c "\$(wget -qO- $BASE_URL/dev-setup)"
 EOF
 
