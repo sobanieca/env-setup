@@ -1,0 +1,634 @@
+#!/usr/bin/env bash
+#
+# server-setup — basic setup of a fresh Debian VPS, run once as root
+#
+# Usage:
+#   server-setup [options]    Asks for every value not given as an option
+#
+# Options:
+#   --user NAME            user to create, gets passwordless sudo
+#   --key "ssh-ed25519 AAAA... name"
+#                          public key the user logs in with (printed by ssh-key-new)
+#   --port PORT            new SSH port (not 22)
+#   --open-ports P1,P2     extra TCP ports to open in the firewall, e.g. 8400,8404
+#   --hostname NAME        new hostname (default: current one)
+#   --timezone ZONE        UTC offset in whole hours (+1, -5) or a zone name
+#                          (Europe/Warsaw); default: current one
+#   --node VERSION         Node.js major version or 'lts' (default: lts)
+#   -y, --yes              do not ask for confirmation
+#
+# Steps:
+#   - upgrade packages, install tmux, atop, htop, git (no credentials), neovim,
+#     Node.js (neovim plugins need it), gitmux and other basic tools
+#   - set hostname and timezone
+#   - create the user with the key and passwordless sudo
+#   - install the dotfiles (tmux, neovim, bash) and Claude Code for the user
+#   - sshd: new port, key only, no root login (/etc/ssh/sshd_config.d/00-env-setup.conf)
+#   - ufw: allow only the SSH port and the extra ports
+#   - verify the effective sshd configuration, that password login is refused,
+#     the listening ports and the firewall
+#
+# Safe to run again with the same or changed values.
+
+set -euo pipefail
+
+BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master"
+SSHD_DROPIN="/etc/ssh/sshd_config.d/00-env-setup.conf"
+GITMUX_VERSION="v0.10.3"
+
+if [[ -t 1 ]]; then
+    B=$'\e[1m' R=$'\e[31m' G=$'\e[32m' Y=$'\e[33m' N=$'\e[0m'
+else
+    B="" R="" G="" Y="" N=""
+fi
+
+step() { printf '\n%s==> %s%s\n' "$B" "$*" "$N"; }
+warn() { printf '%sWarning:%s %s\n' "$Y" "$N" "$*" >&2; }
+die() { printf '%sError:%s %s\n' "$R" "$N" "$*" >&2; exit 1; }
+
+FAILS=0
+pass() { printf '  %sOK%s    %s\n' "$G" "$N" "$*"; }
+fail() { printf '  %sFAIL%s  %s\n' "$R" "$N" "$*"; FAILS=$((FAILS + 1)); }
+
+usage() {
+    cat <<'EOF'
+server-setup — basic setup of a fresh Debian VPS, run once as root
+
+Usage:
+  server-setup [options]    Asks for every value not given as an option
+
+Options:
+  --user NAME            user to create, gets passwordless sudo
+  --key "ssh-ed25519 AAAA... name"
+                         public key the user logs in with (printed by ssh-key-new)
+  --port PORT            new SSH port (not 22)
+  --open-ports P1,P2     extra TCP ports to open in the firewall, e.g. 8400,8404
+  --hostname NAME        new hostname (default: current one)
+  --timezone ZONE        UTC offset in whole hours (+1, -5) or a zone name
+                         (Europe/Warsaw); default: current one
+  --node VERSION         Node.js major version or 'lts' (default: lts)
+  -y, --yes              do not ask for confirmation
+
+Safe to run again with the same or changed values.
+EOF
+    exit "${1:-0}"
+}
+
+# ---------------- helpers ----------------
+
+# ask VAR "Prompt" [default]
+ask() {
+    local __var="$1" __prompt="$2" __default="${3:-}" __reply
+    if [[ -n $__default ]]; then
+        read -r -e -p "$__prompt [$__default]: " __reply
+        __reply="${__reply:-$__default}"
+    else
+        read -r -e -p "$__prompt: " __reply
+    fi
+    printf -v "$__var" '%s' "$__reply"
+}
+
+confirm() {
+    local reply
+    read -r -p "$1 [Y/n]: " reply
+    [[ -z $reply || $reply =~ ^[Yy] ]]
+}
+
+valid_user() { [[ $1 =~ ^[a-z_][a-z0-9_-]{0,31}$ && $1 != root ]]; }
+
+valid_port() { [[ $1 =~ ^[0-9]+$ ]] && (( 10#$1 >= 1 && 10#$1 <= 65535 )); }
+
+valid_hostname() {
+    [[ $1 =~ ^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$ ]]
+}
+
+valid_key() {
+    [[ $1 != *$'\n'* ]] &&
+        [[ $1 =~ ^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(256|384|521)|sk-ssh-ed25519@openssh\.com|sk-ecdsa-sha2-nistp256@openssh\.com)\ [A-Za-z0-9+/=]+ ]] &&
+        ssh-keygen -l -f /dev/stdin <<<"$1" >/dev/null 2>&1
+}
+
+# parse_ports "8400, 8404" -> sets PORTS_RESULT array, returns 1 on a bad port
+parse_ports() {
+    local p
+    PORTS_RESULT=()
+    for p in ${1//,/ }; do
+        valid_port "$p" || { echo "  '$p' is not a valid port (1-65535)." >&2; return 1; }
+        p=$((10#$p))
+        [[ " ${PORTS_RESULT[*]:-} " == *" $p "* ]] || PORTS_RESULT+=("$p")
+    done
+}
+
+list_timezones() {
+    timedatectl list-timezones 2>/dev/null ||
+        (cd /usr/share/zoneinfo && find . -type f | sed 's|^\./||' | grep -E '^[A-Z][A-Za-z_]+(/[A-Za-z0-9_+-]+)+$|^UTC$' | sort)
+}
+
+# resolve_timezone INPUT -> sets TZ_RESULT, returns 1 (with a reason) if not resolved
+resolve_timezone() {
+    local in="$1" matches n
+    TZ_RESULT=""
+    if [[ $in =~ ^([+-]?)([0-9]{1,2})$ ]]; then
+        local sign="${BASH_REMATCH[1]:-+}" hours=$((10#${BASH_REMATCH[2]}))
+        # Etc/GMT zones have the sign reversed (POSIX): UTC+1 is Etc/GMT-1
+        if (( hours == 0 )); then
+            TZ_RESULT="Etc/UTC"
+        elif [[ $sign == + ]] && (( hours <= 14 )); then
+            TZ_RESULT="Etc/GMT-$hours"
+        elif [[ $sign == - ]] && (( hours <= 12 )); then
+            TZ_RESULT="Etc/GMT+$hours"
+        else
+            echo "  Offset out of range (-12 to +14)." >&2
+            return 1
+        fi
+        [[ -f /usr/share/zoneinfo/$TZ_RESULT ]] || { echo "  $TZ_RESULT is not installed (package tzdata)." >&2; return 1; }
+        return 0
+    fi
+    if [[ $in =~ ^[+-]?[0-9]{1,2}:[0-9]{2}$ ]]; then
+        echo "  Only whole-hour offsets exist as fixed zones. Use a zone name instead (e.g. Asia/Kolkata)." >&2
+        return 1
+    fi
+    if ! [[ $in =~ ^[A-Za-z0-9/_+-]+$ ]]; then
+        echo "  Not a UTC offset or a zone name." >&2
+        return 1
+    fi
+    matches=$(list_timezones | grep -ixF -- "$in" || true)
+    [[ -n $matches ]] || matches=$(list_timezones | grep -iF -- "$in" || true)
+    n=$(grep -c . <<<"$matches" || true)
+    case $n in
+        0) echo "  No timezone matches '$in'." >&2; return 1 ;;
+        1) TZ_RESULT="$matches"; return 0 ;;
+        *)
+            echo "  '$in' matches $n zones, type more of the name:" >&2
+            head -n 15 <<<"$matches" | sed 's/^/    /' >&2
+            (( n > 15 )) && echo "    ..." >&2
+            return 1
+            ;;
+    esac
+}
+
+describe_timezone() {
+    local tz="$1" year jan jul
+    year=$(date +%Y)
+    jan=$(TZ="$tz" date -d "$year-01-15 12:00" +%:z)
+    jul=$(TZ="$tz" date -d "$year-07-15 12:00" +%:z)
+    if [[ $jan == "$jul" ]]; then
+        echo "$tz (UTC$jan all year), now $(TZ="$tz" date +%H:%M)"
+    else
+        echo "$tz (UTC$jan in January, UTC$jul in July), now $(TZ="$tz" date +%H:%M)"
+    fi
+}
+
+port_in_use_by_other() {
+    ss -Htlnp "( sport = :$1 )" 2>/dev/null | grep -v -e '"sshd' -e '"systemd"' | grep -q .
+}
+
+# ---------------- arguments ----------------
+
+NEW_USER="" PUBKEY="" SSH_PORT="" OPEN_PORTS_RAW="-" NEW_HOSTNAME="" TIMEZONE="" NODE_VERSION="lts"
+ASSUME_YES=0
+
+need_value() { [[ $# -ge 2 && -n $2 ]] || die "$1 needs a value."; }
+
+while (( $# )); do
+    case "$1" in
+        --user) need_value "$@"; NEW_USER="$2"; shift 2 ;;
+        --key) need_value "$@"; PUBKEY="$2"; shift 2 ;;
+        --port) need_value "$@"; SSH_PORT="$2"; shift 2 ;;
+        --open-ports) [[ $# -ge 2 ]] || die "$1 needs a value."; OPEN_PORTS_RAW="$2"; shift 2 ;;
+        --hostname) need_value "$@"; NEW_HOSTNAME="$2"; shift 2 ;;
+        --timezone) need_value "$@"; TIMEZONE="$2"; shift 2 ;;
+        --node) need_value "$@"; NODE_VERSION="$2"; shift 2 ;;
+        -y|--yes) ASSUME_YES=1; shift ;;
+        -h|--help) usage 0 ;;
+        *) echo "Unknown argument '$1'." >&2; usage 1 ;;
+    esac
+done
+
+[[ $EUID -eq 0 ]] || die "Run as root."
+[[ $(. /etc/os-release 2>/dev/null && echo "$ID") == debian ]] || die "This script supports Debian only."
+command -v systemctl >/dev/null || die "systemd is required."
+[[ $NODE_VERSION =~ ^([0-9]+|lts)$ ]] || die "--node must be a major version (e.g. 22) or 'lts'."
+
+# Values from a previous run are the defaults
+PREV_PORT="" PREV_USER=""
+if [[ -f $SSHD_DROPIN ]]; then
+    PREV_PORT=$(awk '$1 == "Port" { print $2; exit }' "$SSHD_DROPIN")
+    PREV_USER=$(awk '$1 == "AllowUsers" { print $2; exit }' "$SSHD_DROPIN")
+fi
+
+# ---------------- questions ----------------
+
+echo "${B}server-setup${N}: answer the questions, then everything runs without further input."
+echo
+
+until valid_user "$NEW_USER"; do
+    [[ -n $NEW_USER ]] && echo "  Use lowercase letters, digits, '-' and '_', starting with a letter (not root)." >&2
+    ask NEW_USER "User to create" "$PREV_USER"
+done
+HOME_DIR=$(getent passwd "$NEW_USER" | cut -d: -f6 || true)
+HOME_DIR="${HOME_DIR:-/home/$NEW_USER}"
+AUTH_KEYS="$HOME_DIR/.ssh/authorized_keys"
+
+HAS_KEYS=0
+[[ -s $AUTH_KEYS ]] && HAS_KEYS=1
+if [[ -n $PUBKEY ]]; then
+    valid_key "$PUBKEY" || die "--key is not a valid public key."
+else
+    echo
+    echo "Public key for $NEW_USER: the line printed by ssh-key-new on your client,"
+    echo "starting with 'ssh-ed25519'."
+    (( HAS_KEYS )) && echo "Press Enter to keep only the keys already in $AUTH_KEYS."
+    while true; do
+        read -r -p "Public key: " PUBKEY
+        [[ -z $PUBKEY ]] && (( HAS_KEYS )) && break
+        valid_key "$PUBKEY" && break
+        echo "  Not a valid public key. Paste the whole line, e.g. 'ssh-ed25519 AAAAC3Nza... machine1'." >&2
+    done
+fi
+
+echo
+DEFAULT_PORT="${PREV_PORT:-$(shuf -i 20000-60000 -n 1)}"
+while true; do
+    [[ -n $SSH_PORT ]] || ask SSH_PORT "SSH port (not 22, a random one is suggested)" "$DEFAULT_PORT"
+    if ! valid_port "$SSH_PORT"; then
+        echo "  '$SSH_PORT' is not a valid port (1-65535)." >&2
+    elif (( 10#$SSH_PORT == 22 )); then
+        echo "  Pick a port other than 22." >&2
+    elif port_in_use_by_other "$SSH_PORT"; then
+        echo "  Port $SSH_PORT is already used by another program." >&2
+    else
+        SSH_PORT=$((10#$SSH_PORT))
+        break
+    fi
+    SSH_PORT=""
+done
+
+while true; do
+    if [[ $OPEN_PORTS_RAW == "-" ]]; then
+        ask OPEN_PORTS_RAW "Extra TCP ports to open in the firewall (e.g. 8400,8404, empty for none)"
+    fi
+    if parse_ports "$OPEN_PORTS_RAW"; then
+        OPEN_PORTS=("${PORTS_RESULT[@]+"${PORTS_RESULT[@]}"}")
+        if [[ " ${OPEN_PORTS[*]:-} " == *" $SSH_PORT "* ]]; then
+            echo "  $SSH_PORT is the SSH port, it is opened anyway." >&2
+        else
+            break
+        fi
+    fi
+    OPEN_PORTS_RAW="-"
+done
+
+until [[ -n $NEW_HOSTNAME ]] && valid_hostname "$NEW_HOSTNAME"; do
+    [[ -n $NEW_HOSTNAME ]] && echo "  Use letters, digits, '-' and '.' only." >&2
+    ask NEW_HOSTNAME "Hostname" "$(hostname)"
+done
+
+CURRENT_TZ=$(timedatectl show -p Timezone --value 2>/dev/null || cat /etc/timezone 2>/dev/null || echo Etc/UTC)
+if [[ -n $TIMEZONE ]]; then
+    resolve_timezone "$TIMEZONE" || die "Invalid --timezone '$TIMEZONE'."
+    TIMEZONE="$TZ_RESULT"
+else
+    echo
+    echo "Timezone, current: $(describe_timezone "$CURRENT_TZ")"
+    echo "  - UTC offset in whole hours, e.g. +1 or -5. The clock stays fixed and does"
+    echo "    NOT move for daylight saving time (in Poland +1 is right only in winter)."
+    echo "  - Zone name or part of it, e.g. Europe/Warsaw or warsaw. Follows daylight saving time."
+    echo "  - Enter keeps the current timezone."
+    while true; do
+        ask TZ_INPUT "Timezone" "$CURRENT_TZ"
+        resolve_timezone "$TZ_INPUT" && break
+    done
+    TIMEZONE="$TZ_RESULT"
+fi
+
+# ---------------- summary ----------------
+
+SERVER_IP=$(awk '{ print $3 }' <<<"${SSH_CONNECTION:-}")
+[[ -n $SERVER_IP ]] || SERVER_IP=$(hostname -I 2>/dev/null | awk '{ print $1 }')
+
+echo
+echo "${B}Summary${N}"
+echo "  User:        $NEW_USER (passwordless sudo)"
+if [[ -n $PUBKEY ]]; then
+    echo "  Key:         $(ssh-keygen -l -f /dev/stdin <<<"$PUBKEY")"
+else
+    echo "  Key:         keep the keys in $AUTH_KEYS"
+fi
+echo "  SSH port:    $SSH_PORT (22 gets closed)"
+echo "  Open ports:  ${OPEN_PORTS[*]:-none}"
+echo "  Hostname:    $NEW_HOSTNAME"
+echo "  Timezone:    $(describe_timezone "$TIMEZONE")"
+echo "  Node.js:     $NODE_VERSION"
+echo
+if (( ! ASSUME_YES )); then
+    confirm "Continue?" || { echo "Aborted, nothing changed."; exit 1; }
+fi
+
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
+USER_PATH="$HOME_DIR/.local/bin:$HOME_DIR/tools:/usr/local/bin:/usr/bin:/bin"
+as_user() { sudo -u "$NEW_USER" -H env PATH="$USER_PATH" bash -c "$1"; }
+
+# ---------------- packages ----------------
+
+export DEBIAN_FRONTEND=noninteractive
+APT=(apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold)
+
+step "Upgrading packages"
+apt-get update
+"${APT[@]}" dist-upgrade
+
+step "Installing basic tools"
+"${APT[@]}" install sudo curl wget ca-certificates gnupg git tmux atop htop fzf ripgrep jq \
+    tree unzip dos2unix socat build-essential ufw iptables iproute2 openssh-server openssh-client tzdata
+# cron recommends a mail server (exim4), which is not needed
+"${APT[@]}" install --no-install-recommends cron
+"${APT[@]}" install lsd || warn "lsd is not available in this Debian release, skipped."
+
+step "Installing Node.js ($NODE_VERSION)"
+curl -fsSL "https://deb.nodesource.com/setup_${NODE_VERSION}.x" -o "$TMP/nodesource_setup.sh"
+bash "$TMP/nodesource_setup.sh"
+"${APT[@]}" install nodejs
+
+ARCH=$(dpkg --print-architecture)
+case "$ARCH" in
+    amd64) NVIM_ARCH=x86_64 ;;
+    arm64) NVIM_ARCH=arm64 ;;
+    *) die "Unsupported architecture $ARCH (amd64 and arm64 only)." ;;
+esac
+
+step "Installing Neovim"
+curl -fsSL -o "$TMP/nvim.tar.gz" "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-$NVIM_ARCH.tar.gz"
+rm -rf "/opt/nvim-linux-$NVIM_ARCH"
+tar -C /opt -xzf "$TMP/nvim.tar.gz"
+ln -sf "/opt/nvim-linux-$NVIM_ARCH/bin/nvim" /usr/local/bin/nvim
+
+step "Installing gitmux $GITMUX_VERSION"
+curl -fsSL -o "$TMP/gitmux.tar.gz" \
+    "https://github.com/arl/gitmux/releases/download/$GITMUX_VERSION/gitmux_${GITMUX_VERSION}_linux_$ARCH.tar.gz"
+tar -C "$TMP" -xzf "$TMP/gitmux.tar.gz" gitmux
+install -m 755 "$TMP/gitmux" /usr/local/bin/gitmux
+
+# ---------------- hostname and timezone ----------------
+
+step "Setting hostname and timezone"
+OLD_HOSTNAME=$(hostname)
+if [[ $OLD_HOSTNAME != "$NEW_HOSTNAME" ]]; then
+    hostnamectl set-hostname "$NEW_HOSTNAME" 2>/dev/null ||
+        { echo "$NEW_HOSTNAME" >/etc/hostname; hostname "$NEW_HOSTNAME"; }
+    # Written in place (not sed -i), /etc/hosts may be a mount point
+    sed -E "s/(^|[[:space:]])${OLD_HOSTNAME//./\\.}([[:space:]]|\$)/\1$NEW_HOSTNAME\2/g" /etc/hosts >"$TMP/hosts"
+    cat "$TMP/hosts" >/etc/hosts
+fi
+grep -qE "[[:space:]]${NEW_HOSTNAME//./\\.}([[:space:]]|\$)" /etc/hosts || echo "127.0.1.1 $NEW_HOSTNAME" >>/etc/hosts
+# cloud-init would set the provider's hostname again on the next boot
+if [[ -d /etc/cloud/cloud.cfg.d ]]; then
+    printf '# Managed by env-setup server-setup\npreserve_hostname: true\nmanage_etc_hosts: false\n' \
+        >/etc/cloud/cloud.cfg.d/99-env-setup.cfg
+fi
+echo "  Hostname: $NEW_HOSTNAME"
+
+timedatectl set-timezone "$TIMEZONE" 2>/dev/null || {
+    ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
+    echo "$TIMEZONE" >/etc/timezone
+}
+echo "  Timezone: $(describe_timezone "$TIMEZONE")"
+
+# ---------------- user ----------------
+
+step "Creating user $NEW_USER"
+if id -u "$NEW_USER" >/dev/null 2>&1; then
+    echo "  $NEW_USER already exists."
+else
+    useradd -m -s /bin/bash "$NEW_USER"
+fi
+HOME_DIR=$(getent passwd "$NEW_USER" | cut -d: -f6)
+AUTH_KEYS="$HOME_DIR/.ssh/authorized_keys"
+USER_GROUP=$(id -gn "$NEW_USER")
+
+# No usable password: '!' would make sshd treat the account as locked, '*' does not
+PW_FIELD=$(getent shadow "$NEW_USER" | cut -d: -f2)
+if [[ -z $PW_FIELD || $PW_FIELD == '!'* ]]; then
+    usermod -p '*' "$NEW_USER"
+fi
+chmod go-w "$HOME_DIR"
+
+SUDOERS_FILE="/etc/sudoers.d/90-env-setup-$NEW_USER"
+printf '%s ALL=(ALL) NOPASSWD:ALL\n' "$NEW_USER" >"$TMP/sudoers"
+visudo -cqf "$TMP/sudoers" || die "Generated sudoers entry is invalid."
+install -m 440 "$TMP/sudoers" "$SUDOERS_FILE"
+echo "  Passwordless sudo: $SUDOERS_FILE"
+
+install -d -m 700 -o "$NEW_USER" -g "$USER_GROUP" "$HOME_DIR/.ssh"
+touch "$AUTH_KEYS"
+if [[ -n $PUBKEY ]] && ! grep -qxF "$PUBKEY" "$AUTH_KEYS"; then
+    printf '%s\n' "$PUBKEY" >>"$AUTH_KEYS"
+    echo "  Key added to $AUTH_KEYS"
+fi
+chown "$NEW_USER:$USER_GROUP" "$AUTH_KEYS"
+chmod 600 "$AUTH_KEYS"
+[[ -s $AUTH_KEYS ]] || die "$AUTH_KEYS is empty, $NEW_USER could not log in."
+
+# ---------------- dotfiles and Claude Code ----------------
+
+step "Installing Claude Code for $NEW_USER"
+as_user '[ -x ~/.local/bin/claude ] && echo "  Already installed." || curl -fsSL https://claude.ai/install.sh | bash'
+
+step "Installing dotfiles for $NEW_USER"
+as_user '
+set -e
+mkdir -p ~/tools ~/.config/nvim
+wget -q "'"$BASE_URL"'/update-configs" -O ~/tools/update-configs
+chmod +x ~/tools/update-configs
+grep -q bashrcx ~/.bashrc 2>/dev/null || printf "\n[ -f ~/.bashrcx ] && . ~/.bashrcx\n" >>~/.bashrc
+[ -d ~/.tmux/plugins/tpm ] || git clone -q https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+~/tools/update-configs >/dev/null 2>&1 || ~/tools/update-configs
+echo "  bashrcx, tmux, gitmux, neovim and Claude configs installed, tools in ~/tools"
+'
+
+step "Installing Neovim plugins (may take a few minutes)"
+as_user 'nvim --headless "+Lazy! sync" +qa' >/dev/null 2>&1 ||
+    warn "Neovim plugin install did not finish, it continues when you open nvim."
+
+# ---------------- sshd ----------------
+
+step "Configuring sshd"
+SSHD=$(command -v sshd || echo /usr/sbin/sshd)
+mkdir -p /etc/ssh/sshd_config.d /run/sshd
+
+grep -qE '^[[:space:]]*Include[[:space:]]+/etc/ssh/sshd_config\.d/\*\.conf' /etc/ssh/sshd_config ||
+    sed -i '1i Include /etc/ssh/sshd_config.d/*.conf' /etc/ssh/sshd_config
+
+# Port lines add up (sshd listens on each), so other ones are commented out
+for f in /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf; do
+    [[ -f $f && $f != "$SSHD_DROPIN" ]] || continue
+    if grep -qiE '^[[:space:]]*Port[[:space:]]' "$f"; then
+        [[ -f $f.env-setup.bak ]] || cp -p "$f" "$f.env-setup.bak"
+        sed -i -E 's/^([[:space:]]*[Pp][Oo][Rr][Tt][[:space:]])/# disabled by env-setup: \1/' "$f"
+        echo "  Commented out Port in $f (backup: $f.env-setup.bak)"
+    fi
+done
+
+# For other options sshd takes the first value it reads. 00- sorts first in
+# sshd_config.d, which is included at the top of sshd_config, so these win over
+# overrides like 50-cloud-init.conf (PasswordAuthentication yes).
+[[ -f $SSHD_DROPIN ]] && cp -p "$SSHD_DROPIN" "$TMP/dropin.bak"
+cat >"$SSHD_DROPIN" <<EOF
+# Managed by env-setup server-setup, changes are overwritten when it runs again
+Port $SSH_PORT
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+AuthenticationMethods publickey
+PermitEmptyPasswords no
+AllowUsers $NEW_USER
+MaxAuthTries 3
+X11Forwarding no
+AllowTcpForwarding yes
+ClientAliveInterval 0
+EOF
+chmod 644 "$SSHD_DROPIN"
+
+if ! SSHD_TEST=$("$SSHD" -t 2>&1); then
+    if [[ -f $TMP/dropin.bak ]]; then cp -p "$TMP/dropin.bak" "$SSHD_DROPIN"; else rm -f "$SSHD_DROPIN"; fi
+    die "sshd rejected the configuration, sshd was not reloaded:
+$SSHD_TEST"
+fi
+
+if systemctl is-active --quiet ssh.socket; then
+    systemctl daemon-reload
+    systemctl restart ssh.socket
+else
+    systemctl reload-or-restart ssh 2>/dev/null || systemctl reload-or-restart sshd
+fi
+
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+    ss -Htln "( sport = :$SSH_PORT )" | grep -q . && break
+    sleep 1
+done
+ss -Htln "( sport = :$SSH_PORT )" | grep -q . ||
+    die "sshd does not listen on port $SSH_PORT. The firewall was not changed. Check: journalctl -u ssh"
+echo "  sshd listens on port $SSH_PORT"
+
+# ---------------- firewall ----------------
+
+step "Configuring firewall (ufw)"
+ufw default deny incoming >/dev/null
+ufw default allow outgoing >/dev/null
+ufw allow "$SSH_PORT/tcp" comment ssh >/dev/null
+for p in "${OPEN_PORTS[@]+"${OPEN_PORTS[@]}"}"; do
+    ufw allow "$p/tcp" comment env-setup >/dev/null
+done
+for old in 22/tcp 22 OpenSSH ${PREV_PORT:+$PREV_PORT/tcp}; do
+    [[ $old == "$SSH_PORT/tcp" || " ${OPEN_PORTS[*]:-} " == *" ${old%/tcp} "* ]] && continue
+    ufw delete allow "$old" >/dev/null 2>&1 || true
+done
+ufw --force enable >/dev/null
+ALLOWED="$SSH_PORT/tcp (ssh)"
+for p in "${OPEN_PORTS[@]+"${OPEN_PORTS[@]}"}"; do ALLOWED+=", $p/tcp"; done
+echo "  Allowed: $ALLOWED"
+
+# ---------------- verification ----------------
+
+step "Verifying the effective sshd configuration (sshd -T)"
+EXPECTED=(
+    "port $SSH_PORT"
+    "permitrootlogin no"
+    "passwordauthentication no"
+    "kbdinteractiveauthentication no"
+    "pubkeyauthentication yes"
+    "authenticationmethods publickey"
+    "permitemptypasswords no"
+    "allowusers $NEW_USER"
+    "maxauthtries 3"
+    "x11forwarding no"
+    "allowtcpforwarding yes"
+    "clientaliveinterval 0"
+)
+# -C applies Match blocks, as for a real connection of that user
+for ctx_user in "$NEW_USER" root; do
+    echo "  as user $ctx_user:"
+    if ! cfg=$("$SSHD" -T -C "user=$ctx_user,host=env-setup-check,addr=203.0.113.1" 2>&1); then
+        fail "sshd -T failed: $cfg"
+        continue
+    fi
+    for e in "${EXPECTED[@]}"; do
+        key="${e%% *}" want="${e#* }"
+        got=$(awk -v k="$key" '$1 == k { $1 = ""; sub(/^ +/, ""); print }' <<<"$cfg" | paste -sd ' ' -)
+        if [[ $got == "$want" ]]; then
+            pass "$key $got"
+        else
+            fail "$key: expected '$want', got '${got:-<missing>}'"
+        fi
+    done
+done
+
+step "Verifying that sshd refuses passwords (real login attempt)"
+# Let the test through rules that lock SSH to one IP (dev-setup)
+LO_RULE=0
+iptables -I INPUT 1 -i lo -p tcp --dport "$SSH_PORT" -j ACCEPT 2>/dev/null && LO_RULE=1
+LOGIN_OUT=$(ssh -n -o BatchMode=yes -o PubkeyAuthentication=no -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 -o LogLevel=ERROR \
+    -p "$SSH_PORT" "$NEW_USER@127.0.0.1" true 2>&1) || true
+(( LO_RULE )) && iptables -D INPUT -i lo -p tcp --dport "$SSH_PORT" -j ACCEPT 2>/dev/null || true
+if [[ $LOGIN_OUT == *"Permission denied (publickey)"* ]]; then
+    pass "server offers only publickey: ${LOGIN_OUT//$'\n'/ }"
+else
+    fail "expected 'Permission denied (publickey)', got: ${LOGIN_OUT//$'\n'/ }"
+fi
+
+step "Verifying listening ports"
+if ss -Htln "( sport = :$SSH_PORT )" | grep -q .; then pass "sshd listens on $SSH_PORT"; else fail "nothing listens on $SSH_PORT"; fi
+if ss -Htln "( sport = :22 )" | grep -q .; then fail "something still listens on port 22"; else pass "nothing listens on 22"; fi
+
+step "Verifying firewall"
+UFW_STATUS=$(ufw status)
+if [[ $UFW_STATUS == *"Status: active"* ]]; then pass "ufw is active"; else fail "ufw is not active"; fi
+if [[ $(ufw status verbose) == *"deny (incoming)"* ]]; then pass "incoming denied by default"; else fail "incoming is not denied by default"; fi
+for p in "$SSH_PORT" "${OPEN_PORTS[@]+"${OPEN_PORTS[@]}"}"; do
+    if grep -qE "^$p/tcp +ALLOW" <<<"$UFW_STATUS"; then pass "$p/tcp allowed"; else fail "$p/tcp not allowed"; fi
+done
+if grep -qE '^(22(/tcp)?|OpenSSH)[[:space:]]' <<<"$UFW_STATUS"; then fail "port 22 / OpenSSH still allowed"; else pass "port 22 not allowed"; fi
+
+step "Verifying user $NEW_USER"
+if [[ $(stat -c '%a %U' "$HOME_DIR/.ssh") == "700 $NEW_USER" ]]; then pass "~/.ssh is 700, owned by $NEW_USER"; else fail "~/.ssh: $(stat -c '%a %U' "$HOME_DIR/.ssh"), expected 700 $NEW_USER"; fi
+if [[ $(stat -c '%a %U' "$AUTH_KEYS") == "600 $NEW_USER" ]]; then pass "authorized_keys is 600, owned by $NEW_USER"; else fail "authorized_keys: $(stat -c '%a %U' "$AUTH_KEYS"), expected 600 $NEW_USER"; fi
+if (( (8#$(stat -c '%a' "$HOME_DIR") & 8#022) == 0 )); then pass "home directory not writable by others"; else fail "$HOME_DIR is group/world writable, sshd refuses keys"; fi
+if [[ -n $PUBKEY ]]; then
+    if grep -qxF "$PUBKEY" "$AUTH_KEYS"; then pass "key is in authorized_keys"; else fail "key missing in authorized_keys"; fi
+fi
+if sudo -l -U "$NEW_USER" | grep -q 'NOPASSWD: ALL'; then pass "passwordless sudo"; else fail "no passwordless sudo"; fi
+if [[ -x $HOME_DIR/.local/bin/claude ]]; then pass "Claude Code installed"; else fail "Claude Code missing in ~/.local/bin"; fi
+
+# ---------------- result ----------------
+
+echo
+if (( FAILS )); then
+    printf '%s%d check(s) failed.%s Fix them before you close this root session.\n' "$R" "$FAILS" "$N"
+else
+    printf '%sAll checks passed.%s\n' "$G" "$N"
+fi
+
+echo
+echo "Host key fingerprints (ssh shows one of them on the first connection, they must match):"
+for f in /etc/ssh/ssh_host_*_key.pub; do
+    echo "  $(ssh-keygen -l -f "$f")"
+done
+
+cat <<EOF
+
+${B}Next, on the client${N}, register the server:
+  bash -c "\$(curl -fsSL $BASE_URL/ssh-new-host)"
+    Hostname: ${SERVER_IP:-<server ip>}   User: $NEW_USER   Port: $SSH_PORT
+
+Keep this root session open until you can log in as $NEW_USER from the client.
+Root cannot log in over SSH any more. In tmux, press prefix + I once to install its plugins.
+
+For a development server, log in as $NEW_USER and run:
+  bash -c "\$(wget -qO- $BASE_URL/dev-setup)"
+EOF
+
+(( FAILS == 0 ))

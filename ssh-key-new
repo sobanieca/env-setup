@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+#
+# ssh-key-new — create an SSH key for a server and print its public key
+#
+# Runs on the client machine (the one you connect from). Needs only bash and
+# OpenSSH (Linux, macOS, WSL, Git Bash).
+
+set -euo pipefail
+
+KEY_DIR="$HOME/.secret/ssh-keys"
+
+usage() {
+    cat <<'EOF'
+ssh-key-new — create an SSH key for a server and print its public key
+
+Usage:
+  ssh-key-new [NAME]    NAME of the server, e.g. machine1 (asked if missing)
+
+Creates an ed25519 key pair:
+  ~/.secret/ssh-keys/NAME-key       private key: keep it, back it up, never share it
+  ~/.secret/ssh-keys/NAME-key.pub   public key
+
+The public key (one line) is the only thing written to stdout. Paste it into
+server-setup when it asks for the key. Everything else goes to stderr.
+If the key already exists, it is not overwritten, its public key is printed again.
+EOF
+    exit "${1:-0}"
+}
+
+NAME="${1:-}"
+case "$NAME" in
+    -h|--help) usage 0 ;;
+esac
+
+while ! [[ $NAME =~ ^[A-Za-z0-9_-]+$ ]]; do
+    [[ -n $NAME ]] && echo "  Use letters, digits, '-' and '_' only." >&2
+    read -r -p "Server name (e.g. machine1): " NAME
+done
+
+KEY="$KEY_DIR/$NAME-key"
+
+mkdir -p "$KEY_DIR"
+chmod 700 "$HOME/.secret" "$KEY_DIR"
+
+if [[ -f $KEY ]]; then
+    echo "Key $KEY already exists, not overwriting it." >&2
+    [[ -f $KEY.pub ]] || ssh-keygen -y -f "$KEY" >"$KEY.pub"
+else
+    echo "Creating $KEY (a passphrase is optional, press Enter to skip it)" >&2
+    ssh-keygen -t ed25519 -C "$NAME" -f "$KEY" >&2
+fi
+chmod 600 "$KEY"
+
+{
+    echo
+    echo "Private key: $KEY"
+    echo "  Back it up and do not share it. ssh-new-host uses it by default for '$NAME'."
+    echo "  To connect from another client, copy this file to ~/.secret/ssh-keys/ there"
+    echo "  (chmod 600 it), then run ssh-new-host on that client."
+    echo
+    echo "Public key (paste this line into server-setup):"
+} >&2
+cat "$KEY.pub"

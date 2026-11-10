@@ -1,0 +1,386 @@
+#!/usr/bin/env bash
+#
+# dev-setup — development tools on a server prepared by server-setup
+#
+# Run as the user created by server-setup (not root).
+#
+# Usage:
+#   dev-setup [options]    Asks for every value not given as an option
+#
+# Options:
+#   --name "Full Name"     git user.name
+#   --email EMAIL          git user.email
+#   --no-lock-ip           do not lock SSH to the IP of the current login
+#   --no-claude-services   do not set up claude-rc-service and claude-ping-cron
+#   -y, --yes              do not ask for confirmation
+#
+# Steps:
+#   - git identity, GitHub CLI and its login (also used as git credentials)
+#   - Docker, with published ports bound to 127.0.0.1 instead of 0.0.0.0
+#   - jsonr, sqlr, remote-file-manager (rfm) and todoer
+#   - lock SSH to the IP of the current login (block in ~/.bashrc)
+#   - Claude Code login, claude-rc-service and claude-ping-cron for ~/code
+#   - verify the result, including where Docker publishes ports
+#
+# Safe to run again.
+
+set -euo pipefail
+
+BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master"
+LOCK_BEGIN="# >>> env-setup: lock-ssh-ip >>>"
+LOCK_END="# <<< env-setup: lock-ssh-ip <<<"
+CODE_DIR="$HOME/code"
+
+if [[ -t 1 ]]; then
+    B=$'\e[1m' R=$'\e[31m' G=$'\e[32m' Y=$'\e[33m' N=$'\e[0m'
+else
+    B="" R="" G="" Y="" N=""
+fi
+
+step() { printf '\n%s==> %s%s\n' "$B" "$*" "$N"; }
+warn() { printf '%sWarning:%s %s\n' "$Y" "$N" "$*" >&2; }
+die() { printf '%sError:%s %s\n' "$R" "$N" "$*" >&2; exit 1; }
+
+FAILS=0
+pass() { printf '  %sOK%s    %s\n' "$G" "$N" "$*"; }
+fail() { printf '  %sFAIL%s  %s\n' "$R" "$N" "$*"; FAILS=$((FAILS + 1)); }
+
+usage() {
+    cat <<'EOF'
+dev-setup — development tools on a server prepared by server-setup
+
+Run as the user created by server-setup (not root).
+
+Usage:
+  dev-setup [options]    Asks for every value not given as an option
+
+Options:
+  --name "Full Name"     git user.name
+  --email EMAIL          git user.email
+  --no-lock-ip           do not lock SSH to the IP of the current login
+  --no-claude-services   do not set up claude-rc-service and claude-ping-cron
+  -y, --yes              do not ask for confirmation
+
+Safe to run again.
+EOF
+    exit "${1:-0}"
+}
+
+# ask VAR "Prompt" [default]
+ask() {
+    local __var="$1" __prompt="$2" __default="${3:-}" __reply
+    if [[ -n $__default ]]; then
+        read -r -e -p "$__prompt [$__default]: " __reply
+        __reply="${__reply:-$__default}"
+    else
+        read -r -e -p "$__prompt: " __reply
+    fi
+    printf -v "$__var" '%s' "$__reply"
+}
+
+confirm() {
+    local reply
+    read -r -p "$1 [Y/n]: " reply
+    [[ -z $reply || $reply =~ ^[Yy] ]]
+}
+
+# ---------------- arguments ----------------
+
+GIT_NAME="" GIT_EMAIL="" LOCK_IP="" CLAUDE_SERVICES="" ASSUME_YES=0
+
+while (( $# )); do
+    case "$1" in
+        --name) [[ -n ${2:-} ]] || die "$1 needs a value."; GIT_NAME="$2"; shift 2 ;;
+        --email) [[ -n ${2:-} ]] || die "$1 needs a value."; GIT_EMAIL="$2"; shift 2 ;;
+        --no-lock-ip) LOCK_IP=no; shift ;;
+        --no-claude-services) CLAUDE_SERVICES=no; shift ;;
+        -y|--yes) ASSUME_YES=1; shift ;;
+        -h|--help) usage 0 ;;
+        *) echo "Unknown argument '$1'." >&2; usage 1 ;;
+    esac
+done
+
+[[ $(. /etc/os-release 2>/dev/null && echo "$ID") == debian ]] || die "This script supports Debian only."
+[[ $EUID -ne 0 ]] || die "Run as the user created by server-setup, not as root."
+sudo -n true 2>/dev/null || die "$USER needs passwordless sudo (server-setup sets it up)."
+[[ -x $HOME/tools/update-configs ]] || die "Run server-setup first (~/tools/update-configs is missing)."
+
+export PATH="$HOME/.local/bin:$HOME/tools:$PATH"
+
+SSH_PORT=$(sudo sshd -T 2>/dev/null | awk '$1 == "port" { print $2; exit }')
+[[ -n $SSH_PORT ]] || die "Could not read the SSH port from 'sshd -T'."
+
+# ---------------- questions ----------------
+
+echo "${B}dev-setup${N}: answer the questions, then it runs until the GitHub and Claude logins."
+echo
+
+until [[ -n $GIT_NAME ]]; do
+    ask GIT_NAME "git user.name" "$(git config --global user.name || true)"
+done
+until [[ $GIT_EMAIL == *?@?* ]]; do
+    [[ -n $GIT_EMAIL ]] && echo "  Not an email address." >&2
+    ask GIT_EMAIL "git user.email" "$(git config --global user.email || true)"
+done
+
+if [[ -z $LOCK_IP ]]; then
+    echo
+    echo "Lock SSH to your current IP: each SSH login adds firewall rules that accept"
+    echo "port $SSH_PORT only from the IP you logged in from. A reboot removes them. If"
+    echo "your IP changes, reboot the server from the provider's panel and log in again."
+    if confirm "Lock SSH to the IP of each login?"; then LOCK_IP=yes; else LOCK_IP=no; fi
+fi
+
+if [[ -z $CLAUDE_SERVICES ]]; then
+    echo
+    echo "Claude services for $CODE_DIR: claude-rc-service keeps Claude Remote Control running"
+    echo "after reboots, claude-ping-cron starts the 5-hour usage window at fixed hours."
+    echo "You log in to Claude Code once during the setup."
+    if confirm "Set them up?"; then CLAUDE_SERVICES=yes; else CLAUDE_SERVICES=no; fi
+fi
+
+echo
+echo "${B}Summary${N}"
+echo "  git:           $GIT_NAME <$GIT_EMAIL>"
+echo "  Lock SSH IP:   $LOCK_IP (port $SSH_PORT)"
+echo "  Claude:        $CLAUDE_SERVICES (claude-rc-service, claude-ping-cron in $CODE_DIR)"
+echo "  Installs:      GitHub CLI, Docker (ports on 127.0.0.1), jsonr, sqlr, rfm, todoer"
+echo
+if (( ! ASSUME_YES )); then
+    confirm "Continue?" || { echo "Aborted, nothing changed."; exit 1; }
+fi
+
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
+export DEBIAN_FRONTEND=noninteractive
+APT=(sudo -E apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold)
+
+step "Installing packages"
+sudo apt-get update
+"${APT[@]}" install ca-certificates curl gnupg git jq cron
+
+# ---------------- git ----------------
+
+step "Configuring git"
+git config --global user.name "$GIT_NAME"
+git config --global user.email "$GIT_EMAIL"
+git config --global pull.ff only
+git config --global stash.showIncludeUntracked true
+echo "  $GIT_NAME <$GIT_EMAIL>"
+
+# ---------------- GitHub CLI ----------------
+
+step "Installing GitHub CLI"
+sudo install -d -m 755 /etc/apt/keyrings
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg -o "$TMP/gh.gpg"
+sudo install -m 644 "$TMP/gh.gpg" /etc/apt/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" |
+    sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+sudo apt-get update
+"${APT[@]}" install gh
+
+# ---------------- Docker ----------------
+
+step "Installing Docker"
+. /etc/os-release
+sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/debian
+Suites: $VERSION_CODENAME
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+sudo apt-get update
+"${APT[@]}" install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker "$USER"
+
+step "Configuring Docker: published ports on 127.0.0.1, log rotation"
+# Docker writes its own iptables rules, ufw does not filter published ports.
+# "ip" makes '-p 8080:80' bind to 127.0.0.1. To expose a port, give the
+# address explicitly: -p 0.0.0.0:8080:80
+cat >"$TMP/daemon.json" <<'EOF'
+{
+  "ip": "127.0.0.1",
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+EOF
+if [[ -f /etc/docker/daemon.json ]] && ! cmp -s "$TMP/daemon.json" /etc/docker/daemon.json; then
+    sudo cp -p /etc/docker/daemon.json /etc/docker/daemon.json.env-setup.bak
+    echo "  Previous /etc/docker/daemon.json saved as daemon.json.env-setup.bak"
+fi
+sudo install -D -m 644 "$TMP/daemon.json" /etc/docker/daemon.json
+if dockerd --help 2>/dev/null | grep -q -- '--validate'; then
+    sudo dockerd --validate --config-file /etc/docker/daemon.json >/dev/null ||
+        die "dockerd rejected /etc/docker/daemon.json"
+fi
+sudo systemctl enable docker >/dev/null 2>&1
+sudo systemctl restart docker
+
+# ---------------- tools ----------------
+
+for tool in jsonr sqlr remote-file-manager todoer; do
+    step "Installing $tool"
+    curl -fsSL "https://sobanieca.github.io/$tool/install.sh" | sudo bash
+done
+
+# ---------------- lock SSH to the login IP ----------------
+
+step "Lock SSH to the login IP: $LOCK_IP"
+touch ~/.bashrc
+sed -i "\|^$LOCK_BEGIN\$|,\|^$LOCK_END\$|d" ~/.bashrc
+if [[ $LOCK_IP == yes ]]; then
+    {
+        echo "$LOCK_BEGIN"
+        sed "s/@SSH_PORT@/$SSH_PORT/" <<'EOF'
+# Accept SSH only from the IP of this login, written by env-setup dev-setup.
+# iptables/ip6tables rules, not persistent: after a reboot ufw's allow rule
+# applies again. Locked out after an IP change? Reboot from the provider panel.
+# Skipped inside tmux, where SSH_CONNECTION can belong to an older login.
+__env_setup_lock_ssh_ip() {
+    local port=@SSH_PORT@ my_ip my_fw other_fw fw rule
+    my_ip=${SSH_CONNECTION%% *}
+    [ -n "$my_ip" ] && [ -z "${TMUX:-}" ] || return 0
+    case "$my_ip" in
+        *:*) my_fw=ip6tables; other_fw=iptables ;;
+        *) my_fw=iptables; other_fw=ip6tables ;;
+    esac
+    if sudo -n "$my_fw" -C INPUT -p tcp --dport "$port" -s "$my_ip" -j ACCEPT 2>/dev/null &&
+        sudo -n "$other_fw" -C INPUT -p tcp --dport "$port" -j DROP 2>/dev/null; then
+        return 0
+    fi
+    for fw in iptables ip6tables; do
+        sudo -n "$fw" -S INPUT | grep -E -- "--dport $port( |\$)" | sed 's/^-A/-D/' |
+            while read -r rule; do sudo -n "$fw" $rule; done
+    done
+    sudo -n "$my_fw" -I INPUT 1 -p tcp --dport "$port" -s "$my_ip" -j ACCEPT
+    sudo -n "$my_fw" -I INPUT 2 -p tcp --dport "$port" -j DROP
+    sudo -n "$other_fw" -I INPUT 1 -p tcp --dport "$port" -j DROP
+}
+__env_setup_lock_ssh_ip
+unset -f __env_setup_lock_ssh_ip
+EOF
+        echo "$LOCK_END"
+    } >>~/.bashrc
+    echo "  Added to ~/.bashrc, active from the next login."
+else
+    echo "  Not used (block removed from ~/.bashrc if it was there)."
+fi
+
+# ---------------- GitHub login ----------------
+
+step "GitHub login (also used as git credentials)"
+if gh auth status >/dev/null 2>&1; then
+    echo "  Already logged in."
+else
+    echo "  Choose the browser login: open the URL on any device and enter the code."
+    gh auth login --hostname github.com --git-protocol https --web || warn "GitHub login failed, run later: gh auth login && gh auth setup-git"
+fi
+gh auth status >/dev/null 2>&1 && gh auth setup-git
+
+# ---------------- Claude services ----------------
+
+claude_ready() {
+    [[ -f $HOME/.claude/.credentials.json ]] &&
+        jq -e --arg d "$CODE_DIR" '.projects[$d].hasTrustDialogAccepted == true' "$HOME/.claude.json" >/dev/null 2>&1
+}
+
+if [[ $CLAUDE_SERVICES == yes ]]; then
+    step "Claude Code: login, claude-rc-service, claude-ping-cron"
+    mkdir -p "$CODE_DIR"
+    command -v claude >/dev/null || die "claude not found, run server-setup first."
+    CLAUDE_OK=1
+    if ! claude_ready; then
+        echo "  Claude Code starts in $CODE_DIR now. Log in, accept the trust dialog"
+        echo "  for $CODE_DIR, then type /exit to continue here."
+        read -r -p "  Press Enter to start Claude Code..."
+        (cd "$CODE_DIR" && claude) || true
+        claude_ready || confirm "Did you log in and trust $CODE_DIR?" || CLAUDE_OK=0
+    fi
+    if (( CLAUDE_OK )); then
+        # ~/code holds several repos and is not a git repository itself, which worktree mode needs
+        claude-rc-service -s same-dir "$CODE_DIR"
+        claude-ping-cron -d "$CODE_DIR"
+    else
+        warn "Skipped. Later run: claude (in $CODE_DIR), then claude-rc-service -s same-dir $CODE_DIR && claude-ping-cron -d $CODE_DIR"
+    fi
+fi
+
+# ---------------- verification ----------------
+
+step "Verifying"
+for cmd in git gh node docker nvim claude; do
+    if command -v "$cmd" >/dev/null; then
+        pass "$cmd $("$cmd" --version 2>/dev/null | head -n 1 || true)"
+    else
+        fail "$cmd not found"
+    fi
+done
+for cmd in jsonr sqlr rfm todoer; do
+    if command -v "$cmd" >/dev/null; then pass "$cmd installed"; else fail "$cmd not found"; fi
+done
+
+if [[ -n $(git config --global user.name) && -n $(git config --global user.email) ]]; then
+    pass "git identity: $(git config --global user.name) <$(git config --global user.email)>"
+else
+    fail "git user.name / user.email not set"
+fi
+if gh auth status >/dev/null 2>&1; then pass "GitHub CLI logged in"; else fail "GitHub CLI not logged in (gh auth login && gh auth setup-git)"; fi
+
+if systemctl is-active --quiet docker; then pass "docker service running"; else fail "docker service not running"; fi
+if id -nG "$USER" | tr ' ' '\n' | grep -qx docker; then pass "$USER in docker group (active after the next login)"; else fail "$USER not in docker group"; fi
+if [[ $(jq -r '.ip // empty' /etc/docker/daemon.json 2>/dev/null) == 127.0.0.1 ]]; then pass "daemon.json: \"ip\": \"127.0.0.1\""; else fail "daemon.json has no \"ip\": \"127.0.0.1\""; fi
+
+# A real container with -p and no address must end up on 127.0.0.1 only
+CHECK_PORT=18765 CHECK_NAME=env-setup-port-check
+sudo docker rm -f "$CHECK_NAME" >/dev/null 2>&1 || true
+if sudo docker run -d --rm --name "$CHECK_NAME" -p "$CHECK_PORT:80" busybox sleep 60 >/dev/null 2>"$TMP/docker.err"; then
+    sleep 1
+    ADDRS=$(ss -Htln "( sport = :$CHECK_PORT )" | awk '{ print $4 }' | paste -sd ' ' -)
+    NAT=$(sudo iptables -t nat -S DOCKER 2>/dev/null | grep -- "--dport $CHECK_PORT " || true)
+    sudo docker rm -f "$CHECK_NAME" >/dev/null 2>&1 || true
+    if [[ -n $ADDRS ]]; then
+        if grep -qvE '^(127\.0\.0\.1|\[::1\]):' <<<"${ADDRS// /$'\n'}"; then
+            fail "-p $CHECK_PORT:80 is published on: $ADDRS"
+        else
+            pass "-p $CHECK_PORT:80 is published only on: $ADDRS"
+        fi
+    elif [[ -n $NAT ]]; then
+        if [[ $NAT == *"-d 127.0.0.1/32"* ]]; then pass "-p $CHECK_PORT:80 forwarded only for 127.0.0.1"; else fail "-p $CHECK_PORT:80 forwarded for: $NAT"; fi
+    else
+        fail "could not see where -p $CHECK_PORT:80 was published"
+    fi
+else
+    fail "test container did not start: $(tail -n 1 "$TMP/docker.err")"
+fi
+
+if [[ $LOCK_IP == yes ]]; then
+    if grep -qxF "$LOCK_BEGIN" ~/.bashrc; then pass "SSH IP lock in ~/.bashrc (port $SSH_PORT)"; else fail "SSH IP lock missing in ~/.bashrc"; fi
+fi
+if [[ $CLAUDE_SERVICES == yes ]]; then
+    if systemctl --user is-active --quiet claude-rc; then pass "claude-rc service running"; else fail "claude-rc service not running (journalctl --user -u claude-rc)"; fi
+    if crontab -l 2>/dev/null | grep -q '^# >>> claude-ping-cron >>>'; then pass "claude-ping-cron jobs registered"; else fail "claude-ping-cron jobs missing"; fi
+fi
+
+echo
+if (( FAILS )); then
+    printf '%s%d check(s) failed.%s\n' "$R" "$FAILS" "$N"
+else
+    printf '%sAll checks passed.%s\n' "$G" "$N"
+fi
+echo
+echo "Next:"
+if [[ $LOCK_IP == yes ]]; then
+    echo "  - Log out and log in again, so docker works without sudo and SSH gets locked to your IP."
+else
+    echo "  - Log out and log in again, so docker works without sudo."
+fi
+echo "  - In tmux press prefix + I once to install the tmux plugins."
+
+(( FAILS == 0 ))
