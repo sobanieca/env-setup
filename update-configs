@@ -14,12 +14,6 @@ if [ ! -d "$HOME/.config" ]; then
     echo ".config directory created."
 fi
 
-if [ ! -d "$HOME/.config/nvim" ]; then
-    echo "Creating .config/nvim directory..."
-    mkdir $HOME/.config/nvim
-    echo ".config/nvim directory created."
-fi
-
 echo "Updating .bashrcx file..."
 wget $BASE_URL"bashrcx" -O $HOME/.bashrcx
 echo ".bashrcx file updated."
@@ -32,17 +26,29 @@ echo "Updating gitmux.conf file..."
 wget $BASE_URL"gitmux.conf" -O $HOME/.config/.gitmux.conf
 echo "gitmux.conf file replaced."
 
-echo "Updating nvim/init.lua..."
-wget $BASE_URL"nvim-init.lua" -O $HOME/.config/nvim/init.lua
-echo "nvim/init.lua updated."
+# Neovim is optional (installed by neovim-setup), the server's editor is yate
+if command -v nvim >/dev/null 2>&1; then
+    mkdir -p $HOME/.config/nvim
 
-echo "Updating nvim/legacy.vim..."
-wget $BASE_URL"nvim-legacy.vim" -O $HOME/.config/nvim/legacy.vim
-echo "nvim/legacy.vim updated."
+    echo "Updating nvim/init.lua..."
+    wget $BASE_URL"nvim-init.lua" -O $HOME/.config/nvim/init.lua
+    echo "nvim/init.lua updated."
 
-echo "Updating coc-settings.json..."
-wget $BASE_URL"coc-settings.json" -O $HOME/.config/nvim/coc-settings.json
-echo "coc-settings json updated"
+    echo "Updating nvim/legacy.vim..."
+    wget $BASE_URL"nvim-legacy.vim" -O $HOME/.config/nvim/legacy.vim
+    echo "nvim/legacy.vim updated."
+
+    echo "Updating coc-settings.json..."
+    wget $BASE_URL"coc-settings.json" -O $HOME/.config/nvim/coc-settings.json
+    echo "coc-settings json updated"
+
+    echo "Updating rm-nvim-bookmarks tool"
+    wget $BASE_URL"rm-nvim-bookmarks" -O $HOME/tools/rm-nvim-bookmarks
+    chmod +x $HOME/tools/rm-nvim-bookmarks
+    echo "rm-nvim-bookmarks tool updated"
+else
+    echo "nvim not installed, skipping the neovim configs (see neovim-setup)."
+fi
 
 echo "Updating ports tool"
 wget $BASE_URL"ports" -O $HOME/tools/ports
@@ -68,11 +74,6 @@ echo "Updating gsquash tool"
 wget $BASE_URL"gsquash" -O $HOME/tools/gsquash
 chmod +x $HOME/tools/gsquash
 echo "gsquash tool updated"
-
-echo "Updating rm-nvim-bookmarks tool"
-wget $BASE_URL"rm-nvim-bookmarks" -O $HOME/tools/rm-nvim-bookmarks
-chmod +x $HOME/tools/rm-nvim-bookmarks
-echo "rm-nvim-bookmarks tool updated"
 
 echo "Updating gpush tool"
 wget $BASE_URL"gpush" -O $HOME/tools/gpush

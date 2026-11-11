@@ -2,15 +2,16 @@
 
 ## Updating the dotfiles
 
-`update-configs` (in `~/tools`) downloads the latest `bashrcx`, tmux, gitmux, neovim and Claude configs and the tools
-from this repository. In a local clone, `./sync` copies them from the working tree instead.
+`update-configs` (in `~/tools`) downloads the latest `bashrcx`, tmux, gitmux and Claude configs and the tools from this
+repository, and the neovim configs when `nvim` is installed (see `neovim-setup`). In a local clone, `./sync` copies them
+from the working tree instead.
 
 ## Server
 
 ### Re-running the setup scripts
 
 `server-setup` and `dev-setup` can run again, e.g. to change the SSH port or the timezone. `server-setup` keeps the
-previous user and port as defaults.
+previous user and port as defaults. `neovim-setup` can run again too, it updates Neovim to the latest release.
 
 ### Open or close ports
 

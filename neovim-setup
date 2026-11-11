@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+#
+# neovim-setup — Neovim with its configs and plugins
+#
+# Optional: server-setup installs the yate editor, this script adds Neovim next
+# to it. Run as the user created by server-setup (not root).
+#
+# Usage:
+#   neovim-setup
+#
+# Steps:
+#   - install the packages Neovim and its plugins need (git, build tools, ripgrep)
+#   - install the latest Neovim release to /opt, linked as /usr/local/bin/nvim
+#   - install the configs to ~/.config/nvim and the rm-nvim-bookmarks tool
+#   - install the plugins
+#   - verify the result
+#
+# With nvim installed, update-configs keeps the Neovim configs up to date and
+# ~/.bashrcx sets EDITOR to nvim (from the next login).
+#
+# Safe to run again, it also updates Neovim to the latest release.
+
+set -euo pipefail
+
+BASE_URL="https://raw.githubusercontent.com/sobanieca/env-setup/master"
+
+if [[ -t 1 ]]; then
+    B=$'\e[1m' R=$'\e[31m' G=$'\e[32m' Y=$'\e[33m' N=$'\e[0m'
+else
+    B="" R="" G="" Y="" N=""
+fi
+
+step() { printf '\n%s==> %s%s\n' "$B" "$*" "$N"; }
+warn() { printf '%sWarning:%s %s\n' "$Y" "$N" "$*" >&2; }
+die() { printf '%sError:%s %s\n' "$R" "$N" "$*" >&2; exit 1; }
+
+FAILS=0
+pass() { printf '  %sOK%s    %s\n' "$G" "$N" "$*"; }
+fail() { printf '  %sFAIL%s  %s\n' "$R" "$N" "$*"; FAILS=$((FAILS + 1)); }
+
+usage() {
+    cat <<'EOF'
+neovim-setup — Neovim with its configs and plugins
+
+Optional: server-setup installs the yate editor, this script adds Neovim next
+to it. Run as the user created by server-setup (not root).
+
+Usage:
+  neovim-setup
+
+Safe to run again, it also updates Neovim to the latest release.
+EOF
+    exit "${1:-0}"
+}
+
+while (( $# )); do
+    case "$1" in
+        -h|--help) usage 0 ;;
+        *) echo "Unknown argument '$1'." >&2; usage 1 ;;
+    esac
+done
+
+[[ $(. /etc/os-release 2>/dev/null && echo "$ID") == debian ]] || die "This script supports Debian only."
+[[ $EUID -ne 0 ]] || die "Run as your user, not as root (the configs go to your home directory)."
+sudo -n true 2>/dev/null || die "$USER needs passwordless sudo (server-setup sets it up)."
+
+case "$(dpkg --print-architecture)" in
+    amd64) NVIM_ARCH=x86_64 ;;
+    arm64) NVIM_ARCH=arm64 ;;
+    *) die "Unsupported architecture $(dpkg --print-architecture) (amd64 and arm64 only)." ;;
+esac
+
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
+export DEBIAN_FRONTEND=noninteractive
+APT=(sudo -E apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold)
+
+step "Installing packages"
+sudo apt-get update
+"${APT[@]}" install ca-certificates curl git build-essential ripgrep
+command -v node >/dev/null ||
+    warn "Node.js not found, coc.nvim (completion) needs it. server-setup installs it."
+
+step "Installing Neovim"
+curl -fsSL -o "$TMP/nvim.tar.gz" "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-$NVIM_ARCH.tar.gz"
+sudo rm -rf "/opt/nvim-linux-$NVIM_ARCH"
+sudo tar -C /opt -xzf "$TMP/nvim.tar.gz"
+sudo ln -sf "/opt/nvim-linux-$NVIM_ARCH/bin/nvim" /usr/local/bin/nvim
+
+step "Installing Neovim configs"
+mkdir -p ~/.config/nvim ~/tools
+curl -fsSL "$BASE_URL/nvim-init.lua" -o ~/.config/nvim/init.lua
+curl -fsSL "$BASE_URL/nvim-legacy.vim" -o ~/.config/nvim/legacy.vim
+curl -fsSL "$BASE_URL/coc-settings.json" -o ~/.config/nvim/coc-settings.json
+curl -fsSL "$BASE_URL/rm-nvim-bookmarks" -o ~/tools/rm-nvim-bookmarks
+chmod +x ~/tools/rm-nvim-bookmarks
+echo "  ~/.config/nvim: init.lua, legacy.vim, coc-settings.json"
+
+step "Installing Neovim plugins (may take a few minutes)"
+nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1 ||
+    warn "Neovim plugin install did not finish, it continues when you open nvim."
+
+step "Verifying"
+if command -v nvim >/dev/null; then
+    pass "nvim $(nvim --version 2>/dev/null | head -n 1 || true)"
+else
+    fail "nvim not found"
+fi
+for f in init.lua legacy.vim coc-settings.json; do
+    if [[ -s $HOME/.config/nvim/$f ]]; then pass "~/.config/nvim/$f"; else fail "~/.config/nvim/$f missing"; fi
+done
+if [[ -d $HOME/.local/share/nvim/lazy/lazy.nvim ]]; then pass "plugins installed"; else fail "plugins not installed, open nvim to install them"; fi
+
+echo
+if (( FAILS )); then
+    printf '%s%d check(s) failed.%s\n' "$R" "$FAILS" "$N"
+else
+    printf '%sAll checks passed.%s\n' "$G" "$N"
+fi
+echo
+echo "Next:"
+echo "  - Log out and log in again, so EDITOR is nvim."
+echo "  - Open nvim once, coc.nvim installs its extensions on the first start."
+
+(( FAILS == 0 ))

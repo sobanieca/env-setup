@@ -3,16 +3,20 @@
 cp ./bashrcx ~/.bashrcx
 cp ./tmux.conf ~/.tmux.conf
 cp ./gitmux.conf ~/.gitmux.conf
-cp ./nvim-init.lua ~/.config/nvim/init.lua
-cp ./nvim-legacy.vim ~/.config/nvim/legacy.vim
-cp ./coc-settings.json ~/.config/nvim/coc-settings.json
+# Neovim is optional (installed by neovim-setup)
+if command -v nvim >/dev/null 2>&1; then
+    mkdir -p ~/.config/nvim
+    cp ./nvim-init.lua ~/.config/nvim/init.lua
+    cp ./nvim-legacy.vim ~/.config/nvim/legacy.vim
+    cp ./coc-settings.json ~/.config/nvim/coc-settings.json
+    cp ./rm-nvim-bookmarks ~/tools/rm-nvim-bookmarks
+fi
 cp ./ports ~/tools/ports
 cp ./debinfo ~/tools/debinfo
 cp ./gshow ~/tools/gshow
 cp ./gblame ~/tools/gblame
 cp ./gsquash ~/tools/gsquash
 cp ./gpush ~/tools/gpush
-cp ./rm-nvim-bookmarks ~/tools/rm-nvim-bookmarks
 cp ./update-configs ~/tools/update-configs
 cp ./claude-rc-service ~/tools/claude-rc-service
 cp ./claude-ping-cron ~/tools/claude-ping-cron

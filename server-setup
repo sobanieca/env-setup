@@ -19,10 +19,10 @@
 #
 # Steps:
 #   - upgrade packages, install tmux, atop, htop, git (no credentials), the yate
-#     editor, Node.js, gitmux and other basic tools (dev-setup adds neovim)
+#     editor, Node.js, gitmux and other basic tools (neovim-setup adds neovim)
 #   - set hostname and timezone
 #   - create the user with the key and passwordless sudo
-#   - install the dotfiles (tmux, bash, neovim configs) and Claude Code for the user
+#   - install the dotfiles (tmux, bash configs) and Claude Code for the user
 #   - sshd: new port, key only, no root login (/etc/ssh/sshd_config.d/00-env-setup.conf)
 #   - ufw: allow only the SSH port and the extra ports
 #   - verify the effective sshd configuration, that password login is refused,
@@ -437,13 +437,13 @@ as_user '[ -x ~/.local/bin/claude ] && echo "  Already installed." || curl -fsSL
 step "Installing dotfiles for $NEW_USER"
 as_user '
 set -e
-mkdir -p ~/tools ~/.config/nvim
+mkdir -p ~/tools ~/.config
 wget -q "'"$BASE_URL"'/update-configs" -O ~/tools/update-configs
 chmod +x ~/tools/update-configs
 grep -q bashrcx ~/.bashrc 2>/dev/null || printf "\n[ -f ~/.bashrcx ] && . ~/.bashrcx\n" >>~/.bashrc
 [ -d ~/.tmux/plugins/tpm ] || git clone -q https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ~/tools/update-configs >/dev/null 2>&1 || ~/tools/update-configs
-echo "  bashrcx, tmux, gitmux, neovim and Claude configs installed, tools in ~/tools"
+echo "  bashrcx, tmux, gitmux and Claude configs installed, tools in ~/tools"
 '
 
 # ---------------- sshd ----------------
@@ -622,8 +622,11 @@ ${B}Next, on the client${N}, register the server:
 Keep this root session open until you can log in as $NEW_USER from the client.
 Root cannot log in over SSH any more. In tmux, press prefix + I once to install its plugins.
 
-For a development server (adds neovim, Docker, GitHub CLI), log in as $NEW_USER and run:
+For a development server (adds Docker, GitHub CLI), log in as $NEW_USER and run:
   bash -c "\$(wget -qO- $BASE_URL/dev-setup)"
+
+The editor is yate. For Neovim with its configs and plugins, run as $NEW_USER:
+  bash -c "\$(wget -qO- $BASE_URL/neovim-setup)"
 EOF
 
 (( FAILS == 0 ))

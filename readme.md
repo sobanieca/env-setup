@@ -51,10 +51,18 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/sobanieca/env-setup/mast
 bash -c "$(wget -qO- https://raw.githubusercontent.com/sobanieca/env-setup/master/dev-setup)"
 ```
 
-Sets your git name and email, installs Neovim with its plugins and the GitHub CLI and logs you in (also used as git
-credentials), installs Docker with published ports bound to `127.0.0.1`, plus jsonr, sqlr, rfm and todoer, locks SSH to
-the IP you log in from, and sets up `claude-rc-service` and `claude-ping-cron` in `~/code`. Log out and in again when it
-is done.
+Sets your git name and email, installs the GitHub CLI and logs you in (also used as git credentials), installs Docker
+with published ports bound to `127.0.0.1`, plus jsonr, sqlr, rfm and todoer, locks SSH to the IP you log in from, and
+sets up `claude-rc-service` and `claude-ping-cron` in `~/code`. Log out and in again when it is done.
+
+## Neovim (optional, as the new user)
+
+```bash
+bash -c "$(wget -qO- https://raw.githubusercontent.com/sobanieca/env-setup/master/neovim-setup)"
+```
+
+The server's editor is yate. This adds Neovim next to it: the latest release, its configs in `~/.config/nvim` and its
+plugins. From then on `update-configs` also updates the Neovim configs and `EDITOR` is `nvim` after the next login.
 
 ## Termux
 
