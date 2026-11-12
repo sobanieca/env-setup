@@ -227,7 +227,7 @@ sudo systemctl restart docker
 
 for tool in jsonr sqlr remote-file-manager todoer; do
     step "Installing $tool"
-    curl -fsSL "https://sobanieca.github.io/$tool/install.sh" | sudo bash
+    curl -fsSL "https://adam.sobaniec.com/$tool/install.sh" | sudo bash
 done
 
 # ---------------- lock SSH to the login IP ----------------

@@ -360,7 +360,7 @@ esac
 
 step "Installing the yate editor"
 # Installs the single yate binary to /usr/local/bin, update later with: sudo yate update
-curl -fsSL https://sobanieca.github.io/yate/install.sh -o "$TMP/yate-install.sh"
+curl -fsSL https://adam.sobaniec.com/yate/install.sh -o "$TMP/yate-install.sh"
 bash "$TMP/yate-install.sh"
 
 step "Installing gitmux $GITMUX_VERSION"
